@@ -1,9 +1,8 @@
 from ..BaseHandler import TaskMaterialHandler
-from .....models.TaskMaterials.TextTaskMaterial import TextTaskMaterial, TextMetadata
-
 from ....MetaDataInference.TextMetaDataInferenceHandlers.TextMetricsHandler import (
     TextMetricsHandler,
 )
+from .....models.TaskMaterials.TextTaskMaterial import TextTaskMaterial, TextMetadata
 
 
 class TextMaterialHandler(TaskMaterialHandler):

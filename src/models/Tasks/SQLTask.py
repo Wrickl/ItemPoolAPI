@@ -1,3 +1,5 @@
+from typing import List
+
 from .BaseTask import (
     TaskStimulus,
     TaskSolutions,
@@ -5,12 +7,11 @@ from .BaseTask import (
     TaskRegistrationRequestObject,
     TaskType,
 )
-from ..TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
-from ..TaskMaterials.InstructionTaskMaterial import InstructionTaskMaterial
-from ..TaskMaterials.TextTaskMaterial import TextTaskMaterial
-from ..TaskMaterials.SchemaTaskMaterial import SchemaTaskMaterial
 from ..TaskMaterials.DatabaseTaskMaterial import DatabaseTaskMaterial
-from typing import List
+from ..TaskMaterials.InstructionTaskMaterial import InstructionTaskMaterial
+from ..TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
+from ..TaskMaterials.SchemaTaskMaterial import SchemaTaskMaterial
+from ..TaskMaterials.TextTaskMaterial import TextTaskMaterial
 
 
 class SQLTaskStimulus(TaskStimulus):

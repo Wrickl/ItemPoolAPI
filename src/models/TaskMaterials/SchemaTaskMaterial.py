@@ -1,5 +1,6 @@
-from ..TaskMaterials.BaseTaskMaterial import TaskMaterial, MaterialType
 from pydantic import BaseModel
+
+from ..TaskMaterials.BaseTaskMaterial import TaskMaterial, MaterialType
 
 
 class SchemaTaskMaterial(TaskMaterial):

@@ -1,7 +1,9 @@
-from pydantic import BaseModel, ConfigDict
-from .TextTaskMaterial import TextTaskMaterial
 from typing import Optional, List
+
+from pydantic import BaseModel, ConfigDict
+
 from .BaseTaskMaterial import TaskMaterialRegistrationRequestObject, MaterialType
+from .TextTaskMaterial import TextTaskMaterial
 
 
 class InstructionalConstraint(BaseModel):

@@ -11,6 +11,17 @@ services:
     volumes:
       - "mongodata:/bitnami/mongodb/:rw"
     restart: unless-stopped
-
+  item_pool_postgresdb:
+    image: postgres:18.3
+    container_name: item_pool_postgresdb
+    environment:
+      POSTGRES_PASSWORD: ${MONGO_PW}
+      POSTGRES_USER: ${MONGO_USER}
+    ports:
+      - 8280:5432
+    restart: unless-stopped
+    #volumes:
+    #  - "postgresdata:/var/lib/postgresql/data/:rw"
 volumes:
   mongodata:
+  postgresdata:

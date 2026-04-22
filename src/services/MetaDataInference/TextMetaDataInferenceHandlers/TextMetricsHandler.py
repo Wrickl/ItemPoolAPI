@@ -1,5 +1,7 @@
-from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
 from textstat import textstat
+
+from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
+
 
 class TextMetricsHandler(MetaDataInferenceHandler):
     """

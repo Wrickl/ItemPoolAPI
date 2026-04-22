@@ -1,18 +1,17 @@
+from .TaskMaterialRegistrationHandlers.BaseHandler import TaskMaterialHandler
+from .TaskMaterialRegistrationHandlers.MaterialHandlers import material_handlers
+from .TaskRegistrationHandlers.BaseHandler import TaskHandler
+from .TaskRegistrationHandlers.SQLTaskHandler import SQLTaskHandler
+from ..BaseService import Service
+from ...models.TaskMaterials.BaseTaskMaterial import (
+    MaterialType,
+    TaskMaterialRegistrationRequestObject,
+)
 from ...models.Tasks.BaseTask import (
     TaskType,
     TaskRegistrationRequestObject,
     ResponseStatus,
 )
-from ...models.TaskMaterials.BaseTaskMaterial import (
-    MaterialType,
-    TaskMaterialRegistrationRequestObject,
-)
-from ..BaseService import Service
-from .TaskMaterialRegistrationHandlers.BaseHandler import TaskMaterialHandler
-from .TaskRegistrationHandlers.BaseHandler import TaskHandler
-from .TaskRegistrationHandlers.SQLTaskHandler import SQLTaskHandler
-
-from .TaskMaterialRegistrationHandlers.MaterialHandlers import material_handlers
 
 
 class TaskMaterialRegistrationService(Service):

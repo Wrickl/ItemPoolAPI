@@ -1,7 +1,9 @@
-from fastapi import APIRouter
-from ..models.TaskCollections.TaskCollection import TaskCollectionCreationRequestObject
-from ..database.DAO import dao
 from typing import List
+
+from fastapi import APIRouter
+
+from ..database.DAO import dao
+from ..models.TaskCollections.TaskCollection import TaskCollectionCreationRequestObject
 
 router = APIRouter()
 

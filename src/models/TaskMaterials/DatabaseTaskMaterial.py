@@ -1,6 +1,7 @@
+from pydantic import BaseModel
+
 from .BaseTaskMaterial import TaskMaterial, MaterialType
 from .QueryTaskMaterial import DatabaseDialects
-from pydantic import BaseModel
 
 
 class DatabaseTaskMaterial(TaskMaterial):

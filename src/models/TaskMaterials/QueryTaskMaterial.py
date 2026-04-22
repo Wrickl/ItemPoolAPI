@@ -1,7 +1,9 @@
 from enum import Enum
-from .BaseTaskMaterial import Metadata, TaskMaterial, MaterialType
 from typing import Optional
+
 from pydantic import BaseModel
+
+from .BaseTaskMaterial import Metadata, TaskMaterial, MaterialType
 
 
 class DatabaseDialects(str, Enum):

@@ -1,23 +1,23 @@
+from fastapi import APIRouter
+
+from ..models.TaskMaterials.BaseTaskMaterial import (
+    MaterialType,
+    TaskMaterialRegistrationRequestObject,
+    TaskMaterialRegistrationResponseObject,
+)
 from ..models.Tasks.BaseTask import (
     TaskRegistrationResponse,
     TaskRegistrationRequestObject,
-)
-
-from ..services.TaskRegistration.TaskRegistrationService import (
-    TaskRegistrationService,
-    TaskMaterialRegistrationService,
 )
 from ..models.Tasks.BaseTask import (
     TaskType,
     ResponseStatus,
     ResponseResult,
 )
-from ..models.TaskMaterials.BaseTaskMaterial import (
-    MaterialType,
-    TaskMaterialRegistrationRequestObject,
-    TaskMaterialRegistrationResponseObject,
+from ..services.TaskRegistration.TaskRegistrationService import (
+    TaskRegistrationService,
+    TaskMaterialRegistrationService,
 )
-from fastapi import APIRouter
 
 router = APIRouter()
 

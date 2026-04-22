@@ -1,7 +1,9 @@
-from fastapi import FastAPI
-from .controllers import TaskRegistration, TaskRetrieval, TaskCollection
 from logging.config import dictConfig
+
+from fastapi import FastAPI
+
 from .Util.logging.logger_config import log_config
+from .controllers import TaskRegistration, TaskRetrieval, TaskCollection
 
 dictConfig(log_config)
 

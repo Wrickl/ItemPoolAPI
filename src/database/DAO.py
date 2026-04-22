@@ -1,9 +1,11 @@
-from typing import Any, List
-from enum import Enum
-from pymongo import MongoClient, ReturnDocument
 import os
-from ..models.Tasks.BaseTask import Task
+from enum import Enum
+from typing import Any, List
+
 from dotenv import load_dotenv
+from pymongo import MongoClient, ReturnDocument
+
+from ..models.Tasks.BaseTask import Task
 
 load_dotenv()
 

@@ -1,8 +1,8 @@
+import logging
+
 from .BaseHandler import TaskHandler
 from ....models.Tasks.BaseTask import ResponseStatus, ResponseResult
 from ....models.Tasks.SQLTask import SQLTask
-
-import logging
 
 
 class SQLTaskHandler(TaskHandler):

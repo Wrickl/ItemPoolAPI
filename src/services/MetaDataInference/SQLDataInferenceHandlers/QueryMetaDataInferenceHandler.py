@@ -1,10 +1,11 @@
-from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
-from ....models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
 import inspect
-import logging
 import json
+import logging
 
 from sqlglot import parse_one, exp, Expression
+
+from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
+from ....models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
 
 logger = logging.getLogger("uvicorn.error")
 
