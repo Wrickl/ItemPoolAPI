@@ -20,8 +20,8 @@ services:
     ports:
       - 8280:5432
     restart: unless-stopped
-    #volumes:
-    #  - "postgresdata:/var/lib/postgresql/data/:rw"
+    volumes:
+      - "postgresdata:/var/lib/postgresql/18/docker:rw"
 volumes:
   mongodata:
   postgresdata:

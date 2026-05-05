@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class TaskType(str, Enum):
+    ## Todo Add more Types for example 
     sql = "sql"
 
 

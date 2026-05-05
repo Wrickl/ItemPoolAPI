@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict
-
+from ..Author.Author import Author
 
 class Metadata(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -11,6 +11,7 @@ class Metadata(BaseModel):
 class TaskMaterial(BaseModel):
     model_config = ConfigDict(extra="allow")
     metadata: Optional[Metadata]
+    author: Author
 
 
 class MaterialType(str, Enum):
