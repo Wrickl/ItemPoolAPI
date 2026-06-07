@@ -3,11 +3,11 @@ from .TaskMaterialRegistrationHandlers.MaterialHandlers import material_handlers
 from .TaskRegistrationHandlers.BaseHandler import TaskHandler
 from .TaskRegistrationHandlers.SQLTaskHandler import SQLTaskHandler
 from ..BaseService import Service
-from ...models.TaskMaterials.BaseTaskMaterial import (
+from archiv.models.TaskMaterials.BaseTaskMaterial import (
     MaterialType,
     TaskMaterialRegistrationRequestObject,
 )
-from ...models.Tasks.BaseTask import (
+from archiv.models.Tasks.BaseTask import (
     TaskType,
     TaskRegistrationRequestObject,
     ResponseStatus,

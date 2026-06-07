@@ -1,6 +1,6 @@
 from ..BaseHandler import TaskMaterialHandler
-from .....models.Tasks.BaseTask import Metadata
-from .....models.TaskMaterials.DatabaseTaskMaterial import DatabaseTaskMaterial
+from archiv.models.Tasks.BaseTask import Metadata
+from archiv.models.TaskMaterials.DatabaseTaskMaterial import DatabaseTaskMaterial
 
 from ....MetaDataInference.SQLDataInferenceHandlers.DatabaseMetaDataInferenceHandler import (
     DatabaseMetricsHandler,

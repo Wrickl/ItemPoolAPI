@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict
-from ..Author.Author import Author
+from models._Test import Author
 
 class Metadata(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -31,4 +31,4 @@ MaterialIdOrMaterialReqestObject = Union[int, TaskMaterialRegistrationRequestObj
 
 
 class TaskMaterialRegistrationResponseObject(BaseModel):
-    id: int
+    id:

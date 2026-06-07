@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from ....database.DAO import DAO
-from ....models.TaskMaterials.BaseTaskMaterial import TaskMaterial
-from ....models.Tasks.BaseTask import Metadata
+from archiv.models.TaskMaterials.BaseTaskMaterial import TaskMaterial
+from archiv.models.Tasks.BaseTask import Metadata
 
 
 class TaskMaterialHandler(ABC):

@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter
 
 from ..database.DAO import dao
-from ..models.TaskCollections.TaskCollection import TaskCollectionCreationRequestObject
+from archiv.models.TaskCollections.TaskCollection import TaskCollectionCreationRequestObject
 
 router = APIRouter()
 

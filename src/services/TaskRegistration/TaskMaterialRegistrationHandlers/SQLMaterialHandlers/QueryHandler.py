@@ -1,5 +1,5 @@
 from ..BaseHandler import TaskMaterialHandler
-from .....models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial, QueryMetadata
+from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial, QueryMetadata
 
 from ....MetaDataInference.SQLDataInferenceHandlers.QueryMetaDataInferenceHandler import (
     QueryMetricsHandler,

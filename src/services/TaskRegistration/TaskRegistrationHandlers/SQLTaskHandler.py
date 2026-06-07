@@ -1,8 +1,8 @@
 import logging
 
 from .BaseHandler import TaskHandler
-from ....models.Tasks.BaseTask import ResponseStatus, ResponseResult
-from ....models.Tasks.SQLTask import SQLTask
+from archiv.models.Tasks.BaseTask import ResponseStatus, ResponseResult
+from archiv.models.Tasks.SQLTask import SQLTask
 
 
 class SQLTaskHandler(TaskHandler):
@@ -33,7 +33,7 @@ class SQLTaskHandler(TaskHandler):
                 "status": ResponseStatus.success,
                 "stimulus_ids": stimulus_ids,
                 "solution_ids": solution_ids,
-                "metadata": task.metadata,
+                "item_metadata": task.metadata,
                 "result": ResponseResult(message="Task successfully registered"),
             }
 

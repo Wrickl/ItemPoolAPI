@@ -5,7 +5,7 @@ import logging
 from sqlglot import parse_one, exp, Expression
 
 from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
-from ....models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
+from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
 
 logger = logging.getLogger("uvicorn.error")
 

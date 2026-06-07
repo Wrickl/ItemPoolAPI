@@ -8,7 +8,10 @@ dependencies = [
     "fastapi[standard]>=0.116.1",
     "pydantic>=2.11.7",
     "pymongo>=4.15.3",
-    "psycopg[binary]>=3.2",
     "sqlglot>=27.29.0",
     "textstat>=0.7.11",
+    "sqlacodegen==4.0.3",
+    "psycopg2-binary>=2.9.12",
+    "sqlmodel>=0.0.38",
+    "python-dotenv>=1.1.1",
 ]

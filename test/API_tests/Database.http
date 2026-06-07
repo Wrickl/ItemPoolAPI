@@ -1,0 +1,93 @@
+### Database API Test Cases
+### Basierend auf: POST /createDatabase, GET /getAllDatabases
+###
+### Dieses File testet die Route zum Erstellen und Abrufen von Datenbank-Definitionen.
+
+@hostname = localhost
+@port = 8100
+@baseUrl = http://{{hostname}}:{{port}}
+@databaseId =
+
+###
+### TEST 1: Erfolgreicher Create mit allen Feldern
+### Erwartet: 200 OK + Database-Objekt mit database_id
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{
+  "ddl_string": "CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(255));",
+  "version": "v1.0.0",
+  "dialect": "PostgreSQL",
+  "description": "Basis-Schema fuer User-Tabelle"
+}
+
+> {% client.global.set("databaseId", response.body.database_id); %}
+
+###
+### TEST 2: Erfolgreicher Create mit Minimal-Body (alle Felder optional)
+### Erwartet: 200 OK
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{}
+
+###
+### TEST 3: Create nur mit DDL-String
+### Erwartet: 200 OK
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{
+  "ddl_string": "CREATE TABLE orders (id SERIAL PRIMARY KEY, customer_id INT NOT NULL);"
+}
+
+###
+### TEST 4: Create mit nur Dialekt und Beschreibung
+### Erwartet: 200 OK
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{
+  "dialect": "SQLite",
+  "description": "Leichtgewichtiges Test-Schema"
+}
+
+###
+### FEHLERTEST 1: Ungueltiger Datentyp in version
+### Erwartet: 422 Unprocessable Entity (version muss String sein)
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{
+  "version": 1234
+}
+
+###
+### FEHLERTEST 2: Ungueltiger Datentyp in ddl_string
+### Erwartet: 422 Unprocessable Entity (ddl_string muss String sein)
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{
+  "ddl_string": {
+    "sql": "CREATE TABLE invalid (id INT);"
+  }
+}
+
+###
+### ABRUF 1: Alle Datenbank-Definitionen abrufen
+### Erwartet: 200 OK + Liste
+###
+GET {{baseUrl}}/getAllDatabases
+
+###
+### OPTIONALER CHECK: Zuletzt erzeugte ID anzeigen (falls Client globale Variablen unterstuetzt)
+###
+# {{databaseId}}
+

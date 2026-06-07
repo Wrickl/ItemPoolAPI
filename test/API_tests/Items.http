@@ -1,0 +1,237 @@
+### Items API Test Cases
+### Basierend auf: POST /createItem
+###
+### Dieses File testet die Route zum Erstellen von Items
+### Kompatibel mit VS Code REST Client, JetBrains, PostMan, etc.
+
+@hostname = localhost
+@port = 8100
+@baseUrl = http://{{hostname}}:{{port}}
+@creatorId = 0819c631-0a9b-447e-9b01-5422e1f8b171
+
+
+###
+### TEST 1: Erfolgreicher Create mit allen Feldern
+### Erwartet: 200 OK + komplettes Item-Objekt
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Schreibe eine SQL-Abfrage, die alle Nutzer älter als 18 Jahren findet",
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "status": "Draft",
+  "author_id": "{{creatorId}}",
+  "solution": "SELECT * FROM users WHERE age > 18;",
+  "item_metadata": {
+    "difficulty": "medium",
+    "estimated_time_minutes": 10,
+    "keywords": ["SQL", "SELECT", "WHERE"],
+    "database_type": "PostgreSQL"
+  },
+  "tags_id": null,
+  "database_id": null
+}
+
+###
+### TEST 2: Erfolgreicher Create mit Minimal-Feldern (Defaults nutzen)
+### Erwartet: 200 OK
+### status wird auf "Draft" gesetzt
+### solution, item_metadata, etc. sind null
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Modelliere eine Datenbank für eine Buchverwaltung",
+  "question_type": "Modellierung",
+  "license": "CC_BY_SA",
+  "author_id": "{{creatorId}}"
+}
+
+###
+### TEST 3: Create mit komplexem JSON-Metadata
+### Erwartet: 200 OK + metadata wird gespeichert
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Implementiere einen binären Suchbaum in Python",
+  "question_type": "SQL",
+  "license": "CC0",
+  "status": "Review",
+  "author_id": "{{creatorId}}",
+  "solution": "# Beispiel-Implementierung",
+  "item_metadata": {
+    "language": "Python",
+    "difficulty": "hard",
+    "learning_objectives": [
+      "Data Structures: Trees",
+      "Algorithm: Binary Search",
+      "Complexity Analysis"
+    ],
+    "prerequisites": ["Python basics", "Recursion"],
+    "test_cases": {
+      "test_1": { "input": "[5, 3, 7, 2, 4]", "expected": "sorted" },
+      "test_2": { "input": "[1]", "expected": "[1]" }
+    }
+  }
+}
+
+###
+### TEST 4: Create mit database_id
+### Erwartet: 200 OK (wenn database_id gültig)
+### Linked Item zu einer bestehenden Datenbank
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Finde alle Bestellungen eines Kunden mit SQL-Query",
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "status": "Approved",
+  "author_id": "{{creatorId}}",
+  "solution": "SELECT * FROM orders WHERE customer_id = ?;",
+  "database_id": 1
+}
+
+###
+### TEST 5: Create mit tags_id
+### Erwartet: 200 OK
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Was ist eine Normalform in Datenbanken?",
+  "question_type": "Modellierung",
+  "license": "CC_BY",
+  "author_id": "{{creatorId}}",
+  "tags_id": 5
+}
+
+###
+### FEHLERTEST 1: Fehlender erforderlicher Parameter (author_id)
+### Erwartet: 422 Unprocessable Entity
+### Nachricht: Validierungsfehler
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Test ohne Author",
+  "question_type": "SQL",
+  "license": "CC_BY"
+}
+
+###
+### FEHLERTEST 2: Fehlender erforderlicher Parameter (fragestellung)
+### Erwartet: 422 Unprocessable Entity
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "author_id": "{{creatorId}}"
+}
+
+###
+### FEHLERTEST 3: Ungültiger question_type
+### Erwartet: 422 Unprocessable Entity
+### Erlaubte Werte: "SQL", "Modellierung"
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Test mit ungültigem Type",
+  "question_type": "InvalidType",
+  "license": "CC_BY",
+  "author_id": "{{creatorId}}"
+}
+
+###
+### FEHLERTEST 4: Ungültiger license
+### Erwartet: 422 Unprocessable Entity
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Test mit ungültiger Lizenz",
+  "question_type": "SQL",
+  "license": "INVALID_LICENSE",
+  "author_id": "{{creatorId}}"
+}
+
+###
+### FEHLERTEST 5: Ungültiger status
+### Erwartet: 422 Unprocessable Entity
+### Erlaubte Werte: "Draft", "Review", "Approved", "Productiv", "Retired"
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Test mit ungültigem Status",
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "status": "UnknownStatus",
+  "author_id": "{{creatorId}}"
+}
+
+###
+### FEHLERTEST 6: Nicht existierender author_id
+### Erwartet: 404 Not Found
+### Nachricht: "Creator mit author_id '...' nicht gefunden"
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Test mit nicht existierendem Author",
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "author_id": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+}
+
+###
+### FEHLERTEST 7: Leere fragestellung
+### Erwartet: 422 Unprocessable Entity
+### Validierungsfehler: min_length=1
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "",
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "author_id": "{{creatorId}}"
+}
+
+###
+### FEHLERTEST 8: Ungültige UUID format für author_id
+### Erwartet: 422 Unprocessable Entity
+###
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Test mit ungültiger UUID",
+  "question_type": "SQL",
+  "license": "CC_BY",
+  "author_id": "not-a-valid-uuid"
+}
+
+###
+### ABRUF: Alle Items abrufen (zur Verifikation)
+### Erwartet: 200 OK + Array von Items
+###
+GET {{baseUrl}}/getAllItems
+

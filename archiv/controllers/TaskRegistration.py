@@ -1,15 +1,15 @@
 from fastapi import APIRouter
 
-from ..models.TaskMaterials.BaseTaskMaterial import (
+from archiv.models.TaskMaterials.BaseTaskMaterial import (
     MaterialType,
     TaskMaterialRegistrationRequestObject,
     TaskMaterialRegistrationResponseObject,
 )
-from ..models.Tasks.BaseTask import (
+from archiv.models.Tasks.BaseTask import (
     TaskRegistrationResponse,
     TaskRegistrationRequestObject,
 )
-from ..models.Tasks.BaseTask import (
+from archiv.models.Tasks.BaseTask import (
     TaskType,
     ResponseStatus,
     ResponseResult,

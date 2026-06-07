@@ -3,12 +3,12 @@ from typing import List, Dict
 
 from ....database.DAO import DAO
 from ....models.Error import RecordNotFoundError
-from ....models.TaskMaterials.BaseTaskMaterial import (
+from archiv.models.TaskMaterials.BaseTaskMaterial import (
     MaterialIdOrMaterialReqestObject,
     TaskMaterial,
     TaskMaterialRegistrationRequestObject,
 )
-from ....models.Tasks.BaseTask import Task
+from archiv.models.Tasks.BaseTask import Task
 
 
 class TaskHandler(ABC):

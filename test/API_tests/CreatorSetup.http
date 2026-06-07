@@ -1,0 +1,43 @@
+### Creator Setup für die Item-Tests
+### Diese Datei vor `Items.http` ausführen.
+### Reihenfolge:
+### 1. Organisation anlegen
+### 2. Creator Max Mustermann anlegen
+###
+### Die erzeugten IDs werden über REST-Client-Variablen gespeichert:
+### - `organisationId`
+### - `creatorId`
+
+@hostname = localhost
+@port = 8100
+@baseUrl = http://{{hostname}}:{{port}}
+
+###
+### Schritt 1: Organisation anlegen
+###
+POST {{baseUrl}}/createOrganisation
+Content-Type: application/json
+
+{
+  "name": "Test-Organisation",
+  "contact": "Max Mustermann",
+  "faculty": "Informatik"
+}
+
+> {% client.global.set("organisationId", response.body.id); %}
+
+###
+### Schritt 2: Creator Max Mustermann anlegen
+###
+POST {{baseUrl}}/createCreator
+Content-Type: application/json
+
+{
+  "email": "max.mustermann@example.com",
+  "name": "Max Mustermann",
+  "role": 1,
+  "organisation_id": "{{organisationId}}"
+}
+
+> {% client.global.set("creatorId", response.body.author_id); %}
+
