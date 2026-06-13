@@ -31,6 +31,11 @@
     Manual API tests are implemented via HTTP Files in the "tests" directory.
     When using VSCode as an IDE, the REST Client extension is recommended.
 
+### **UI**
+
+- Item-Suche und JSON-Export: `/ui`
+- Item-Anlage mit Dropdowns für Creator, License, Status und Datenbank: `/ui/create`
+
 ### **Unit Tests**
 
 Pytest is used for unit testing. Run the following cmd to execute the tests.

@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+from pydantic import ConfigDict
 
 from ...models.Enums.License import License
 from ...models.Enums.Questionstypes import Questiontypes
@@ -43,4 +44,26 @@ class ItemResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ItemWithAuthorResponse(BaseModel):
+    """Response-Modell für Items inklusive Author-Name (server-side join).
+
+    Wird von `searchItems` verwendet, damit die UI den Autorennamen direkt
+    vom Server bekommt und nicht erst weitere Requests benötigt.
+    """
+    item_id: Optional[int]
+    fragestellung: str
+    question_type: Questiontypes
+    license: License
+    status: Status
+    author_id: UUID
+    author_name: Optional[str]
+    solution: Optional[str]
+    item_metadata: Optional[dict]
+    tags_id: Optional[int]
+    database_id: Optional[int]
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 

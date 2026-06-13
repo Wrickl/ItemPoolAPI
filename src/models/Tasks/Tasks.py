@@ -4,11 +4,12 @@ from uuid import UUID
 
 from sqlmodel import SQLModel, Field, Relationship, Column, JSON
 
+from .Database import Database
 from ..Author import Creator
 from ..Enums.License import License
 from ..Enums.Questionstypes import Questiontypes
 from ..Enums.Status import Status
-
+"""TODO Beachten von verschiedene Fragentypen ( Freitext, Programmierung (SQL), oder Multiple Choice) mit entsprechenden Anpassungen der Datenbank-Modelle, z.B. durch Vererbung oder separate Tabellen für spezifische Fragentypen."""
 
 # ===== Questions =====
 class QuestionsBase(SQLModel):
@@ -39,21 +40,6 @@ class Placeholders(PlaceholdersBase, table=True):
 
     placeholder_id: Optional[int] = Field(default=None, primary_key=True)
     question: Questions = Relationship(back_populates="placeholders")
-
-
-# ===== Database =====
-class DatabaseBase(SQLModel):
-    ddl_string: Optional[str] = None
-    version: Optional[str] = None
-    dialect: Optional[str] = None
-    description: Optional[str] = None
-
-
-class Database(DatabaseBase, table=True):
-    __tablename__ = "database"
-
-    database_id: Optional[int] = Field(default=None, primary_key=True)
-    items: List["Item"] = Relationship(back_populates="database")
 
 
 # ===== Item =====

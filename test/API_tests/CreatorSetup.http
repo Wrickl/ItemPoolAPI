@@ -9,7 +9,7 @@
 ### - `creatorId`
 
 @hostname = localhost
-@port = 8100
+@port = 8000
 @baseUrl = http://{{hostname}}:{{port}}
 
 ###

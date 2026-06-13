@@ -1,21 +1,22 @@
+import io
+import json
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
-from typing import Optional
-import io
-import csv
 
 from ..database.DAOConnection import get_session
 from ..models.Author import Creator
 from ..models.Enums.License import License
 from ..models.Enums.Questionstypes import Questiontypes
+from ..models.Enums.Status import Status
 from ..models.Organisation import Organisation
-from ..models.Tasks.Tasks import Item, Database
-from ..schemas.Author.Author import CreatorCreate
-from ..schemas.Tasks.Database import DatabaseCreate, DatabaseResponse
-from ..schemas.Tasks.Item import ItemCreate, ItemResponse
+from ..models.Tasks.Tasks import Item
+from ..schemas.Author.Author import CreatorCreate, CreatorRead
+from ..schemas.Tasks.Item import ItemCreate, ItemResponse, ItemWithAuthorResponse
+from ..services.PluginSystem import run_on_item_create
 
 router = APIRouter()
 
@@ -25,12 +26,17 @@ async def get_available_question_types():
     return [k.value for k in Questiontypes]
 
 
-@router.get("/getAllAvailableLicenseTypes")
+@router.get("/getAllAvailableLicenseTypes", tags=["Data", "Enums"])
 async def get_available_license_types():
     return [k.value for k in License]
 
 
-@router.get("/getAllCreator")
+@router.get("/getAllAvailableStatusTypes", tags=["Data", "Enums"])
+async def get_available_status_types():
+    return [k.value for k in Status]
+
+
+@router.get("/getAllCreator", response_model=list[CreatorRead])
 async def get_all_creators(session: Session = Depends(get_session)):
     """
     Alle Creator/Authors aus der Datenbank auslesen.
@@ -42,7 +48,7 @@ async def get_all_creators(session: Session = Depends(get_session)):
 @router.post("/createCreator", response_model=Creator)
 async def create_creator(creator_data: CreatorCreate, session: Session = Depends(get_session)):
     """
-    Einen neuen Creator/_Test in der Datenbank anlegen.
+    Einen neuen Creator in der Datenbank anlegen.
     """
     creator = Creator.model_validate(creator_data)
 
@@ -64,8 +70,11 @@ async def create_organisation(organisation: Organisation, session: Session = Dep
     return organisation
 
 
-@router.post("/getAllOrganisations")
+@router.get("/getAllOrganisations")
 async def get_all_organisations(session: Session = Depends(get_session)):
+    """
+    Rückgabe aller registrierten Organisationen
+    """
     organisations = session.exec(select(Organisation)).all()
     return organisations
 
@@ -73,102 +82,82 @@ async def get_all_organisations(session: Session = Depends(get_session)):
 @router.get("/getAllItems")
 async def get_all_questions(session: Session = Depends(get_session)):
     """
-    Alle Questions aus der Datenbank mit allen Feldern auslesen.
+    Rückgabe aller registrierten Items
     """
     itmes = session.exec(select(Item)).all()
     return itmes
 
 
-@router.get("/searchItems", tags=["Items"])
+@router.get("/searchItems", response_model=list[ItemWithAuthorResponse], tags=["Items"])
 async def search_items(
-    q: Optional[str] = Query(None, description="Freitextsuche in Fragestellung"),
-    author_id: Optional[str] = Query(None, description="UUID des Autors (optional)"),
-    author_name: Optional[str] = Query(None, description="Name des Autors (optional, alternative zum author_id)"),
-    database_id: Optional[int] = Query(None, description="ID der Datenbank"),
-    limit: int = Query(100, ge=1, le=1000),
-    session: Session = Depends(get_session),
+        q: Optional[str] = Query(None, description="Freitextsuche in Fragestellung"),
+        author_id: Optional[str] = Query(None, description="UUID des Autors (optional)"),
+        author_name: Optional[str] = Query(None, description="Name des Autors (optional, alternative zum author_id)"),
+        database_id: Optional[int] = Query(None, description="ID der Datenbank"),
+        limit: int = Query(100, ge=1, le=1000),
+        session: Session = Depends(get_session),
 ):
-    """Suche Items mit optionalen Filtern. Gibt eine Liste von Items zurück."""
-    stmt = select(Item)
+    """Suche Items mit optionalen Filtern. Liefert Items inklusive `author_name` (server-side join)."""
+    # build a select that returns (Item, author_name)
+    stmt = select(Item, Creator.name).join(Creator, Item.author_id == Creator.author_id)
     if q:
-        # suche in fragestellung (case-insensitive)
-        stmt = stmt.where(Item.fragestellung.ilike(f"%{q}%"))
-    # author filter: prefer exact id, fallback to name search
+        stmt = stmt.where(Item.fragestellung.ilike(f"%{q}%"))  # type: ignore[attr-defined]
     if author_id:
         stmt = stmt.where(Item.author_id == author_id)
     elif author_name:
-        # join to Creator and search by name
-        stmt = stmt.join(Creator).where(Creator.name.ilike(f"%{author_name}%"))
+        stmt = stmt.where(Creator.name.ilike(f"%{author_name}%"))  # type: ignore[attr-defined]
     if database_id:
         stmt = stmt.where(Item.database_id == database_id)
 
     stmt = stmt.limit(limit)
-    results = session.exec(stmt).all()
+    rows = session.exec(stmt).all()
+
+    results = []
+    for row in rows:
+        # row is typically a tuple (Item, author_name)
+        try:
+            item_obj, author_name = row
+        except Exception:
+            # fallback handling
+            item_obj = row[0]
+            author_name = None
+
+        base = ItemResponse.model_validate(item_obj).model_dump(mode="json")
+        base["author_name"] = author_name
+        results.append(base)
+
     return results
 
 
-@router.get("/exportItems", tags=["Items"])
+@router.get("/exportItems", tags=["Items", "UI"])
 async def export_items(
-    q: Optional[str] = Query(None, description="Freitextsuche in Fragestellung"),
-    author_id: Optional[str] = Query(None, description="UUID des Autors (optional)"),
-    author_name: Optional[str] = Query(None, description="Name des Autors (optional, alternative zum author_id)"),
-    database_id: Optional[int] = Query(None, description="ID der Datenbank"),
-    session: Session = Depends(get_session),
+        q: Optional[str] = Query(None, description="Freitextsuche in Fragestellung"),
+        author_id: Optional[str] = Query(None, description="UUID des Autors (optional)"),
+        author_name: Optional[str] = Query(None, description="Name des Autors (optional, alternative zum author_id)"),
+        database_id: Optional[int] = Query(None, description="ID der Datenbank"),
+        session: Session = Depends(get_session),
 ):
-    """Exportiere gefundene Items als CSV. Wenn keine Filter gesetzt sind, werden alle Items exportiert."""
+    """Exportiere gefundene Items als JSON-Datei. Wenn keine Filter gesetzt sind, werden alle Items exportiert."""
     stmt = select(Item)
     if q:
-        stmt = stmt.where(Item.fragestellung.ilike(f"%{q}%"))
+        stmt = stmt.where(Item.fragestellung.ilike(f"%{q}%"))  # type: ignore[attr-defined]
     if author_id:
         stmt = stmt.where(Item.author_id == author_id)
     elif author_name:
-        stmt = stmt.join(Creator).where(Creator.name.ilike(f"%{author_name}%"))
+        stmt = stmt.join(Creator).where(Creator.name.ilike(f"%{author_name}%"))  # type: ignore[attr-defined]
     if database_id:
         stmt = stmt.where(Item.database_id == database_id)
 
     items = session.exec(stmt).all()
 
-    # Erzeuge CSV im Speicher
+    payload = [ItemResponse.model_validate(it).model_dump(mode="json") for it in items]
     output = io.StringIO()
-    writer = csv.writer(output)
-    # Header
-    writer.writerow(["item_id", "fragestellung", "question_type", "license", "status", "created_at", "author_id", "database_id"])
-    for it in items:
-        writer.writerow([
-            it.item_id,
-            it.fragestellung,
-            getattr(it.question_type, 'value', it.question_type),
-            getattr(it.license, 'value', it.license),
-            it.status,
-            it.created_at.isoformat() if it.created_at else "",
-            it.author_id,
-            it.database_id,
-        ])
-
+    json.dump(payload, output, ensure_ascii=False, indent=2)
     output.seek(0)
     headers = {
-        "Content-Disposition": "attachment; filename=items_export.csv"
+        "Content-Disposition": "attachment; filename=items_export.json"
     }
-    return StreamingResponse(output, media_type="text/csv", headers=headers)
-
-
-@router.get("/getAllDatabases", response_model=list[DatabaseResponse], tags=["Database"])
-async def get_all_databases(session: Session = Depends(get_session)):
-    """Alle gespeicherten Datenbank-Definitionen auslesen."""
-    databases = session.exec(select(Database)).all()
-    return databases
-
-
-@router.post("/createDatabase", response_model=DatabaseResponse, tags=["Database"])
-async def create_database(database_data: DatabaseCreate, session: Session = Depends(get_session)):
-    """Eine neue Datenbank-Definition in der Datenbank anlegen."""
-    database = Database.model_validate(database_data)
-
-    session.add(database)
-    session.commit()
-    session.refresh(database)
-
-    return database
+    return StreamingResponse(output, media_type="application/json", headers=headers)
 
 
 @router.post("/createItem", response_model=ItemResponse, tags=["Items"])
@@ -211,5 +200,12 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     session.add(new_item)
     session.commit()
     session.refresh(new_item)
+
+    # Triggere registrierte Plugins, die auf Item-Erstellung reagieren
+    #try:
+    run_on_item_create(new_item, session)
+    #except Exception:
+        # Plugins sollen den Haupt-Flow nicht brechen; Fehler werden geschluckt
+    #    pass
 
     return new_item
