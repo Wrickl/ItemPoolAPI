@@ -9,7 +9,13 @@
   </head>
   <body>
     <div class="container py-4">
-      <h1 class="mb-3">Item Suche & Export</h1>
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+          <h1 class="mb-1">Item Suche & Export</h1>
+          <p class="text-muted mb-0">Suche Items und exportiere sie als JSON-Datei.</p>
+        </div>
+        <a class="btn btn-primary" href="/ui/create">Neues Item anlegen</a>
+      </div>
 
       <form id="searchForm" class="row g-3 mb-3">
         <div class="col-md-6">
@@ -26,14 +32,24 @@
         </div>
       </form>
 
-      <div class="mb-3">
-        <button id="exportBtn" class="btn btn-outline-success">Exportiere gefundene Items (CSV)</button>
+      <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+        <button id="exportBtn" class="btn btn-outline-success">Exportiere gefundene Items (JSON)</button>
+        <div id="selectionControls" style="display:none;">
+          <span class="text-muted me-2">
+            <a href="#" id="selectAllLink">Alle markieren</a> /
+            <a href="#" id="deselectAllLink">Alle entmarkieren</a>
+          </span>
+          <button id="downloadSelectedBtn" class="btn btn-primary" disabled>
+            Download Selected (<span id="selectedCount">0</span>)
+          </button>
+        </div>
       </div>
 
       <div id="results" class="table-responsive">
         <table class="table table-striped" id="resultsTable">
           <thead>
             <tr>
+              <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" style="display:none;"></th>
               <th>ID</th>
               <th>Fragestellung</th>
               <th>Typ</th>
@@ -52,4 +68,3 @@
     <script src="/static/ui/app.js"></script>
   </body>
 </html>
-

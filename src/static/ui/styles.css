@@ -6,3 +6,40 @@ body {
   vertical-align: middle;
 }
 
+#resultsTable tbody tr.table-active {
+  background-color: #e8f4f8 !important;
+}
+
+#resultsTable tbody input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.card {
+  border-radius: 0.75rem;
+}
+
+textarea.font-monospace {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+#selectionControls a {
+  color: #0d6efd;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#selectionControls a:hover {
+  text-decoration: underline;
+}
+
+#downloadSelectedBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
