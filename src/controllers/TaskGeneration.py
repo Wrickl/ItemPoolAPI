@@ -21,17 +21,17 @@ from ..services.PluginSystem import run_on_item_create
 router = APIRouter()
 
 
-@router.get("/getAllAvailableQuestionTypes", tags=["Data", "Enums"])
+@router.get("/getAllAvailableQuestionTypes", tags=["Enums"])
 async def get_available_question_types():
     return [k.value for k in Questiontypes]
 
 
-@router.get("/getAllAvailableLicenseTypes", tags=["Data", "Enums"])
+@router.get("/getAllAvailableLicenseTypes", tags=["Enums"])
 async def get_available_license_types():
     return [k.value for k in License]
 
 
-@router.get("/getAllAvailableStatusTypes", tags=["Data", "Enums"])
+@router.get("/getAllAvailableStatusTypes", tags=["Enums"])
 async def get_available_status_types():
     return [k.value for k in Status]
 
@@ -41,7 +41,19 @@ async def get_all_creators(session: Session = Depends(get_session)):
     """
     Alle Creator/Authors aus der Datenbank auslesen.
     """
-    creators = session.exec(select(Creator)).all()
+    stmt = select(Creator, Organisation.name).join(Organisation, Creator.organisation_id == Organisation.id)  # type: ignore[arg-type]
+    rows = session.exec(stmt).all()
+
+    creators = []
+    for creator, organisation_name in rows:
+        creators.append(
+            CreatorRead(
+                email=creator.email,
+                name=creator.name,
+                role=creator.role,
+                organisation_name=organisation_name,
+            )
+        )
     return creators
 
 

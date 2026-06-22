@@ -9,6 +9,7 @@ from fastapi.responses import RedirectResponse
 from .controllers import TaskGeneration
 from .controllers import SolutionAttempt
 from .controllers import DatabaseGeneration
+from .controllers import PluginAdministration
 from .Util.logging.logger_config import log_config
 from .database.DAOConnection import create_db_and_tables
 from .database.MongoConnection import close_mongo_client
@@ -28,6 +29,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(TaskGeneration.router)
 app.include_router(SolutionAttempt.router)
 app.include_router(DatabaseGeneration.router)
+app.include_router(PluginAdministration.router)
 
 # Mount static UI files (Bootstrap-based frontend)
 static_dir = Path(__file__).resolve().parent / "static"
