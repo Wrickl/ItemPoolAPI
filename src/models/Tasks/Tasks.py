@@ -7,8 +7,9 @@ from sqlmodel import SQLModel, Field, Relationship, Column, JSON
 from .Database import Database
 from ..Author import Creator
 from ..Enums.License import License
-from ..Enums.Questionstypes import Questiontypes
+from ..Enums.Fragenbereich import Fragenbereich
 from ..Enums.Status import Status
+from ..Enums.Questiontypes import QuestionTypes
 """TODO Beachten von verschiedene Fragentypen ( Freitext, Programmierung (SQL), oder Multiple Choice) mit entsprechenden Anpassungen der Datenbank-Modelle, z.B. durch Vererbung oder separate Tabellen für spezifische Fragentypen."""
 
 # ===== Questions =====
@@ -47,8 +48,9 @@ class ItemBase(SQLModel):
     license: License
     status: Status
     fragestellung: str
-    solution: Optional[str] = None
-    question_type: Questiontypes
+    solution: str
+    fragenart: Optional[Fragenbereich] = None
+    question_type: QuestionTypes
     item_metadata: Optional[dict] = Field(default=None, sa_column=Column(JSON))
     tags_id: Optional[int] = None
     created_at: datetime

@@ -2,16 +2,19 @@ import io
 import json
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 
+from ..Util.serializer import _serialize_text_payload
 from ..database.DAOConnection import get_session
 from ..models.Author import Creator
 from ..models.Enums.License import License
-from ..models.Enums.Questionstypes import Questiontypes
+from ..models.Enums.Fragenbereich import Fragenbereich
 from ..models.Enums.Status import Status
+from ..models.Enums.Questiontypes import QuestionTypes
 from ..models.Organisation import Organisation
 from ..models.Tasks.Tasks import Item
 from ..schemas.Author.Author import CreatorCreate, CreatorRead
@@ -21,9 +24,9 @@ from ..services.PluginSystem import run_on_item_create
 router = APIRouter()
 
 
-@router.get("/getAllAvailableQuestionTypes", tags=["Enums"])
-async def get_available_question_types():
-    return [k.value for k in Questiontypes]
+@router.get("/getAllAvailableFachbereiche", tags=["Enums"])
+async def get_available_fachbereiche():
+    return [k.value for k in Fragenbereich]
 
 
 @router.get("/getAllAvailableLicenseTypes", tags=["Enums"])
@@ -34,6 +37,10 @@ async def get_available_license_types():
 @router.get("/getAllAvailableStatusTypes", tags=["Enums"])
 async def get_available_status_types():
     return [k.value for k in Status]
+
+@router.get("/getAllAvailableQuestionsTypes", tags=["Enums"])
+async def get_available_questions_types():
+    return [k.value for k in QuestionTypes]
 
 
 @router.get("/getAllCreator", response_model=list[CreatorRead])
@@ -115,7 +122,7 @@ async def search_items(
     if q:
         stmt = stmt.where(Item.fragestellung.ilike(f"%{q}%"))  # type: ignore[attr-defined]
     if author_id:
-        stmt = stmt.where(Item.author_id == author_id)
+        stmt = stmt.where(Item.author_id == UUID(author_id))
     elif author_name:
         stmt = stmt.where(Creator.name.ilike(f"%{author_name}%"))  # type: ignore[attr-defined]
     if database_id:
@@ -178,11 +185,11 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     Ein neues Item in der Datenbank erstellen.
 
     - fragestellung: str (erforderlich) - Die Aufgabenstellung
-    - question_type: Questiontypes (erforderlich) - Typ der Frage
+    - question_type: QuestionTypes (erforderlich) - Typ der Frage
     - license: License (erforderlich) - Lizenz des Items
     - status: Status (optional, default=Draft) - Status des Items
     - author_id: UUID (erforderlich) - UUID des Autors
-    - solution: str (optional) - Musterlösung
+    - solution: str|object (optional) - Musterlösung, bei MultipleChoice strukturierte Antworten
     - item_metadata: dict (optional) - Schema-freie Metadaten
     - tags_id: int (optional) - ID der Tags
     - database_id: int (optional) - ID der Datenbank
@@ -197,12 +204,12 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
 
     # Erstelle neues Item mit aktuellem Timestamp
     new_item = Item(
-        fragestellung=item_data.fragestellung,
+        fragestellung=_serialize_text_payload(item_data.fragestellung) or "",
         question_type=item_data.question_type,
         license=item_data.license,
         status=item_data.status,
         author_id=item_data.author_id,
-        solution=item_data.solution,
+        solution=_serialize_text_payload(item_data.solution) or "",
         item_metadata=item_data.item_metadata,
         tags_id=item_data.tags_id,
         database_id=item_data.database_id,
