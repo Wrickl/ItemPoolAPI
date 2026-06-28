@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Collections - Verwaltung</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/ui/styles.css">
+  </head>
+  <body>
+    <div class="container py-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+          <h1 class="mb-1">Item Collections</h1>
+          <p class="text-muted mb-0">Verwalte benannte Collections von Items.</p>
+        </div>
+        <div class="gap-2 d-flex">
+          <a class="btn btn-primary" href="/ui">Zurück zur Suche</a>
+          <a class="btn btn-success" href="#" id="newCollectionLink">Neue Collection</a>
+        </div>
+      </div>
+
+      <div id="collectionsList" class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Item-Anzahl</th>
+              <th>Angelegt</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="collectionsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="collectionModal" tabindex="-1" aria-labelledby="collectionModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="collectionModalLabel">Collection bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+          </div>
+          <div class="modal-body">
+            <form id="collectionForm">
+              <div class="mb-3">
+                <label for="collectionName" class="form-label">Collection-Name</label>
+                <input type="text" class="form-control" id="collectionName" required />
+              </div>
+              <div class="mb-3">
+                <label for="collectionItemIds" class="form-label">Item-IDs (komma-getrennt)</label>
+                <input type="text" class="form-control" id="collectionItemIds" placeholder="z.B. 1,2,3" required />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-primary" id="saveCollectionBtn">Speichern</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="itemsModal" tabindex="-1" aria-labelledby="itemsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="itemsModalLabel">Items in Collection</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+          </div>
+          <div class="modal-body">
+            <div id="itemsLoading" style="display: none;" class="text-center">
+              <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+            </div>
+            <table class="table table-striped" id="itemsTable" style="display: none;">
+              <thead>
+                <tr>
+                  <th>Item-ID</th>
+                  <th>Fragestellung</th>
+                  <th>Typ</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="itemsTableBody"></tbody>
+            </table>
+            <div id="itemsError" class="alert alert-danger" style="display: none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schliessen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/ui/collections.js"></script>
+  </body>
+</html>
+

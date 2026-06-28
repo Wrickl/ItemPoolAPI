@@ -1,10 +1,9 @@
+import json
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
-from pydantic import ConfigDict
-from pydantic import model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ...models.Enums.License import License
 from ...models.Enums.Questiontypes import QuestionTypes
@@ -45,77 +44,113 @@ class MultipleChoiceSolutionPayload(BaseModel):
         return self
 
 
+class ProgrammingSolutionPayload(BaseModel):
+    text: str = Field(..., min_length=1, description="Eigentlicher Loesungstext")
+    output: Optional[str] = Field(default=None, description="Optionaler erwarteter Output")
+
+
 class ItemCreate(BaseModel):
     """
-    Schema für die Erstellung eines neuen Items über die API.
+    Schema fuer die Erstellung eines neuen Items ueber die API.
 
     - Erforderliche Felder: fragestellung, question_type, license, status, author_id
-    - Optionale Felder: solution, item_metadata, tags_id, database_id
+    - Optionale Felder: solution, tags_id, database_id
+    - Pflicht-Metadatum: item_metadata.bloomlevel
     """
-    fragestellung: str | MultipleChoiceQuestionPayload = Field(..., description="Die Aufgabenstellung")
+
+    fragestellung: str = Field(..., description="Die Aufgabenstellung")
     question_type: QuestionTypes = Field(..., description="Typ der Frage (z.B. Freitext, MultipleChoice)")
     license: License = Field(..., description="Lizenz des Items")
     status: Status = Field(default=Status.Draft, description="Status des Items")
     author_id: UUID = Field(..., description="UUID des Autors/Creators")
-    solution: str | MultipleChoiceSolutionPayload = Field(
+    solution: str | MultipleChoiceSolutionPayload | ProgrammingSolutionPayload = Field(
         default=None,
-        description="Loesung. Bei MultipleChoice mit Optionen + korrekten IDs",
+        description="Loesung. Bei MultipleChoice mit Optionen + korrekten IDs; bei Programmierung optional mit `text` + `output`",
     )
-    item_metadata: Optional[dict] = Field(default=None, description="Schema-freie Metadaten (JSON)")
+    item_metadata: dict = Field(..., description="Schema-freie Metadaten (JSON), muss `bloomlevel` enthalten")
     tags_id: Optional[int] = Field(default=None, description="ID der Tags (optional)")
-    database_id: Optional[int] = Field(default=None, description="ID der zugehörigen Datenbank (optional)")
+    database_id: Optional[int] = Field(default=None, description="ID der zugehoerigen Datenbank (optional)")
 
     @model_validator(mode="after")
     def validate_by_question_type(self):
-        if self.question_type == QuestionTypes.MultipleChoice:
-            if not isinstance(self.fragestellung, MultipleChoiceQuestionPayload):
-                raise ValueError(
-                    "Bei `question_type=MultipleChoice` muss `fragestellung` ein Objekt mit `prompt` und `options` sein"
-                )
+        if self.question_type in (QuestionTypes.MultipleChoice, QuestionTypes.SingleChoice):
+            if not self.fragestellung.strip():
+                raise ValueError("Bei Choice-Fragen muss `fragestellung` ein nicht-leerer String sein")
+
             if not isinstance(self.solution, MultipleChoiceSolutionPayload):
                 raise ValueError(
-                    "Bei `question_type=MultipleChoice` muss `solution` ein Objekt mit `options` und `correct_option_ids` sein"
+                    "Bei Choice-Fragen muss `solution` ein Objekt mit `options` und `correct_option_ids` sein"
                 )
 
-            question_option_ids = {option.option_id for option in self.fragestellung.options}
-            solution_option_ids = {option.option_id for option in self.solution.options}
-            if question_option_ids != solution_option_ids:
-                raise ValueError(
-                    "Bei `MultipleChoice` muessen `fragestellung.options` und `solution.options` dieselben `option_id` enthalten"
-                )
+            if self.question_type == QuestionTypes.SingleChoice and len(self.solution.correct_option_ids) != 1:
+                raise ValueError("Bei `question_type=SingleChoice` muss genau eine korrekte Option gesetzt sein")
+
+            bloomlevel = self.item_metadata.get("bloomlevel")
+            if bloomlevel is None or (isinstance(bloomlevel, str) and not bloomlevel.strip()):
+                raise ValueError("`item_metadata.bloomlevel` muss gesetzt sein")
+            return self
+
+        if self.question_type == QuestionTypes.Programmierung:
+            if not isinstance(self.fragestellung, str) or not self.fragestellung.strip():
+                raise ValueError("Bei `question_type=Programmierung` muss `fragestellung` ein nicht-leerer String sein")
+            if self.solution is not None:
+                if isinstance(self.solution, str):
+                    if not self.solution.strip():
+                        raise ValueError("Bei `question_type=Programmierung` muss `solution` ein nicht-leerer String sein")
+                elif not isinstance(self.solution, ProgrammingSolutionPayload):
+                    raise ValueError(
+                        "Bei `question_type=Programmierung` muss `solution` ein String oder Objekt mit `text` und optional `output` sein"
+                    )
+            bloomlevel = self.item_metadata.get("bloomlevel")
+            if bloomlevel is None or (isinstance(bloomlevel, str) and not bloomlevel.strip()):
+                raise ValueError("`item_metadata.bloomlevel` muss gesetzt sein")
             return self
 
         if not isinstance(self.fragestellung, str) or not self.fragestellung.strip():
             raise ValueError("Bei nicht-MultipleChoice muss `fragestellung` ein nicht-leerer String sein")
         if self.solution is not None and (not isinstance(self.solution, str) or not self.solution.strip()):
             raise ValueError("Bei nicht-MultipleChoice muss `solution` ein String sein (oder weggelassen werden)")
+
+        bloomlevel = self.item_metadata.get("bloomlevel")
+        if bloomlevel is None or (isinstance(bloomlevel, str) and not bloomlevel.strip()):
+            raise ValueError("`item_metadata.bloomlevel` muss gesetzt sein")
         return self
 
 
 class ItemResponse(BaseModel):
-    """Response-Modell für ein erstelltes oder abgerufenes Item."""
+    """Response-Modell fuer ein erstelltes oder abgerufenes Item."""
+
     item_id: Optional[int]
     fragestellung: str
     question_type: QuestionTypes
     license: License
     status: Status
     author_id: UUID
-    solution: Optional[str]
+    solution: Optional[dict | str]
     item_metadata: Optional[dict]
     tags_id: Optional[int]
     database_id: Optional[int]
     created_at: datetime
+
+    @field_validator("solution", mode="before")
+    @classmethod
+    def parse_solution_json_if_possible(cls, value):
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return value
+            if isinstance(parsed, dict):
+                return parsed
+        return value
 
     class Config:
         from_attributes = True
 
 
 class ItemWithAuthorResponse(BaseModel):
-    """Response-Modell für Items inklusive Author-Name (server-side join).
+    """Response-Modell fuer Items inklusive Author-Name (server-side join)."""
 
-    Wird von `searchItems` verwendet, damit die UI den Autorennamen direkt
-    vom Server bekommt und nicht erst weitere Requests benötigt.
-    """
     item_id: Optional[int]
     fragestellung: str
     question_type: QuestionTypes
@@ -123,11 +158,22 @@ class ItemWithAuthorResponse(BaseModel):
     status: Status
     author_id: UUID
     author_name: Optional[str]
-    solution: Optional[str]
+    solution: Optional[dict | str]
     item_metadata: Optional[dict]
     tags_id: Optional[int]
     database_id: Optional[int]
     created_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    @field_validator("solution", mode="before")
+    @classmethod
+    def parse_solution_json_if_possible(cls, value):
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return value
+            if isinstance(parsed, dict):
+                return parsed
+        return value
 
+    model_config = ConfigDict(from_attributes=True)

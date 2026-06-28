@@ -1,0 +1,466 @@
+### Initiale Dummydaten zum Befuellen der Datenbank
+### Deckt alle aktuell unterstuetzten Moeglichkeiten der API ab:
+### - alle QuestionTypes
+### - alle License-Werte
+### - alle Status-Werte
+### - optionale Felder (tags_id, database_id, student_id)
+### - ContentBlocks (text, image, json)
+
+@hostname = localhost
+@port = 8000
+@baseUrl = http://{{hostname}}:{{port}}
+
+###
+### 1) Organisationen anlegen
+###
+POST {{baseUrl}}/createOrganisation
+Content-Type: application/json
+
+{
+  "name": "Technische Hochschule Musterstadt",
+  "contact": "admin@th-musterstadt.de",
+  "faculty": "Informatik"
+}
+
+> {% client.global.set("org1Id", response.body.id); %}
+
+###
+POST {{baseUrl}}/createOrganisation
+Content-Type: application/json
+
+{
+  "name": "Universitaet Beispielstadt",
+  "contact": "it@uni-beispielstadt.de",
+  "faculty": "Wirtschaftsinformatik"
+}
+
+> {% client.global.set("org2Id", response.body.id); %}
+
+###
+### 2) Creator anlegen
+###
+POST {{baseUrl}}/createCreator
+Content-Type: application/json
+
+{
+  "email": "alice.muster@th-musterstadt.de",
+  "name": "Alice Muster",
+  "role": 1,
+  "organisation_id": "{{org1Id}}"
+}
+
+> {% client.global.set("creator1Id", response.body.author_id); %}
+
+###
+POST {{baseUrl}}/createCreator
+Content-Type: application/json
+
+{
+  "email": "bob.beispiel@uni-beispielstadt.de",
+  "name": "Bob Beispiel",
+  "role": 2,
+  "organisation_id": "{{org2Id}}"
+}
+
+> {% client.global.set("creator2Id", response.body.author_id); %}
+
+###
+### 3) Datenbanken anlegen (inkl. aller ContentBlock-Typen)
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{
+  "ddl_string": "CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(100), age INT);",
+  "version": "PostgreSQL 17.10",
+  "dialect": "PostgreSQL",
+  "weitere_eigenschaften": [
+    {
+      "type": "text",
+      "label": "Beschreibung",
+      "text": "Basis-Schema fuer User-Tabellen"
+    },
+    {
+      "type": "image",
+      "label": "ER-Diagramm",
+      "url": "https://example.org/schema/users-er.png",
+      "alt_text": "ER-Diagramm fuer users"
+    },
+    {
+      "type": "json",
+      "label": "Meta",
+      "data": {
+        "schema_version": "1.0",
+        "contains_demo_data": true
+      }
+    }
+  ]
+}
+
+> {% client.global.set("db1Id", response.body.database_id); %}
+
+###
+POST {{baseUrl}}/createDatabase
+Content-Type: application/json
+
+{}
+
+> {% client.global.set("db2Id", response.body.database_id); %}
+
+###
+### 4) Items anlegen (alle QuestionTypes + alle License + alle Status)
+###
+### 4.1 Freitext, CC0, Draft
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Erklaere den Unterschied zwischen INNER JOIN und LEFT JOIN.",
+  "question_type": "Freitext",
+  "license": "CC0",
+  "status": "Draft",
+  "author_id": "{{creator1Id}}",
+  "item_metadata": {
+    "bloomlevel": "Verstehen",
+    "difficulty": "easy",
+    "keywords": ["JOIN", "SQL"]
+  }
+}
+
+> {% client.global.set("itemFreitextDraftId", response.body.item_id); %}
+
+###
+### 4.2 Freitext, CC_BY, Review, mit solution und tags_id
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Was ist eine dritte Normalform (3NF)?",
+  "question_type": "Freitext",
+  "license": "CC_BY",
+  "status": "Review",
+  "author_id": "{{creator2Id}}",
+  "solution": "Die 3NF liegt vor, wenn keine transitiven Abhaengigkeiten von Nichtschluesselattributen existieren.",
+  "item_metadata": {
+    "bloomlevel": "Verstehen",
+    "difficulty": "medium"
+  },
+  "tags_id": 10
+}
+
+> {% client.global.set("itemFreitextReviewId", response.body.item_id); %}
+
+###
+### 4.3 Programmierung, CC_BY_SA, Approved, Solution als Objekt, mit database_id
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Schreibe eine SQL-Abfrage, die alle Nutzer mit Alter > 18 ausgibt.",
+  "question_type": "Programmierung",
+  "license": "CC_BY_SA",
+  "status": "Approved",
+  "author_id": "{{creator1Id}}",
+  "solution": {
+    "text": "SELECT * FROM users WHERE age > 18;",
+    "output": "Alle Datensaetze mit age > 18"
+  },
+  "item_metadata": {
+    "bloomlevel": "Anwenden",
+    "difficulty": "medium",
+    "dialect": "PostgreSQL"
+  },
+  "database_id": "{{db1Id}}"
+}
+
+> {% client.global.set("itemProgApprovedId", response.body.item_id); %}
+
+###
+### 4.4 Programmierung, CC_BY_ND, Productiv, Solution als String
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Implementiere eine Funktion, die Duplikate aus einer Liste entfernt.",
+  "question_type": "Programmierung",
+  "license": "CC_BY_ND",
+  "status": "Productiv",
+  "author_id": "{{creator2Id}}",
+  "solution": "def dedupe(xs): return list(dict.fromkeys(xs))",
+  "item_metadata": {
+    "bloomlevel": "Anwenden",
+    "language": "Python"
+  }
+}
+
+> {% client.global.set("itemProgProductivId", response.body.item_id); %}
+
+###
+### 4.5 SingleChoice, CC_BY_NC, Retired
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Welche SQL-Klausel filtert Zeilen?",
+  "question_type": "SingleChoice",
+  "license": "CC_BY_NC",
+  "status": "Retired",
+  "author_id": "{{creator1Id}}",
+  "solution": {
+    "options": [
+      { "option_id": "a", "text": "WHERE" },
+      { "option_id": "b", "text": "ORDER BY" },
+      { "option_id": "c", "text": "GROUP BY" }
+    ],
+    "correct_option_ids": ["a"]
+  },
+  "item_metadata": {
+    "bloomlevel": "Erinnern",
+    "difficulty": "easy"
+  }
+}
+
+> {% client.global.set("itemSingleChoiceId", response.body.item_id); %}
+
+###
+### 4.6 MultipleChoice, CC_BY_NC_SA, Draft
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Welche Aussagen zu ACID sind korrekt?",
+  "question_type": "MultipleChoice",
+  "license": "CC_BY_NC_SA",
+  "status": "Draft",
+  "author_id": "{{creator2Id}}",
+  "solution": {
+    "options": [
+      { "option_id": "a", "text": "A steht fuer Atomicity" },
+      { "option_id": "b", "text": "C steht fuer Consistency" },
+      { "option_id": "c", "text": "I steht fuer Isolation" },
+      { "option_id": "d", "text": "D steht fuer Durability" }
+    ],
+    "correct_option_ids": ["a", "b", "c", "d"]
+  },
+  "item_metadata": {
+    "bloomlevel": "Verstehen",
+    "difficulty": "medium"
+  },
+  "database_id": "{{db2Id}}"
+}
+
+> {% client.global.set("itemMultipleChoiceId", response.body.item_id); %}
+
+###
+### 4.7 Freitext, CC_BY_NC_ND, Approved (letzte fehlende Lizenz)
+POST {{baseUrl}}/createItem
+Content-Type: application/json
+
+{
+  "fragestellung": "Nenne zwei Vorteile von Indizes in relationalen Datenbanken.",
+  "question_type": "Freitext",
+  "license": "CC_BY_NC_ND",
+  "status": "Approved",
+  "author_id": "{{creator1Id}}",
+  "item_metadata": {
+    "bloomlevel": "Verstehen",
+    "difficulty": "easy"
+  }
+}
+
+> {% client.global.set("itemLastLicenseId", response.body.item_id); %}
+
+###
+### 5) ItemCollections anlegen
+###
+### 5.1 Collection fuer SQL-Grundlagen
+POST {{baseUrl}}/createItemCollection
+Content-Type: application/json
+
+{
+  "name": "SQL Grundlagen SS26",
+  "item_ids": [{{itemFreitextDraftId}}, {{itemProgApprovedId}}, {{itemSingleChoiceId}}]
+}
+
+> {% client.global.set("collectionSqlBasicsId", response.body.collection_id); %}
+
+###
+### 5.2 Collection fuer MultipleChoice/Freitext-Mix
+POST {{baseUrl}}/createItemCollection
+Content-Type: application/json
+
+{
+  "name": "MC + Freitext Mix",
+  "item_ids": [{{itemMultipleChoiceId}}, {{itemFreitextReviewId}}, {{itemLastLicenseId}}]
+}
+
+> {% client.global.set("collectionMixId", response.body.collection_id); %}
+
+###
+### 5.3 Collection gezielt abrufen
+GET {{baseUrl}}/getItemCollection/{{collectionSqlBasicsId}}
+
+###
+### 6) SolutionAttempts anlegen
+### Hinweis: item_id muss auf ein existierendes Item zeigen, sonst liefert die API 404.
+###
+### 6.1 Programmieraufgabe ohne duration (wird serverseitig berechnet)
+POST {{baseUrl}}/createSolutionAttempt
+Content-Type: application/json
+
+{
+  "attempt_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee1",
+  "candidate_id": "11111111-2222-3333-4444-555555555555",
+  "assessment_id": "99999999-8888-7777-6666-555555555555",
+  "item_id": {{itemProgApprovedId}},
+  "item_version": 2,
+  "response": {
+    "sql": "SELECT * FROM users WHERE age > 18;",
+    "runtime_ms": 12
+  },
+  "score": {
+    "value": 5,
+    "maximum": 5,
+    "correct": true
+  },
+  "timestamps": {
+    "started": "2026-06-28T10:00:00Z",
+    "submitted": "2026-06-28T10:00:37Z"
+  },
+  "process": {
+    "events": [
+      {
+        "type": "attempt_started",
+        "at": "2026-06-28T10:00:00Z"
+      },
+      {
+        "type": "query_executed",
+        "at": "2026-06-28T10:00:12Z"
+      },
+      {
+        "type": "attempt_submitted",
+        "at": "2026-06-28T10:00:37Z"
+      }
+    ]
+  },
+  "evaluation": {
+    "grader": "auto"
+  },
+  "metadata": {
+    "source": "initial_fill"
+  }
+}
+
+###
+### 6.2 Programmieraufgabe mit expliziter duration
+POST {{baseUrl}}/createSolutionAttempt
+Content-Type: application/json
+
+{
+  "attempt_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee2",
+  "candidate_id": "22222222-3333-4444-5555-666666666666",
+  "assessment_id": "99999999-8888-7777-6666-555555555555",
+  "item_id": {{itemProgApprovedId}},
+  "item_version": 2,
+  "response": {
+    "sql": "SELECT name FROM users WHERE age > 18;",
+    "feedback": "Noch keine Altersgrenze parametrisiert"
+  },
+  "score": {
+    "value": 3,
+    "maximum": 5,
+    "correct": false
+  },
+  "timestamps": {
+    "started": "2026-06-28T11:15:00Z",
+    "submitted": "2026-06-28T11:15:52Z",
+    "duration": 52
+  },
+  "process": {
+    "events": []
+  },
+  "evaluation": {
+    "grader": "manual",
+    "comment": "Filterbedingung nicht vollstaendig"
+  },
+  "metadata": {
+    "source": "initial_fill",
+    "review_state": "needs_revision"
+  }
+}
+
+###
+### 6.3 MultipleChoice-Antwort mit Dezimalscore
+POST {{baseUrl}}/createSolutionAttempt
+Content-Type: application/json
+
+{
+  "attempt_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeee3",
+  "candidate_id": "33333333-4444-5555-6666-777777777777",
+  "assessment_id": "12345678-1234-1234-1234-123456789abc",
+  "item_id": {{itemMultipleChoiceId}},
+  "item_version": 1,
+  "response": {
+    "selected_option_ids": ["a", "b", "d"],
+    "auto_score": 0.75
+  },
+  "score": {
+    "value": 0.75,
+    "maximum": 1,
+    "correct": false
+  },
+  "timestamps": {
+    "started": "2026-06-28T12:30:00Z",
+    "submitted": "2026-06-28T12:30:18Z",
+    "duration": 18
+  },
+  "process": {
+    "events": [
+      {
+        "type": "attempt_started",
+        "at": "2026-06-28T12:30:00Z"
+      },
+      {
+        "type": "option_selected",
+        "option_id": "a"
+      },
+      {
+        "type": "option_selected",
+        "option_id": "b"
+      },
+      {
+        "type": "attempt_submitted",
+        "at": "2026-06-28T12:30:18Z"
+      }
+    ]
+  },
+  "evaluation": {
+    "grader": "auto",
+    "rubric": "multiple_choice_partial_credit"
+  },
+  "metadata": {
+    "source": "initial_fill",
+    "ui": "mc_player"
+  }
+}
+
+###
+### 7) Verifikation
+###
+GET {{baseUrl}}/getAllOrganisations
+
+###
+GET {{baseUrl}}/getAllCreator
+
+###
+GET {{baseUrl}}/getAllDatabases
+
+###
+GET {{baseUrl}}/getAllItems
+
+###
+GET {{baseUrl}}/getAllItemCollections
+
+###
+GET {{baseUrl}}/getAllSolutionAttempts
+

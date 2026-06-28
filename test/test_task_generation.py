@@ -28,7 +28,7 @@ from ..src.models.Tasks.Tasks import Item
 from ..src.models.Enums.License import License
 from ..src.models.Enums.Status import Status
 from ..src.models.Enums.Questiontypes import QuestionTypes
-from ..src.models.Enums.Fragenbereich import Fragenbereich
+from ..src.models.Enums.Themenbereich import Themenbereich
 from ..src.schemas.Tasks.Item import (
     ItemCreate,
     MultipleChoiceOption,
@@ -88,6 +88,10 @@ def _create_creator(session: Session, org_id) -> Creator:
     return creator
 
 
+def _default_item_metadata() -> dict:
+    return {"bloomlevel": "apply"}
+
+
 def _freitext_item_payload(author_id) -> dict:
     return {
         "fragestellung": "Was ist eine Transaktion?",
@@ -96,6 +100,7 @@ def _freitext_item_payload(author_id) -> dict:
         "status": Status.Draft.value,
         "author_id": str(author_id),
         "solution": "Eine atomare Folge von DB-Operationen.",
+        "item_metadata": _default_item_metadata(),
     }
 
 
@@ -117,6 +122,7 @@ def _multiple_choice_payload(author_id) -> dict:
             "options": options,
             "correct_option_ids": ["a"],
         },
+        "item_metadata": _default_item_metadata(),
     }
 
 
@@ -132,6 +138,7 @@ def freitext_item_create_accepts_plain_string():
         status=Status.Draft,
         author_id=uuid4(),
         solution="Atomicity, Consistency, Isolation, Durability",
+        item_metadata=_default_item_metadata(),
     )
     assert payload.fragestellung == "Erkläre den ACID-Begriff."
 
@@ -144,6 +151,7 @@ def freitext_item_create_rejects_empty_fragestellung():
             license=License.CC_BY,
             status=Status.Draft,
             author_id=uuid4(),
+            item_metadata=_default_item_metadata(),
         )
 
 
@@ -155,6 +163,7 @@ def freitext_item_create_rejects_object_as_fragestellung():
             license=License.CC_BY,
             status=Status.Draft,
             author_id=uuid4(),
+            item_metadata=_default_item_metadata(),
         )
 
 
@@ -165,6 +174,7 @@ def freitext_item_create_solution_is_optional():
         license=License.CC0,
         status=Status.Draft,
         author_id=uuid4(),
+        item_metadata=_default_item_metadata(),
     )
     assert payload.solution is None
 
@@ -178,6 +188,7 @@ def freitext_item_create_rejects_empty_string_solution():
             status=Status.Draft,
             author_id=uuid4(),
             solution="   ",
+            item_metadata=_default_item_metadata(),
         )
 
 
@@ -193,6 +204,7 @@ def multiple_choice_item_create_accepts_valid_payload():
         status=Status.Draft,
         author_id=uuid4(),
         solution=MultipleChoiceSolutionPayload(options=options, correct_option_ids=["a"]),
+        item_metadata=_default_item_metadata(),
     )
     assert isinstance(payload.fragestellung, MultipleChoiceQuestionPayload)
 
@@ -210,6 +222,7 @@ def multiple_choice_item_create_rejects_plain_string_as_fragestellung():
             status=Status.Draft,
             author_id=uuid4(),
             solution=MultipleChoiceSolutionPayload(options=options, correct_option_ids=["a"]),
+            item_metadata=_default_item_metadata(),
         )
 
 
@@ -230,6 +243,7 @@ def multiple_choice_item_create_rejects_mismatched_option_ids_between_fragestell
             status=Status.Draft,
             author_id=uuid4(),
             solution=MultipleChoiceSolutionPayload(options=solution_options, correct_option_ids=["x"]),
+            item_metadata=_default_item_metadata(),
         )
 
 
@@ -246,6 +260,19 @@ def multiple_choice_item_create_rejects_plain_string_as_solution():
             status=Status.Draft,
             author_id=uuid4(),
             solution="Einfacher String statt Objekt",
+            item_metadata=_default_item_metadata(),
+        )
+
+
+def item_create_rejects_missing_bloomlevel_metadata():
+    with pytest.raises(ValidationError):
+        ItemCreate(
+            fragestellung="Was ist SQL?",
+            question_type=QuestionTypes.Freitext,
+            license=License.CC_BY,
+            status=Status.Draft,
+            author_id=uuid4(),
+            item_metadata={"punkte": 3},
         )
 
 
@@ -288,7 +315,7 @@ def multiple_choice_solution_accepts_multiple_correct_option_ids():
 def test_get_all_available_fachbereiche_returns_all_enum_values(client: TestClient):
     response = client.get("/getAllAvailableFachbereiche")
     assert response.status_code == 200
-    assert set(response.json()) == {f.value for f in Fragenbereich}
+    assert set(response.json()) == {f.value for f in Themenbereich}
 
 
 def test_get_all_available_license_types_returns_all_enum_values(client: TestClient):
@@ -399,6 +426,7 @@ def test_create_item_returns_404_when_author_does_not_exist(client: TestClient):
         "status": Status.Draft.value,
         "author_id": unknown_author_id,
         "solution": "Irgendeine Antwort",
+        "item_metadata": _default_item_metadata(),
     }
     response = client.post("/createItem", json=payload)
     assert response.status_code == 404
@@ -422,12 +450,12 @@ def test_create_item_with_optional_metadata_persists_metadata(client: TestClient
     org = _create_organisation(session)
     creator = _create_creator(session, org.id)
     payload = _freitext_item_payload(creator.author_id)
-    payload["item_metadata"] = {"schwierigkeit": "mittel", "punkte": 5}
+    payload["item_metadata"] = {"bloomlevel": "analyze", "schwierigkeit": "mittel", "punkte": 5}
 
     response = client.post("/createItem", json=payload)
 
     assert response.status_code == 200
-    assert response.json()["item_metadata"] == {"schwierigkeit": "mittel", "punkte": 5}
+    assert response.json()["item_metadata"] == {"bloomlevel": "analyze", "schwierigkeit": "mittel", "punkte": 5}
 
 
 def test_create_item_defaults_status_to_draft_when_not_provided(client: TestClient, session: Session):
@@ -566,17 +594,4 @@ def test_export_items_returns_empty_list_when_no_items_exist(client: TestClient)
     response = client.get("/exportItems")
     assert response.status_code == 200
     assert response.json() == []
-
-
-
-
-
-
-
-
-
-
-
-
-
 

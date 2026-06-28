@@ -1,35 +1,56 @@
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import datetime
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 # ===== SolutionAttempt =====
-class SolutionAttemptBase(BaseModel):
-    """
-    Lösungsversuch einer Frage.
+class ScorePayload(BaseModel):
+    """Bewertungsergebnis eines Loesungsversuchs."""
 
-    - Schema-frei: solution_data ist ein JSON-Feld, das beliebige Strukturen speichern kann
-    - Referenziert eine Item (über item_id)
-    - Optional: student_id, attempt_number, status für Tracking
-    """
+    value: int | float = Field(..., ge=0)
+    maximum: int | float = Field(..., ge=0)
+    correct: bool
+
+    @model_validator(mode="after")
+    def validate_score_range(self):
+        if self.value > self.maximum:
+            raise ValueError("score.value darf nicht groesser als score.maximum sein")
+        return self
+
+
+class TimestampsPayload(BaseModel):
+    """Zeitinformationen eines Loesungsversuchs."""
+
+    started: datetime
+    submitted: datetime
+    duration: int = Field(..., ge=0)
+
+
+class ProcessPayload(BaseModel):
+    """Prozessdaten eines Loesungsversuchs."""
+
+    events: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class SolutionAttemptBase(BaseModel):
+    """Schema-freies MongoDB-Dokument fuer Loesungsversuche."""
+
+    attempt_id: UUID
+    candidate_id: UUID
+    assessment_id: UUID
     item_id: int
-    solution_data: dict[str, Any]
-    student_id: Optional[UUID] = None
-    attempt_number: int = Field(default=1, ge=1)
-    status: str = Field(default="submitted", max_length=50)
+    item_version: int = Field(..., ge=0)
+    response: dict[str, Any]
+    score: ScorePayload
+    timestamps: TimestampsPayload
+    process: ProcessPayload
+    evaluation: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class SolutionAttempt(SolutionAttemptBase):
-    """MongoDB-Dokument fuer Loesungsversuche.
-
-    `_id` wird von MongoDB vergeben und hier als String abgebildet.
-    """
-
+    """MongoDB-Dokument fuer Loesungsversuche."""
     model_config = ConfigDict(populate_by_name=True)
-
-    id: Optional[str] = Field(default=None, alias="_id")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: Optional[datetime] = None
-
+    mongo_id: str | None = Field(default=None, alias="_id")

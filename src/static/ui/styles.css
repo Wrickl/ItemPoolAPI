@@ -43,3 +43,32 @@ textarea.font-monospace {
   cursor: not-allowed;
 }
 
+#resultsTable td:last-child {
+  min-width: 190px;
+}
+
+.detail-table {
+  background: #fff;
+}
+
+.detail-table .detail-key {
+  width: 220px;
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.detail-array-entry {
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: #fcfcfd;
+}
+
+.detail-array-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+

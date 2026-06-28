@@ -12,7 +12,7 @@ from ..Util.serializer import _serialize_text_payload
 from ..database.DAOConnection import get_session
 from ..models.Author import Creator
 from ..models.Enums.License import License
-from ..models.Enums.Fragenbereich import Fragenbereich
+from ..models.Enums.Themenbereich import Themenbereich
 from ..models.Enums.Status import Status
 from ..models.Enums.Questiontypes import QuestionTypes
 from ..models.Organisation import Organisation
@@ -26,7 +26,7 @@ router = APIRouter()
 
 @router.get("/getAllAvailableFachbereiche", tags=["Enums"])
 async def get_available_fachbereiche():
-    return [k.value for k in Fragenbereich]
+    return [k.value for k in Themenbereich]
 
 
 @router.get("/getAllAvailableLicenseTypes", tags=["Enums"])
@@ -55,6 +55,7 @@ async def get_all_creators(session: Session = Depends(get_session)):
     for creator, organisation_name in rows:
         creators.append(
             CreatorRead(
+                author_id=creator.author_id,
                 email=creator.email,
                 name=creator.name,
                 role=creator.role,
@@ -190,10 +191,11 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     - status: Status (optional, default=Draft) - Status des Items
     - author_id: UUID (erforderlich) - UUID des Autors
     - solution: str|object (optional) - Musterlösung, bei MultipleChoice strukturierte Antworten
-    - item_metadata: dict (optional) - Schema-freie Metadaten
+    - item_metadata: dict (erforderlich) - Schema-freie Metadaten mit Pflichtfeld `bloomlevel`
     - tags_id: int (optional) - ID der Tags
     - database_id: int (optional) - ID der Datenbank
     """
+    print(f"Creating item with data: {item_data.model_dump()}")
     # Prüfe, ob der Author existiert
     author = session.exec(select(Creator).where(Creator.author_id == item_data.author_id)).first()
     if not author:

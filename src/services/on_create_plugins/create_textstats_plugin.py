@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any
 
+from sqlalchemy.orm.attributes import flag_modified
 from sqlmodel import select
 from textstat import textstat
 
@@ -50,6 +51,7 @@ class CreateTextStatsPlugin:
 
     def on_item_create(self, item: Any, session) -> None:
         self._apply(item, preserve_timestamp=False)
+        flag_modified(item, "item_metadata")
         session.add(item)
         session.commit()
         session.refresh(item)
@@ -59,6 +61,7 @@ class CreateTextStatsPlugin:
         for item in items:
             try:
                 self._apply(item, preserve_timestamp=True)
+                flag_modified(item, "item_metadata")
                 session.add(item)
             except Exception:
                 continue

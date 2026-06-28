@@ -14,7 +14,10 @@
           <h1 class="mb-1">Item Suche & Export</h1>
           <p class="text-muted mb-0">Suche Items und exportiere sie als JSON-Datei.</p>
         </div>
-        <a class="btn btn-primary" href="/ui/create">Neues Item anlegen</a>
+        <div class="gap-2 d-flex">
+          <a class="btn btn-primary" href="/ui/create">Neues Item anlegen</a>
+          <a class="btn btn-secondary" href="/static/ui/collections.html">Collections verwalten</a>
+        </div>
       </div>
 
       <form id="searchForm" class="row g-3 mb-3">
@@ -42,6 +45,18 @@
           <button id="downloadSelectedBtn" class="btn btn-primary" disabled>
             Download Selected (<span id="selectedCount">0</span>)
           </button>
+          <div class="d-inline-flex gap-2 align-items-center ms-2">
+            <input
+              id="collectionNameInput"
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Collection-Name"
+              style="min-width: 220px;"
+            />
+            <button id="createCollectionBtn" class="btn btn-sm btn-outline-primary" disabled>
+              Als Collection speichern
+            </button>
+          </div>
         </div>
       </div>
 
@@ -57,10 +72,26 @@
               <th>Status</th>
               <th>Autor</th>
               <th>DB</th>
+              <th>Aktionen</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="itemDetailsModal" tabindex="-1" aria-labelledby="itemDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="itemDetailsModalLabel">Item-Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+          </div>
+          <div class="modal-body" id="itemDetailsBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schliessen</button>
+          </div>
+        </div>
       </div>
     </div>
 
