@@ -1,7 +1,7 @@
 import os
 import json
 from enum import Enum
-from typing import Any, List
+from typing import Any
 
 from dotenv import load_dotenv
 import psycopg2
@@ -79,49 +79,3 @@ class DAO:
             if row and "data" in row:
                 return row["data"]
         return None
-    #
-    # # ---------- Task ----------
-    # def store_task(self, task: Task) -> int | None:
-    #     new_id = self._get_next_seq(Collections.TASK.value)
-    #
-    #     # support pydantic or mapping-like task
-    #     if self._isPydanticObject(task):
-    #         task_obj = task.model_dump(mode="json")
-    #     else:
-    #         task_obj = task
-    #
-    #     stimulus_ids = task_obj.get("stimulus_ids")
-    #     solution_ids = task_obj.get("solution_ids")
-    #     metadata = task_obj.get("item_metadata")
-    #
-    #     sql = (
-    #         "INSERT INTO tasks(_id, stimulus_ids, solution_ids, item_metadata) "
-    #         "VALUES (%s, %s, %s, %s) "
-    #         "ON CONFLICT (_id) DO UPDATE SET stimulus_ids = EXCLUDED.stimulus_ids, solution_ids = EXCLUDED.solution_ids, item_metadata = EXCLUDED.item_metadata"
-    #     )
-    #     with self.__conn.cursor() as cur:
-    #         cur.execute(
-    #             sql,
-    #             (new_id, json.dumps(stimulus_ids), json.dumps(solution_ids), json.dumps(metadata)),
-    #         )
-    #     return new_id
-    #
-    # # ---------- Task Collection ----------
-    # def store_task_collection(self, task_collection: List[int], task_collection_name: str) -> int | None:
-    #     new_id = self._get_next_seq(Collections.TASK_COLLECTION.value)
-    #     sql = (
-    #         "INSERT INTO task_collection(_id, task_ids, name) VALUES (%s, %s, %s) "
-    #         "ON CONFLICT (_id) DO UPDATE SET task_ids = EXCLUDED.task_ids, name = EXCLUDED.name"
-    #     )
-    #     with self.__conn.cursor() as cur:
-    #         cur.execute(sql, (new_id, json.dumps(task_collection), task_collection_name))
-    #     return new_id
-    #
-    # def fetch_task_collection(self, id: int) -> List[int]:
-    #     sql = "SELECT task_ids FROM task_collection WHERE _id = %s"
-    #     with self.__conn.cursor() as cur:
-    #         cur.execute(sql, (int(id),))
-    #         row = cur.fetchone()
-    #         if row and "task_ids" in row and row["task_ids"] is not None:
-    #             return row["task_ids"]
-    #     return []

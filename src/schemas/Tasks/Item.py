@@ -59,13 +59,13 @@ class ItemCreate(BaseModel):
     """
 
     fragestellung: str = Field(..., description="Die Aufgabenstellung")
-    question_type: QuestionTypes = Field(..., description="Typ der Frage (z.B. Freitext, MultipleChoice)")
+    question_type: QuestionTypes = Field(..., description="Typ der Frage (z.B. FREITEXT, MULTIPLECHOICE)")
     license: License = Field(..., description="Lizenz des Items")
-    status: Status = Field(default=Status.Draft, description="Status des Items")
+    status: Status = Field(default=Status.DRAFT, description="Status des Items")
     author_id: UUID = Field(..., description="UUID des Autors/Creators")
     solution: str | MultipleChoiceSolutionPayload | ProgrammingSolutionPayload = Field(
         default=None,
-        description="Loesung. Bei MultipleChoice mit Optionen + korrekten IDs; bei Programmierung optional mit `text` + `output`",
+        description="Loesung. Bei MULTIPLECHOICE mit Optionen + korrekten IDs; bei PROGRAMMIERUNG optional mit `text` + `output`",
     )
     item_metadata: dict = Field(..., description="Schema-freie Metadaten (JSON), muss `bloomlevel` enthalten")
     tags_id: Optional[int] = Field(default=None, description="ID der Tags (optional)")
@@ -73,7 +73,7 @@ class ItemCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_by_question_type(self):
-        if self.question_type in (QuestionTypes.MultipleChoice, QuestionTypes.SingleChoice):
+        if self.question_type in (QuestionTypes.MULTIPLECHOICE, QuestionTypes.SINGLECHOICE):
             if not self.fragestellung.strip():
                 raise ValueError("Bei Choice-Fragen muss `fragestellung` ein nicht-leerer String sein")
 
@@ -82,24 +82,24 @@ class ItemCreate(BaseModel):
                     "Bei Choice-Fragen muss `solution` ein Objekt mit `options` und `correct_option_ids` sein"
                 )
 
-            if self.question_type == QuestionTypes.SingleChoice and len(self.solution.correct_option_ids) != 1:
-                raise ValueError("Bei `question_type=SingleChoice` muss genau eine korrekte Option gesetzt sein")
+            if self.question_type == QuestionTypes.SINGLECHOICE and len(self.solution.correct_option_ids) != 1:
+                raise ValueError("Bei `question_type=SINGLECHOICE` muss genau eine korrekte Option gesetzt sein")
 
             bloomlevel = self.item_metadata.get("bloomlevel")
             if bloomlevel is None or (isinstance(bloomlevel, str) and not bloomlevel.strip()):
                 raise ValueError("`item_metadata.bloomlevel` muss gesetzt sein")
             return self
 
-        if self.question_type == QuestionTypes.Programmierung:
+        if self.question_type == QuestionTypes.PROGRAMMIERUNG:
             if not isinstance(self.fragestellung, str) or not self.fragestellung.strip():
-                raise ValueError("Bei `question_type=Programmierung` muss `fragestellung` ein nicht-leerer String sein")
+                raise ValueError("Bei `question_type=PROGRAMMIERUNG` muss `fragestellung` ein nicht-leerer String sein")
             if self.solution is not None:
                 if isinstance(self.solution, str):
                     if not self.solution.strip():
-                        raise ValueError("Bei `question_type=Programmierung` muss `solution` ein nicht-leerer String sein")
+                        raise ValueError("Bei `question_type=PROGRAMMIERUNG` muss `solution` ein nicht-leerer String sein")
                 elif not isinstance(self.solution, ProgrammingSolutionPayload):
                     raise ValueError(
-                        "Bei `question_type=Programmierung` muss `solution` ein String oder Objekt mit `text` und optional `output` sein"
+                        "Bei `question_type=PROGRAMMIERUNG` muss `solution` ein String oder Objekt mit `text` und optional `output` sein"
                     )
             bloomlevel = self.item_metadata.get("bloomlevel")
             if bloomlevel is None or (isinstance(bloomlevel, str) and not bloomlevel.strip()):
@@ -107,9 +107,9 @@ class ItemCreate(BaseModel):
             return self
 
         if not isinstance(self.fragestellung, str) or not self.fragestellung.strip():
-            raise ValueError("Bei nicht-MultipleChoice muss `fragestellung` ein nicht-leerer String sein")
+            raise ValueError("Bei nicht-MULTIPLECHOICE muss `fragestellung` ein nicht-leerer String sein")
         if self.solution is not None and (not isinstance(self.solution, str) or not self.solution.strip()):
-            raise ValueError("Bei nicht-MultipleChoice muss `solution` ein String sein (oder weggelassen werden)")
+            raise ValueError("Bei nicht-MULTIPLECHOICE muss `solution` ein String sein (oder weggelassen werden)")
 
         bloomlevel = self.item_metadata.get("bloomlevel")
         if bloomlevel is None or (isinstance(bloomlevel, str) and not bloomlevel.strip()):

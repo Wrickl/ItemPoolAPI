@@ -1,9 +1,8 @@
 from fastapi import Depends, APIRouter
 from sqlmodel import Session, select
 
-import logging
-from ..database.DAOConnection import get_session
-from ..models.Tasks.Database import Database
+from ..database.dao_connection import get_session
+from ..models.Tasks.database import Database
 from ..schemas.Tasks.Database import DatabaseResponse, DatabaseCreate
 
 router = APIRouter()
@@ -29,9 +28,3 @@ async def create_database(payload: DatabaseCreate, session: Session = Depends(ge
 async def get_all_databases(session: Session = Depends(get_session)):
     databases = session.exec(select(Database)).all()
     return databases
-
-    session.add(database)
-    session.commit()
-    session.refresh(database)
-
-    return database

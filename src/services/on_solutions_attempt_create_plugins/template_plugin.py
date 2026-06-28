@@ -25,8 +25,8 @@ Unterschied zu on_create Plugins:
 
 from sqlmodel import Session
 
-from ...database.MongoConnection import get_solution_attempt_collection
-from ...models.Tasks.Tasks import Item
+from ...database.mongo_connection import get_solution_attempt_collection
+from ...models.Tasks.tasks import Item
 from ..PluginSystem import register_on_solution_attempt_create_plugin
 
 
@@ -158,5 +158,3 @@ class TemplateOnSolutionAttemptCreatePlugin:
 # Hinweis: Diese Zeile MUSS am Ende der Datei stehen,
 # damit das Plugin beim Laden des Moduls automatisch registriert wird
 register_on_solution_attempt_create_plugin(TemplateOnSolutionAttemptCreatePlugin())
-
-

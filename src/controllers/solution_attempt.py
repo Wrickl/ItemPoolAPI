@@ -3,9 +3,9 @@ from fastapi import APIRouter, HTTPException
 from pymongo.errors import PyMongoError
 from sqlmodel import Session
 
-from ..database.DAOConnection import get_engine
-from ..database.MongoConnection import get_solution_attempt_collection
-from ..models.Tasks.Tasks import Item
+from ..database.dao_connection import get_engine
+from ..database.mongo_connection import get_solution_attempt_collection
+from ..models.Tasks.tasks import Item
 from ..schemas.Solutions.SolutionAttempt import SolutionAttemptCreate, SolutionAttemptRead
 from ..services.PluginSystem import run_on_solution_attempt_create
 

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict
 
-from ....database.DAO import DAO
-from ....models.Error import RecordNotFoundError
+from ....database.dao import DAO
+from ....models.error import RecordNotFoundError
 from archiv.models.TaskMaterials.BaseTaskMaterial import (
     MaterialIdOrMaterialReqestObject,
     TaskMaterial,

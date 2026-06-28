@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 from sqlmodel import Session
 
-from ...database.MongoConnection import get_solution_attempt_collection
-from ...models.Tasks.Tasks import Item
+from ...database.mongo_connection import get_solution_attempt_collection
+from ...models.Tasks.tasks import Item
 from ..PluginSystem import register_on_solution_attempt_create_plugin
 
 
@@ -95,9 +95,3 @@ class SampleMetadataOnSolutionAttemptCreatePlugin:
 
 
 register_on_solution_attempt_create_plugin(SampleMetadataOnSolutionAttemptCreatePlugin())
-
-
-
-
-
-

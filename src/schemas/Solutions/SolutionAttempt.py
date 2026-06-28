@@ -78,5 +78,3 @@ class SolutionAttemptCreate(BaseModel):
 
 class SolutionAttemptRead(SolutionAttemptPayload):
     """Response-Modell fuer einen Loesungsversuch."""
-
-

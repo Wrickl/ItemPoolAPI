@@ -22,4 +22,3 @@ class ItemCollectionRead(BaseModel):
 
     class Config:
         from_attributes = True
-

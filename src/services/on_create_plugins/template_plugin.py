@@ -20,7 +20,7 @@ Beispiel-Aufruf (nach Registrierung automatisch aufgerufen):
 from typing import Any
 from sqlmodel import select
 
-from ...models.Tasks.Tasks import Item
+from ...models.Tasks.tasks import Item
 from ..PluginSystem import register_on_create_plugin
 
 
@@ -109,4 +109,3 @@ class TemplateOnCreatePlugin:
 # Hinweis: Diese Zeile MUSS am Ende der Datei stehen,
 # damit das Plugin beim Laden des Moduls automatisch registriert wird
 register_on_create_plugin(TemplateOnCreatePlugin())
-

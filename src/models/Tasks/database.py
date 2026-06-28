@@ -10,7 +10,7 @@ from ...schemas.contentblocks import ContentBlockAdapter
 
 if TYPE_CHECKING:
     # avoid import-time circular dependency for type checking / linters
-    from .Tasks import Item
+    from .tasks import Item
 
 
 class DatabaseBase(SQLModel):

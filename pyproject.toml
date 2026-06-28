@@ -19,6 +19,44 @@ dependencies = [
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "pre-commit>=4.3.0",
+    "pylint>=3.3.8",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
 ]
+
+[tool.pylint.main]
+py-version = "3.12"
+jobs = 0
+ignore-paths = [
+    '^\.venv/.*$',
+    '^archiv/.*$',
+    '^src/Util/mapper\.py$',
+    '^src/database/DAO\.py$',
+    '^src/services/BaseService\.py$',
+    '^src/static/.*$',
+    '^src/services/MetaDataInference/.*$',
+    '^src/services/TaskRegistration/.*$',
+    '^src/services/on_create_plugins/template_plugin\.py$',
+    '^src/services/on_solutions_attempt_create_plugins/template_plugin\.py$',
+    '^test/test_query_meta_data_inference\.py$',
+]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "missing-final-newline",
+]
+
+[tool.pylint.design]
+max-args = 10
+max-attributes = 12
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "q", "db", "it", "id", "pk"]
+

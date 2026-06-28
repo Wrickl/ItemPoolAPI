@@ -116,9 +116,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Erklaere den Unterschied zwischen INNER JOIN und LEFT JOIN.",
-  "question_type": "Freitext",
+  "question_type": "FREITEXT",
   "license": "CC0",
-  "status": "Draft",
+  "status": "DRAFT",
   "author_id": "{{creator1Id}}",
   "item_metadata": {
     "bloomlevel": "Verstehen",
@@ -136,9 +136,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Was ist eine dritte Normalform (3NF)?",
-  "question_type": "Freitext",
+  "question_type": "FREITEXT",
   "license": "CC_BY",
-  "status": "Review",
+  "status": "REVIEW",
   "author_id": "{{creator2Id}}",
   "solution": "Die 3NF liegt vor, wenn keine transitiven Abhaengigkeiten von Nichtschluesselattributen existieren.",
   "item_metadata": {
@@ -157,9 +157,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Schreibe eine SQL-Abfrage, die alle Nutzer mit Alter > 18 ausgibt.",
-  "question_type": "Programmierung",
+  "question_type": "PROGRAMMIERUNG",
   "license": "CC_BY_SA",
-  "status": "Approved",
+  "status": "APPROVED",
   "author_id": "{{creator1Id}}",
   "solution": {
     "text": "SELECT * FROM users WHERE age > 18;",
@@ -182,9 +182,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Implementiere eine Funktion, die Duplikate aus einer Liste entfernt.",
-  "question_type": "Programmierung",
+  "question_type": "PROGRAMMIERUNG",
   "license": "CC_BY_ND",
-  "status": "Productiv",
+  "status": "PRODUCTIV",
   "author_id": "{{creator2Id}}",
   "solution": "def dedupe(xs): return list(dict.fromkeys(xs))",
   "item_metadata": {
@@ -202,9 +202,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Welche SQL-Klausel filtert Zeilen?",
-  "question_type": "SingleChoice",
+  "question_type": "SINGLECHOICE",
   "license": "CC_BY_NC",
-  "status": "Retired",
+  "status": "RETIRED",
   "author_id": "{{creator1Id}}",
   "solution": {
     "options": [
@@ -229,9 +229,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Welche Aussagen zu ACID sind korrekt?",
-  "question_type": "MultipleChoice",
+  "question_type": "MULTIPLECHOICE",
   "license": "CC_BY_NC_SA",
-  "status": "Draft",
+  "status": "DRAFT",
   "author_id": "{{creator2Id}}",
   "solution": {
     "options": [
@@ -258,9 +258,9 @@ Content-Type: application/json
 
 {
   "fragestellung": "Nenne zwei Vorteile von Indizes in relationalen Datenbanken.",
-  "question_type": "Freitext",
+  "question_type": "FREITEXT",
   "license": "CC_BY_NC_ND",
-  "status": "Approved",
+  "status": "APPROVED",
   "author_id": "{{creator1Id}}",
   "item_metadata": {
     "bloomlevel": "Verstehen",
@@ -290,7 +290,7 @@ POST {{baseUrl}}/createItemCollection
 Content-Type: application/json
 
 {
-  "name": "MC + Freitext Mix",
+  "name": "MC + FREITEXT Mix",
   "item_ids": [{{itemMultipleChoiceId}}, {{itemFreitextReviewId}}, {{itemLastLicenseId}}]
 }
 

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from ..database.DAOConnection import get_session
-from ..models.Tasks.Tasks import Item
-from ..models.Tasks.ItemCollection import ItemCollection
+from ..database.dao_connection import get_session
+from ..models.Tasks.tasks import Item
+from ..models.Tasks.item_collection import ItemCollection
 from ..schemas.Tasks.ItemCollection import ItemCollectionCreate, ItemCollectionRead
 
 router = APIRouter()
@@ -45,7 +45,8 @@ async def get_item_collection(collection_id: int, session: Session = Depends(get
 
 
 @router.put("/updateItemCollection/{collection_id}", response_model=ItemCollectionRead, tags=["ItemCollections"])
-async def update_item_collection(collection_id: int, collection_data: ItemCollectionCreate, session: Session = Depends(get_session)):
+async def update_item_collection(collection_id: int, collection_data: ItemCollectionCreate,
+                                 session: Session = Depends(get_session)):
     collection = session.get(ItemCollection, collection_id)
     if collection is None:
         raise HTTPException(status_code=404, detail=f"Collection mit ID {collection_id} wurde nicht gefunden")
@@ -76,5 +77,3 @@ async def delete_item_collection(collection_id: int, session: Session = Depends(
     session.delete(collection)
     session.commit()
     return {"detail": f"Collection mit ID {collection_id} wurde gelöscht"}
-
-

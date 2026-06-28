@@ -1,7 +1,7 @@
-from .Author import Creator
-from .Organisation import Organisation
-from .Tasks.Tasks import Questions, Placeholders, Database, Item
-from .Tasks.ItemCollection import ItemCollection
+from .author import Creator
+from .organisation import Organisation
+from .Tasks.tasks import Questions, Placeholders, Database, Item
+from .Tasks.item_collection import ItemCollection
 from .Solutions.SolutionAttempt import SolutionAttempt
 
 __all__ = [

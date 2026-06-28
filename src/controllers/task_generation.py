@@ -9,14 +9,14 @@ from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 
 from ..Util.serializer import _serialize_text_payload
-from ..database.DAOConnection import get_session
-from ..models.Author import Creator
+from ..database.dao_connection import get_session
+from ..models.author import Creator
 from ..models.Enums.License import License
 from ..models.Enums.Themenbereich import Themenbereich
 from ..models.Enums.Status import Status
 from ..models.Enums.Questiontypes import QuestionTypes
-from ..models.Organisation import Organisation
-from ..models.Tasks.Tasks import Item
+from ..models.organisation import Organisation
+from ..models.Tasks.tasks import Item
 from ..schemas.Author.Author import CreatorCreate, CreatorRead
 from ..schemas.Tasks.Item import ItemCreate, ItemResponse, ItemWithAuthorResponse
 from ..services.PluginSystem import run_on_item_create
@@ -48,7 +48,8 @@ async def get_all_creators(session: Session = Depends(get_session)):
     """
     Alle Creator/Authors aus der Datenbank auslesen.
     """
-    stmt = select(Creator, Organisation.name).join(Organisation, Creator.organisation_id == Organisation.id)  # type: ignore[arg-type]
+    stmt = select(Creator, Organisation.name).join(Organisation,
+                                                   Creator.organisation_id == Organisation.id)  # type: ignore[arg-type]
     rows = session.exec(stmt).all()
 
     creators = []
@@ -188,9 +189,9 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     - fragestellung: str (erforderlich) - Die Aufgabenstellung
     - question_type: QuestionTypes (erforderlich) - Typ der Frage
     - license: License (erforderlich) - Lizenz des Items
-    - status: Status (optional, default=Draft) - Status des Items
+    - status: Status (optional, default=DRAFT) - Status des Items
     - author_id: UUID (erforderlich) - UUID des Autors
-    - solution: str|object (optional) - Musterlösung, bei MultipleChoice strukturierte Antworten
+    - solution: str|object (optional) - Musterlösung, bei MULTIPLECHOICE strukturierte Antworten
     - item_metadata: dict (erforderlich) - Schema-freie Metadaten mit Pflichtfeld `bloomlevel`
     - tags_id: int (optional) - ID der Tags
     - database_id: int (optional) - ID der Datenbank

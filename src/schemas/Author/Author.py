@@ -3,7 +3,7 @@ from uuid import UUID
 from pydantic import ConfigDict
 from sqlmodel import SQLModel
 
-from ...models.Author import CreatorBase
+from ...models.author import CreatorBase
 
 
 class CreatorCreate(CreatorBase):

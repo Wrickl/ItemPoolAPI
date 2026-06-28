@@ -1,40 +1,39 @@
-import os
 import json
-import pytest
-from uuid import uuid4
+import os
 from unittest.mock import patch
+from uuid import uuid4
 
-os.environ.setdefault("PG_USER", "test")
-os.environ.setdefault("PG_PW", "test")
-os.environ.setdefault("PG_DB", "test")
-os.environ.setdefault("MONGO_URI", "mongodb://localhost:27017")
-
+import pytest
 import sqlalchemy.dialects.postgresql as pg_dialect
-from sqlalchemy import JSON
-pg_dialect.JSONB = JSON  # SQLite kennt kein JSONB – auf JSON umbiegen
-
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
+from sqlalchemy import JSON
 from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
-from pydantic import ValidationError
 
-from ..src.controllers import TaskGeneration as _task_gen_module
-from ..src.controllers.TaskGeneration import router
-from ..src.database.DAOConnection import get_session
-from ..src.models.Author import Creator
-from ..src.models.Organisation import Organisation
-from ..src.models.Tasks.Tasks import Item
+from ..src.controllers import task_generation as _task_gen_module
+from ..src.controllers.task_generation import router
+from ..src.database.dao_connection import get_session
 from ..src.models.Enums.License import License
-from ..src.models.Enums.Status import Status
 from ..src.models.Enums.Questiontypes import QuestionTypes
+from ..src.models.Enums.Status import Status
 from ..src.models.Enums.Themenbereich import Themenbereich
+from ..src.models.author import Creator
+from ..src.models.organisation import Organisation
 from ..src.schemas.Tasks.Item import (
     ItemCreate,
     MultipleChoiceOption,
     MultipleChoiceQuestionPayload,
     MultipleChoiceSolutionPayload,
 )
+
+os.environ.setdefault("PG_USER", "test")
+os.environ.setdefault("PG_PW", "test")
+os.environ.setdefault("PG_DB", "test")
+os.environ.setdefault("MONGO_URI", "mongodb://localhost:27017")
+
+pg_dialect.JSONB = JSON  # SQLite kennt kein JSONB – auf JSON umbiegen
 
 
 # ---------------------------------------------------------------------------
@@ -95,9 +94,9 @@ def _default_item_metadata() -> dict:
 def _freitext_item_payload(author_id) -> dict:
     return {
         "fragestellung": "Was ist eine Transaktion?",
-        "question_type": QuestionTypes.Freitext.value,
+        "question_type": QuestionTypes.FREITEXT.value,
         "license": License.CC_BY.value,
-        "status": Status.Draft.value,
+        "status": Status.DRAFT.value,
         "author_id": str(author_id),
         "solution": "Eine atomare Folge von DB-Operationen.",
         "item_metadata": _default_item_metadata(),
@@ -114,9 +113,9 @@ def _multiple_choice_payload(author_id) -> dict:
             "prompt": "Ist SQL eine Sprache?",
             "options": options,
         },
-        "question_type": QuestionTypes.MultipleChoice.value,
+        "question_type": QuestionTypes.MULTIPLECHOICE.value,
         "license": License.CC0.value,
-        "status": Status.Draft.value,
+        "status": Status.DRAFT.value,
         "author_id": str(author_id),
         "solution": {
             "options": options,
@@ -133,9 +132,9 @@ def _multiple_choice_payload(author_id) -> dict:
 def freitext_item_create_accepts_plain_string():
     payload = ItemCreate(
         fragestellung="Erkläre den ACID-Begriff.",
-        question_type=QuestionTypes.Freitext,
+        question_type=QuestionTypes.FREITEXT,
         license=License.CC_BY,
-        status=Status.Draft,
+        status=Status.DRAFT,
         author_id=uuid4(),
         solution="Atomicity, Consistency, Isolation, Durability",
         item_metadata=_default_item_metadata(),
@@ -147,9 +146,9 @@ def freitext_item_create_rejects_empty_fragestellung():
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung="   ",
-            question_type=QuestionTypes.Freitext,
+            question_type=QuestionTypes.FREITEXT,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             item_metadata=_default_item_metadata(),
         )
@@ -159,9 +158,9 @@ def freitext_item_create_rejects_object_as_fragestellung():
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung={"prompt": "Hallo", "options": []},
-            question_type=QuestionTypes.Freitext,
+            question_type=QuestionTypes.FREITEXT,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             item_metadata=_default_item_metadata(),
         )
@@ -170,9 +169,9 @@ def freitext_item_create_rejects_object_as_fragestellung():
 def freitext_item_create_solution_is_optional():
     payload = ItemCreate(
         fragestellung="Beschreibe Normalformen.",
-        question_type=QuestionTypes.Freitext,
+        question_type=QuestionTypes.FREITEXT,
         license=License.CC0,
-        status=Status.Draft,
+        status=Status.DRAFT,
         author_id=uuid4(),
         item_metadata=_default_item_metadata(),
     )
@@ -183,9 +182,9 @@ def freitext_item_create_rejects_empty_string_solution():
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung="Gültige Frage",
-            question_type=QuestionTypes.Freitext,
+            question_type=QuestionTypes.FREITEXT,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             solution="   ",
             item_metadata=_default_item_metadata(),
@@ -199,9 +198,9 @@ def multiple_choice_item_create_accepts_valid_payload():
     ]
     payload = ItemCreate(
         fragestellung=MultipleChoiceQuestionPayload(prompt="Ist 1+1=2?", options=options),
-        question_type=QuestionTypes.MultipleChoice,
+        question_type=QuestionTypes.MULTIPLECHOICE,
         license=License.CC_BY_SA,
-        status=Status.Draft,
+        status=Status.DRAFT,
         author_id=uuid4(),
         solution=MultipleChoiceSolutionPayload(options=options, correct_option_ids=["a"]),
         item_metadata=_default_item_metadata(),
@@ -217,9 +216,9 @@ def multiple_choice_item_create_rejects_plain_string_as_fragestellung():
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung="Einfacher Text statt Objekt",
-            question_type=QuestionTypes.MultipleChoice,
+            question_type=QuestionTypes.MULTIPLECHOICE,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             solution=MultipleChoiceSolutionPayload(options=options, correct_option_ids=["a"]),
             item_metadata=_default_item_metadata(),
@@ -238,9 +237,9 @@ def multiple_choice_item_create_rejects_mismatched_option_ids_between_fragestell
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung=MultipleChoiceQuestionPayload(prompt="Frage?", options=fragestellung_options),
-            question_type=QuestionTypes.MultipleChoice,
+            question_type=QuestionTypes.MULTIPLECHOICE,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             solution=MultipleChoiceSolutionPayload(options=solution_options, correct_option_ids=["x"]),
             item_metadata=_default_item_metadata(),
@@ -255,9 +254,9 @@ def multiple_choice_item_create_rejects_plain_string_as_solution():
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung=MultipleChoiceQuestionPayload(prompt="Frage?", options=options),
-            question_type=QuestionTypes.MultipleChoice,
+            question_type=QuestionTypes.MULTIPLECHOICE,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             solution="Einfacher String statt Objekt",
             item_metadata=_default_item_metadata(),
@@ -268,9 +267,9 @@ def item_create_rejects_missing_bloomlevel_metadata():
     with pytest.raises(ValidationError):
         ItemCreate(
             fragestellung="Was ist SQL?",
-            question_type=QuestionTypes.Freitext,
+            question_type=QuestionTypes.FREITEXT,
             license=License.CC_BY,
-            status=Status.Draft,
+            status=Status.DRAFT,
             author_id=uuid4(),
             item_metadata={"punkte": 3},
         )
@@ -341,7 +340,8 @@ def test_get_all_available_question_types_returns_all_enum_values(client: TestCl
 # ===========================================================================
 
 def test_create_organisation_persists_and_returns_organisation(client: TestClient):
-    response = client.post("/createOrganisation", json={"name": "FH Test", "contact": "fh@test.de", "faculty": "Informatik"})
+    response = client.post("/createOrganisation",
+                           json={"name": "FH Test", "contact": "fh@test.de", "faculty": "Informatik"})
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "FH Test"
@@ -411,8 +411,8 @@ def test_create_item_with_freitext_persists_and_returns_item(client: TestClient,
     assert response.status_code == 200
     data = response.json()
     assert data["fragestellung"] == "Was ist eine Transaktion?"
-    assert data["question_type"] == QuestionTypes.Freitext.value
-    assert data["status"] == Status.Draft.value
+    assert data["question_type"] == QuestionTypes.FREITEXT.value
+    assert data["status"] == Status.DRAFT.value
     assert data["author_id"] == str(creator.author_id)
     assert "item_id" in data
 
@@ -421,9 +421,9 @@ def test_create_item_returns_404_when_author_does_not_exist(client: TestClient):
     unknown_author_id = str(uuid4())
     payload = {
         "fragestellung": "Irgendeine Frage",
-        "question_type": QuestionTypes.Freitext.value,
+        "question_type": QuestionTypes.FREITEXT.value,
         "license": License.CC_BY.value,
-        "status": Status.Draft.value,
+        "status": Status.DRAFT.value,
         "author_id": unknown_author_id,
         "solution": "Irgendeine Antwort",
         "item_metadata": _default_item_metadata(),
@@ -441,7 +441,7 @@ def test_create_item_with_multiple_choice_persists_structured_payload(client: Te
 
     assert response.status_code == 200
     data = response.json()
-    assert data["question_type"] == QuestionTypes.MultipleChoice.value
+    assert data["question_type"] == QuestionTypes.MULTIPLECHOICE.value
     fragestellung = json.loads(data["fragestellung"])
     assert fragestellung["prompt"] == "Ist SQL eine Sprache?"
 
@@ -467,7 +467,7 @@ def test_create_item_defaults_status_to_draft_when_not_provided(client: TestClie
     response = client.post("/createItem", json=payload)
 
     assert response.status_code == 200
-    assert response.json()["status"] == Status.Draft.value
+    assert response.json()["status"] == Status.DRAFT.value
 
 
 def test_get_all_items_returns_all_persisted_items(client: TestClient, session: Session):
@@ -594,4 +594,3 @@ def test_export_items_returns_empty_list_when_no_items_exist(client: TestClient)
     response = client.get("/exportItems")
     assert response.status_code == 200
     assert response.json() == []
-

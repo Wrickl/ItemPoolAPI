@@ -1,5 +1,5 @@
-from .DAOConnection import get_session, create_db_and_tables
-from .MongoConnection import (
+from .dao_connection import get_session, create_db_and_tables
+from .mongo_connection import (
 	get_mongo_client,
 	get_mongo_database,
 	get_solution_attempt_collection,

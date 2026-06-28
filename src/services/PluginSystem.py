@@ -118,4 +118,3 @@ def load_plugins() -> None:
 
 
 load_plugins()
-

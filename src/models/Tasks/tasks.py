@@ -4,13 +4,16 @@ from uuid import UUID
 
 from sqlmodel import SQLModel, Field, Relationship, Column, JSON
 
-from .Database import Database
-from ..Author import Creator
+from .database import Database
+from ..author import Creator
 from ..Enums.License import License
 from ..Enums.Themenbereich import Themenbereich
 from ..Enums.Status import Status
 from ..Enums.Questiontypes import QuestionTypes
-"""TODO Beachten von verschiedene Fragentypen ( Freitext, Programmierung (SQL), oder Multiple Choice) mit entsprechenden Anpassungen der Datenbank-Modelle, z.B. durch Vererbung oder separate Tabellen für spezifische Fragentypen."""
+
+"""TODO Beachten von verschiedene Fragentypen ( FREITEXT, PROGRAMMIERUNG (SQL), oder Multiple Choice)
+ mit entsprechenden Anpassungen der Datenbank-Modelle,
+  z.B. durch Vererbung oder separate Tabellen für spezifische Fragentypen."""
 
 # ===== Questions =====
 class QuestionsBase(SQLModel):
@@ -49,7 +52,7 @@ class ItemBase(SQLModel):
     status: Status
     fragestellung: str
     solution: str
-    fragenart: Optional[Themenbereich] = None #TODO Ausführung prüfen
+    fragenart: Optional[Themenbereich] = None
     question_type: QuestionTypes
     item_metadata: Optional[dict] = Field(default=None, sa_column=Column(JSON))
     tags_id: Optional[int] = None

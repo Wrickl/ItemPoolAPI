@@ -2,6 +2,7 @@ import os
 from typing import Any, Optional
 
 from dotenv import load_dotenv
+from pymongo import MongoClient
 
 load_dotenv()
 
@@ -26,8 +27,6 @@ def _get_mongo_uri() -> str:
 def get_mongo_client() -> Any:
     global _mongo_client
     if _mongo_client is None:
-        from pymongo import MongoClient
-
         _mongo_client = MongoClient(_get_mongo_uri())
     return _mongo_client
 
@@ -47,5 +46,3 @@ def close_mongo_client() -> None:
     if _mongo_client is not None:
         _mongo_client.close()
         _mongo_client = None
-
-

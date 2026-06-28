@@ -3,7 +3,5 @@ import enum
 
 class Themenbereich(str, enum.Enum):
     SQL = "SQL"
-    Modellierung = "Modellierung"
+    MODELLIERUNG = "Modellierung"
     ## TODO some more?
-
-

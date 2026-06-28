@@ -14,4 +14,3 @@ class ItemCollection(ItemCollectionBase, table=True):
     __tablename__ = "ItemCollection"
 
     collection_id: Optional[int] = Field(default=None, primary_key=True)
-

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
-from ..database.DAOConnection import get_session
+from ..database.dao_connection import get_session
 from ..services.PluginSystem import (
     get_active_plugins,
     run_on_existing_items,
@@ -34,4 +34,3 @@ def run_on_solution_attempt_create_plugin_backfill(session: Session = Depends(ge
     """Wendet alle `on_solutions_attempt_create`-Plugins auf bereits vorhandene Daten an."""
     run_on_existing_solution_attempts(session)
     return {"message": "on_solutions_attempt_create plugins were applied to existing solution attempts"}
-

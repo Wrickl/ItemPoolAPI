@@ -4,7 +4,7 @@ from typing import Any
 from textstat import textstat
 
 from .PluginSystem import register_plugin
-from ..models.Tasks.Tasks import Item
+from ..models.Tasks.tasks import Item
 
 
 def _generate_textstats(text: str) -> dict:

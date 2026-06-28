@@ -7,13 +7,13 @@ from fastapi.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
 
 from .Util.logging.logger_config import log_config
-from .controllers import DatabaseGeneration
-from .controllers import ItemCollection
-from .controllers import PluginAdministration
-from .controllers import SolutionAttempt
-from .controllers import TaskGeneration
-from .database.DAOConnection import create_db_and_tables
-from .database.MongoConnection import close_mongo_client
+from .controllers import database_generation
+from .controllers import item_collection
+from .controllers import plugin_administration
+from .controllers import solution_attempt
+from .controllers import task_generation
+from .database.dao_connection import create_db_and_tables
+from .database.mongo_connection import close_mongo_client
 
 dictConfig(log_config)
 
@@ -26,11 +26,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(TaskGeneration.router)
-app.include_router(SolutionAttempt.router)
-app.include_router(ItemCollection.router)
-app.include_router(DatabaseGeneration.router)
-app.include_router(PluginAdministration.router)
+app.include_router(task_generation.router)
+app.include_router(solution_attempt.router)
+app.include_router(item_collection.router)
+app.include_router(database_generation.router)
+app.include_router(plugin_administration.router)
 
 # Mount static UI files (Bootstrap-based frontend)
 static_dir = Path(__file__).resolve().parent / "static"

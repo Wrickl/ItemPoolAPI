@@ -21,7 +21,7 @@ Content-Type: application/json
   "fragestellung": "Schreibe eine SQL-Abfrage, die alle Nutzer älter als 18 Jahren findet",
   "question_type": "SQL",
   "license": "CC_BY",
-  "status": "Draft",
+  "status": "DRAFT",
   "author_id": "{{creatorId}}",
   "solution": "SELECT * FROM users WHERE age > 18;",
   "item_metadata": {
@@ -45,7 +45,7 @@ Content-Type: application/json
 
 {
   "fragestellung": "Modelliere eine Datenbank für eine Buchverwaltung",
-  "question_type": "Modellierung",
+  "question_type": "MODELLIERUNG",
   "license": "CC_BY_SA",
   "author_id": "{{creatorId}}"
 }
@@ -61,7 +61,7 @@ Content-Type: application/json
   "fragestellung": "Implementiere einen binären Suchbaum in Python",
   "question_type": "SQL",
   "license": "CC0",
-  "status": "Review",
+  "status": "REVIEW",
   "author_id": "{{creatorId}}",
   "solution": "# Beispiel-Implementierung",
   "item_metadata": {
@@ -92,7 +92,7 @@ Content-Type: application/json
   "fragestellung": "Finde alle Bestellungen eines Kunden mit SQL-Query",
   "question_type": "SQL",
   "license": "CC_BY",
-  "status": "Approved",
+  "status": "APPROVED",
   "author_id": "{{creatorId}}",
   "solution": "SELECT * FROM orders WHERE customer_id = ?;",
   "database_id": 1
@@ -107,7 +107,7 @@ Content-Type: application/json
 
 {
   "fragestellung": "Was ist eine Normalform in Datenbanken?",
-  "question_type": "Modellierung",
+  "question_type": "MODELLIERUNG",
   "license": "CC_BY",
   "author_id": "{{creatorId}}",
   "tags_id": 5

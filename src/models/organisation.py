@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 if TYPE_CHECKING:
-    from .Author import Creator
+    from .author import Creator
 
 
 class OrganisationBase(SQLModel):

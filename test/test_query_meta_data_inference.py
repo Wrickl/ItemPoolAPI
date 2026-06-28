@@ -1,8 +1,9 @@
+import pytest
+from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
+
 from ..src.services.MetaDataInference.SQLDataInferenceHandlers.QueryMetaDataInferenceHandler import (
     QueryMetricsHandler,
 )
-from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
-import pytest
 
 query_metrics_handler = QueryMetricsHandler()
 

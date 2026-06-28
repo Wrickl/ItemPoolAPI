@@ -1,2 +1,1 @@
 """Plugins for the `on_solutions_attempt_create` trigger."""
-

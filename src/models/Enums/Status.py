@@ -2,9 +2,9 @@ import enum
 
 
 class Status(str, enum.Enum):
-    Draft = "Draft"
-    Review = "Review"
-    Approved = "Approved"
-    Productiv = "Productiv"
-    Retired = "Retired"
+    DRAFT = "Draft"
+    REVIEW = "Review"
+    APPROVED = "Approved"
+    PRODUCTIV = "Productiv"
+    RETIRED = "Retired"
     ## Todo Ausarbeitung/UI: Ist eine Beschreibung der  Status nötig?
