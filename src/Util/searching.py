@@ -6,7 +6,7 @@ from sqlmodel.sql._expression_select_cls import SelectOfScalar
 from ..models import Item, Creator
 
 
-async def search_for_item(author_id: str | None, author_name: str | None, database_id: int | None, q: str | None) -> \
+def search_for_item(author_id: str | None, author_name: str | None, database_id: int | None, q: str | None) -> \
         SelectOfScalar[Any]:
     stmt = select(Item)
     if q:

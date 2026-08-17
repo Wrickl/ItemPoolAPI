@@ -5,7 +5,6 @@ import logging
 from sqlglot import parse_one, exp, Expression
 
 from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
-from ..models.
 from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
 
 logger = logging.getLogger("uvicorn.error")
@@ -57,12 +56,3 @@ class SQLAnalyzer:
         if ast is None:
             return []
         return ast.walk()
-
-
-if __name__ == '__main__':
-    query = "SELECT * FROM users WHERE age > 30"
-    dialect = "postgres"
-
-    handler = QueryMetricsHandler()
-    metrics = handler.infer_metadata(QueryTaskMaterial(query=query, dialect=dialect))
-    print(metrics)

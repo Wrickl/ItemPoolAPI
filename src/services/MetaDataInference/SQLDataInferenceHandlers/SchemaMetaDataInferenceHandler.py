@@ -1,5 +1,6 @@
 from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
 
+
 class SchemaMetricsHandler(MetaDataInferenceHandler):
     """
     TODO

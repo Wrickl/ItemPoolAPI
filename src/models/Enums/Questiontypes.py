@@ -7,4 +7,4 @@ class QuestionTypes(str, enum.Enum):
     PROGRAMMIERUNG = "Programmierung"
     SINGLECHOICE = "Single Choice"
     MULTIPLECHOICE = "Multiple Choice"
-    ## TODO some more?
+    # TODO some more?

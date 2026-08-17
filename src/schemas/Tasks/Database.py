@@ -13,8 +13,10 @@ class DatabaseCreate(BaseModel):
     dialect: Optional[str] = Field(default=None, description="SQL-Dialekt, z.B. PostgreSQL")
     weitere_eigenschaften: list[ContentBlock] = []
 
+
 class DatabaseUpdate(BaseModel):
     pass
+
 
 class DatabaseResponse(BaseModel):
     """Response-Modell fuer eine erstellte oder gelesene Datenbank-Definition."""

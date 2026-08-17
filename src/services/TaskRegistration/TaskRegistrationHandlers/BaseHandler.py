@@ -31,7 +31,7 @@ class TaskHandler(ABC):
     def _handle_id(self, id: int):
         result = self._dao.get_task_material(id)
 
-        if result == None:
+        if result is None:
             raise RecordNotFoundError(f"The task_material_id: {id} does not exist.")
         return id
 

@@ -1,7 +1,7 @@
 from typing import Optional, List
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column
+from sqlalchemy import Column, JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import SQLModel, Relationship, Field
 
@@ -20,7 +20,7 @@ class DatabaseBase(SQLModel):
     weitere_eigenschaften: list[dict] = Field(
         default_factory=list,
         sa_column=Column(
-            JSONB,
+            JSONB().with_variant(JSON(), "sqlite"),
             nullable=False,
         ),
     )

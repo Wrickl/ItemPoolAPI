@@ -29,4 +29,3 @@ class TextMetricsHandler(MetaDataInferenceHandler):
             "gulpease_index": textstat.gulpease_index(text),
             "osman": textstat.osman(text)
         }
-        

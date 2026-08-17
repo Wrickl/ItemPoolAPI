@@ -1,19 +1,18 @@
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import Any, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
 from sqlmodel import SQLModel, Field, Relationship, Column, JSON
 
 from .database import Database
-from ..author import Creator
-from ..Enums.License import License
-from ..Enums.Themenbereich import Themenbereich
-from ..Enums.Status import Status
 from ..Enums.Questiontypes import QuestionTypes
+from ..author import Creator
 
-"""TODO Beachten von verschiedene Fragentypen ( FREITEXT, PROGRAMMIERUNG (SQL), oder Multiple Choice)
- mit entsprechenden Anpassungen der Datenbank-Modelle,
-  z.B. durch Vererbung oder separate Tabellen für spezifische Fragentypen."""
+if TYPE_CHECKING:
+    from src.models.Tasks.content_types import ItemType, ItemContent
+
+"""TODO Metaschicht einziehen alle Hardcodiert Sachen entfernen"""
+
 
 # ===== Questions =====
 class QuestionsBase(SQLModel):
@@ -48,17 +47,20 @@ class Placeholders(PlaceholdersBase, table=True):
 
 # ===== Item =====
 class ItemBase(SQLModel):
-    license: License
-    status: Status
-    fragestellung: str
-    solution: str
-    fragenart: Optional[Themenbereich] = None
-    question_type: QuestionTypes
-    item_metadata: Optional[dict] = Field(default=None, sa_column=Column(JSON))
+    license: Optional[int] = Field(default=None, foreign_key="license.license_id")
+    status: Optional[int] = Field(default=None, foreign_key="status.status_id")
+    fragestellung: Optional[str] = None
+    solution: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    fragenart: Optional[int] = Field(default=None, foreign_key="themenbereich.themenbereich_id")
+    question_type: Optional[QuestionTypes] = None  ## TODO entferne und durch ContentType Picese ersetzen
+    interaction_content: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    stimuli_content: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    item_metadata: dict = Field(default_factory=dict, sa_column=Column(JSON))
     tags_id: Optional[int] = None
-    created_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     author_id: UUID = Field(foreign_key="Author.author_id")
     database_id: Optional[int] = Field(default=None, foreign_key="database.database_id")
+    item_type_id: Optional[int] = Field(default=None, foreign_key="ItemType.item_type_id")
 
 
 class Item(ItemBase, table=True):
@@ -67,3 +69,5 @@ class Item(ItemBase, table=True):
     item_id: Optional[int] = Field(default=None, primary_key=True)
     author: Creator = Relationship(back_populates="items")
     database: Optional[Database] = Relationship(back_populates="items")
+    item_type: Optional["ItemType"] = Relationship(back_populates="items")
+    content_values: List["ItemContent"] = Relationship(back_populates="item")

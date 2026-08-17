@@ -58,7 +58,7 @@ class TemplateOnCreatePlugin:
             session.commit()
             session.refresh(item)
 
-        except Exception as e:
+        except Exception as Except:
             # Fehler sollten das Plugin nicht brechen
             # TODO: Bei Bedarf Logging hinzufügen
             pass

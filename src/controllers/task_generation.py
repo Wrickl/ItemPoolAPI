@@ -1,42 +1,34 @@
 import io
 import json
+import logging
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 
+from ..Util.searching import search_for_item
 from ..Util.serializer import _serialize_text_payload
 from ..database.dao_connection import get_session
-from ..models.author import Creator
 from ..models.Enums.License import License
-from ..models.Enums.Themenbereich import Themenbereich
-from ..models.Enums.Status import Status
 from ..models.Enums.Questiontypes import QuestionTypes
-from ..models.organisation import Organisation
+from ..models.Enums.Status import Status
+from ..models.Enums.Themenbereich import Themenbereich
+from ..models.Tasks.content_types import ContentPiece
 from ..models.Tasks.tasks import Item
+from ..models.author import Creator
+from ..models.organisation import Organisation
 from ..schemas.Author.Author import CreatorCreate, CreatorRead
 from ..schemas.Tasks.Item import ItemCreate, ItemResponse, ItemWithAuthorResponse
+from ..schemas.Tasks.License import LicenseResponse, LicenseCreate
+from ..schemas.Tasks.Status import StatusResponse, StatusCreate
+from ..schemas.Tasks.Themenbereich import ThemenbereichResponse, ThemenbereichCreate
 from ..services.PluginSystem import run_on_item_create
 
 router = APIRouter()
 
-
-@router.get("/getAllAvailableFachbereiche", tags=["Enums"])
-async def get_available_fachbereiche():
-    return [k.value for k in Themenbereich]
-
-
-@router.get("/getAllAvailableLicenseTypes", tags=["Enums"])
-async def get_available_license_types():
-    return [k.value for k in License]
-
-
-@router.get("/getAllAvailableStatusTypes", tags=["Enums"])
-async def get_available_status_types():
-    return [k.value for k in Status]
 
 @router.get("/getAllAvailableQuestionsTypes", tags=["Enums"])
 async def get_available_questions_types():
@@ -105,8 +97,8 @@ async def get_all_questions(session: Session = Depends(get_session)):
     """
     Rückgabe aller registrierten Items
     """
-    itmes = session.exec(select(Item)).all()
-    return itmes
+    items = session.exec(select(Item)).all()
+    return items
 
 
 @router.get("/searchItems", response_model=list[ItemWithAuthorResponse], tags=["Items"])
@@ -159,17 +151,7 @@ async def export_items(
         session: Session = Depends(get_session),
 ):
     """Exportiere gefundene Items als JSON-Datei. Wenn keine Filter gesetzt sind, werden alle Items exportiert."""
-    stmt = select(Item)
-    if q:
-        stmt = stmt.where(Item.fragestellung.ilike(f"%{q}%"))  # type: ignore[attr-defined]
-    if author_id:
-        stmt = stmt.where(Item.author_id == author_id)
-    elif author_name:
-        stmt = stmt.join(Creator).where(Creator.name.ilike(f"%{author_name}%"))  # type: ignore[attr-defined]
-    if database_id:
-        stmt = stmt.where(Item.database_id == database_id)
-
-    items = session.exec(stmt).all()
+    items = session.exec(search_for_item(author_id, author_name, database_id, q)).all()
 
     payload = [ItemResponse.model_validate(it).model_dump(mode="json") for it in items]
     output = io.StringIO()
@@ -189,14 +171,16 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     - fragestellung: str (erforderlich) - Die Aufgabenstellung
     - question_type: QuestionTypes (erforderlich) - Typ der Frage
     - license: License (erforderlich) - Lizenz des Items
-    - status: Status (optional, default=DRAFT) - Status des Items
+    - status_id: int (erforderlich) - Status-ID des Items
     - author_id: UUID (erforderlich) - UUID des Autors
-    - solution: str|object (optional) - Musterlösung, bei MULTIPLECHOICE strukturierte Antworten
+    - solution: list[object] (optional) - Flexible Loesungsbloecke auf Basis von ContentPiece-IDs
+    - interaction_content: list[object] (erforderlich) - Flexible Inhaltsbausteine fuer Interaktion
+    - stimuli_content: list[object] (erforderlich) - Flexible Inhaltsbausteine fuer Stimuli/Material
     - item_metadata: dict (erforderlich) - Schema-freie Metadaten mit Pflichtfeld `bloomlevel`
     - tags_id: int (optional) - ID der Tags
     - database_id: int (optional) - ID der Datenbank
     """
-    print(f"Creating item with data: {item_data.model_dump()}")
+    logging.debug(f"Creating item with data: {item_data.model_dump()}")
     # Prüfe, ob der Author existiert
     author = session.exec(select(Creator).where(Creator.author_id == item_data.author_id)).first()
     if not author:
@@ -205,14 +189,38 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
             detail=f"Creator mit author_id '{item_data.author_id}' nicht gefunden"
         )
 
+    # Validiere, dass alle referenzierten ContentPiece-IDs existieren (inkl. Solution-Bloecke).
+    referenced_piece_ids = {
+        block.content_piece_id
+        for block in [
+            *item_data.interaction_content,
+            *item_data.stimuli_content,
+            *(item_data.solution or []),
+        ]
+    }
+    existing_pieces = session.exec(
+        select(ContentPiece).where(ContentPiece.content_piece_id.in_(referenced_piece_ids))
+    ).all()
+    existing_piece_ids = {piece.content_piece_id for piece in existing_pieces}
+    missing_piece_ids = sorted(referenced_piece_ids - existing_piece_ids)
+    if missing_piece_ids:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unbekannte ContentPiece-IDs: {', '.join(str(piece_id) for piece_id in missing_piece_ids)}",
+        )
+
     # Erstelle neues Item mit aktuellem Timestamp
     new_item = Item(
         fragestellung=_serialize_text_payload(item_data.fragestellung) or "",
         question_type=item_data.question_type,
         license=item_data.license,
-        status=item_data.status,
+        status=item_data.status_id,
+        fragenart=item_data.themenbereich_id,
         author_id=item_data.author_id,
-        solution=_serialize_text_payload(item_data.solution) or "",
+        solution=[block.model_dump(mode="json") for block in
+                  item_data.solution] if item_data.solution is not None else [],
+        interaction_content=[block.model_dump(mode="json") for block in item_data.interaction_content],
+        stimuli_content=[block.model_dump(mode="json") for block in item_data.stimuli_content],
         item_metadata=item_data.item_metadata,
         tags_id=item_data.tags_id,
         database_id=item_data.database_id,
@@ -224,10 +232,82 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     session.refresh(new_item)
 
     # Triggere registrierte Plugins, die auf Item-Erstellung reagieren
-    #try:
+    # try:
     run_on_item_create(new_item, session)
-    #except Exception:
-        # Plugins sollen den Haupt-Flow nicht brechen; Fehler werden geschluckt
+    # except Exception:
+    # Plugins sollen den Haupt-Flow nicht brechen; Fehler werden geschluckt
     #    pass
 
     return new_item
+
+
+@router.get("/getThemenbereich", response_model=List[ThemenbereichResponse], tags=["Themenbereich"])
+async def get_themenbereich(session: Session = Depends(get_session)):
+    """
+    Rückgabe aller registrierten Themenbereiche.
+    """
+    themenbereiche = session.exec(select(Themenbereich)).all()
+    return themenbereiche
+
+
+@router.post("/createThemenbereich", response_model=ThemenbereichResponse, tags=["Themenbereich"])
+async def create_themenbereich(themenbereich_data: ThemenbereichCreate, session: Session = Depends(get_session)):
+    """
+    Einen neuen Themenbereich in der Datenbank anlegen.
+    """
+    themenbereich = Themenbereich(
+        name=themenbereich_data.name,
+        description=themenbereich_data.description
+    )
+    session.add(themenbereich)
+    session.commit()
+    session.refresh(themenbereich)
+    return themenbereich
+
+
+@router.get("/getStatus", response_model=List[StatusResponse], tags=["Status"])
+async def get_status(session: Session = Depends(get_session)):
+    """
+    Rückgabe aller registrierten Status.
+    """
+    status_list = session.exec(select(Status)).all()
+    return status_list
+
+
+@router.post("/createStatus", response_model=StatusResponse, tags=["Status"])
+async def create_status(status_data: StatusCreate, session: Session = Depends(get_session)):
+    """
+    Einen neuen Themenbereich in der Datenbank anlegen.
+    """
+    status = Status(
+        name=status_data.name,
+        description=status_data.description
+    )
+    session.add(status)
+    session.commit()
+    session.refresh(status)
+    return status
+
+
+@router.get("/getLicence", response_model=List[LicenseResponse], tags=["Licence"])
+async def get_licence(session: Session = Depends(get_session)):
+    """
+    Rückgabe aller registrierten Lizenzen.
+    """
+    licence_list = session.exec(select(License)).all()
+    return licence_list
+
+
+@router.post("/createLicense", response_model=LicenseResponse, tags=["Licence"])
+async def create_license(license_data: LicenseCreate, session: Session = Depends(get_session)):
+    """
+    Einen neuen Lizenz in der Datenbank anlegen.
+    """
+    license = License(
+        name=license_data.name,
+        description=license_data.description
+    )
+    session.add(license)
+    session.commit()
+    session.refresh(license)
+    return license

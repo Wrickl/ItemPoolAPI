@@ -1,9 +1,10 @@
 from typing import Any
 
+from sqlalchemy.orm.attributes import flag_modified
 from sqlmodel import select
 from textstat import textstat
 
-from ...models.Tasks.Tasks import Item
+from ...models.Tasks.tasks import Item
 from ..PluginSystem import register_on_create_plugin
 
 
@@ -43,12 +44,13 @@ def _ensure_metadata_dict(item: Item) -> None:
 class CreateTextStatsPlugin:
     """Erstellt die TextStat für den Fragentext beim Einfügen eines Items."""
 
-    def _apply(self, item: Any, preserve_timestamp: bool) -> None:
+    def _apply(self, item: Any) -> None:
         _ensure_metadata_dict(item)
         item.item_metadata["textstats"] = _generate_textstats(item.fragestellung)
 
     def on_item_create(self, item: Any, session) -> None:
-        self._apply(item, preserve_timestamp=False)
+        self._apply(item)
+        flag_modified(item, "item_metadata")
         session.add(item)
         session.commit()
         session.refresh(item)
@@ -57,7 +59,8 @@ class CreateTextStatsPlugin:
         items = session.exec(select(Item)).all()
         for item in items:
             try:
-                self._apply(item, preserve_timestamp=True)
+                self._apply(item)
+                flag_modified(item, "item_metadata")
                 session.add(item)
             except Exception:
                 continue

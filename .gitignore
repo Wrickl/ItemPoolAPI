@@ -1,5 +1,4 @@
 __pycache__/main.cpython-312.pyc
-*.pyc
 **/__pycache__/**/*.pyc
 __pycache__/
 */__pycache__/
@@ -8,3 +7,6 @@ __pycache__/
 .coverage
 /.venv/
 .idea
+/.github/
+/.copilot/
+.DS_Store

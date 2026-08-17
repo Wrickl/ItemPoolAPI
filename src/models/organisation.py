@@ -11,6 +11,7 @@ class OrganisationBase(SQLModel):
     contact: str | None = Field(default=None, max_length=255)
     faculty: str | None = Field(default=None, max_length=255)
 
+
 class Organisation(OrganisationBase, table=True):
     __tablename__ = "Organisation"
 

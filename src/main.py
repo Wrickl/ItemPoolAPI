@@ -4,16 +4,19 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from sqlmodel import Session
 from starlette.staticfiles import StaticFiles
 
 from .Util.logging.logger_config import log_config
 from .controllers import database_generation
+from .controllers import item_type_administration
 from .controllers import item_collection
 from .controllers import plugin_administration
 from .controllers import solution_attempt
 from .controllers import task_generation
-from .database.dao_connection import create_db_and_tables
+from .database.dao_connection import create_db_and_tables, get_engine
 from .database.mongo_connection import close_mongo_client
+from .services.data_type_registry import sync_database_types
 
 dictConfig(log_config)
 
@@ -21,12 +24,15 @@ dictConfig(log_config)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
+    with Session(get_engine()) as session:
+        sync_database_types(session)
     yield
     close_mongo_client()
 
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(task_generation.router)
+app.include_router(item_type_administration.router)
 app.include_router(solution_attempt.router)
 app.include_router(item_collection.router)
 app.include_router(database_generation.router)
@@ -53,7 +59,3 @@ async def ui_root():
 async def ui_create():
     """Redirect to the static item-create page."""
     return RedirectResponse(url="/static/ui/create.html")
-
-# app.include_router(TaskRegistration.router)
-# app.include_router(TaskRetrieval.router)
-# app.include_router(TaskCollection.router)
