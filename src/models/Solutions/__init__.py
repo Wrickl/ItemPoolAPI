@@ -1,3 +1,17 @@
-from .SolutionAttempt import SolutionAttempt, SolutionAttemptBase
+from .SolutionAttempt import (
+    EventLog,
+    SolutionAttempt,
+    SolutionAttemptBase,
+    SolutionAttemptEvent,
+    Source,
+    Submission,
+)
 
-__all__ = ["SolutionAttempt", "SolutionAttemptBase"]
+__all__ = [
+    "EventLog",
+    "SolutionAttempt",
+    "SolutionAttemptBase",
+    "SolutionAttemptEvent",
+    "Source",
+    "Submission",
+]

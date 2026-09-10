@@ -4,7 +4,9 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class ItemCollectionCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=255, description="Anzeigename der Collection")
+    name: str = Field(
+        ..., min_length=1, max_length=255, description="Anzeigename der Collection"
+    )
     item_ids: list[int] = Field(..., min_length=1, description="Liste der Item-IDs")
 
     @model_validator(mode="after")

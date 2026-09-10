@@ -1,12 +1,12 @@
 import os
-from typing import Any, Optional
+from typing import Any
 
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
 load_dotenv()
 
-_mongo_client: Optional[Any] = None
+_mongo_client: Any | None = None
 
 
 def _get_mongo_uri() -> str:
@@ -37,7 +37,23 @@ def get_mongo_database() -> Any:
 
 
 def get_solution_attempt_collection() -> Any:
-    collection_name = os.getenv("MONGO_SOLUTION_ATTEMPT_COLLECTION", "solution_attempts")
+    collection_name = os.getenv(
+        "MONGO_SOLUTION_ATTEMPT_COLLECTION", "solution_attempts"
+    )
+    return get_mongo_database()[collection_name]
+
+
+def get_solution_attempt_events_collection() -> Any:
+    collection_name = os.getenv(
+        "MONGO_SOLUTION_ATTEMPT_EVENTS_COLLECTION", "solution_attempt_events"
+    )
+    return get_mongo_database()[collection_name]
+
+
+def get_solution_attempt_analyses_collection() -> Any:
+    collection_name = os.getenv(
+        "MONGO_SOLUTION_ATTEMPT_ANALYSES_COLLECTION", "solution_attempt_analyses"
+    )
     return get_mongo_database()[collection_name]
 
 

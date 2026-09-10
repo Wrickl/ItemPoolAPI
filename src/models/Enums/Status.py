@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlmodel import Field, SQLModel
 
 
@@ -9,9 +7,8 @@ class StatusBase(SQLModel):
         unique=True,
         max_length=255,
         description="Name des Status",
-
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None,
         description="Beschreibung des Status",
     )
@@ -21,7 +18,7 @@ class StatusBase(SQLModel):
 
 class Status(StatusBase, table=True):
     __tablename__ = "status"
-    status_id: Optional[int] = Field(
+    status_id: int | None = Field(
         default=None,
         primary_key=True,
     )

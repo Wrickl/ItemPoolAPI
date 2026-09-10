@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .organisation import Organisation
@@ -17,13 +17,6 @@ class CreatorBase(SQLModel):
 
 class Creator(CreatorBase, table=True):
     __tablename__ = "Author"
-    author_id: UUID = Field(
-        default_factory=uuid4,
-        primary_key=True
-    )
-    organisation: "Organisation" = Relationship(
-        back_populates="creators"
-    )
-    items: List["Item"] = Relationship(
-        back_populates="author"
-    )
+    author_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    organisation: "Organisation" = Relationship(back_populates="creators")
+    items: list["Item"] = Relationship(back_populates="author")

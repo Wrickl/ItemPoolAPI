@@ -1,16 +1,14 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
 class LicenseCreate(BaseModel):
     """
-    Schema fuer die Erstellung einer neuen Lizenz ueber die API.
-
+    Schema fuer die Erstellung einer neuen Lizenz
     - Erforderliche Felder: name, description
     """
+
     name: str = Field(..., description="Name der Lizenz")
-    description: Optional[str] = Field(default=None, description="Beschreibung der Lizenz")
+    description: str | None = Field(default=None, description="Beschreibung der Lizenz")
 
 
 class LicenseUpdate(BaseModel):
@@ -20,6 +18,6 @@ class LicenseUpdate(BaseModel):
 class LicenseResponse(BaseModel):
     """Response-Modell fuer eine erstellte oder gelesene Lizenz."""
 
-    license_id: Optional[int]
-    name: Optional[str]
-    description: Optional[str]
+    license_id: int | None
+    name: str | None
+    description: str | None

@@ -1,32 +1,26 @@
-from datetime import datetime, timezone
-from typing import Any, Optional, List, TYPE_CHECKING
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
 
-from sqlmodel import SQLModel, Field, Relationship, Column, JSON
+from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
-from .database import Database
-from ..Enums.Questiontypes import QuestionTypes
 from ..author import Creator
 
 if TYPE_CHECKING:
-    from src.models.Tasks.content_types import ItemType, ItemContent
+    from src.models.Tasks.content_types import ItemContent, ItemType
 
-"""TODO Metaschicht einziehen alle Hardcodiert Sachen entfernen"""
-
-
-# ===== Questions =====
 class QuestionsBase(SQLModel):
     question_template: str
-    description: Optional[str] = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
 
 
 class Questions(QuestionsBase, table=True):
     __tablename__ = "Questions"
 
-    question_id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    question_id: int | None = Field(default=None, primary_key=True)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    placeholders: List["Placeholders"] = Relationship(back_populates="question")
+    placeholders: list["Placeholders"] = Relationship(back_populates="question")
 
 
 # ===== Placeholders =====
@@ -34,40 +28,42 @@ class PlaceholdersBase(SQLModel):
     placeholder_order: int
     name: str = Field(max_length=100)
     data_type: str = Field(max_length=50)
-    default_value: Optional[str] = Field(default=None, max_length=255)
+    default_value: str | None = Field(default=None, max_length=255)
     fk_question_id: int = Field(foreign_key="Questions.question_id")
 
 
 class Placeholders(PlaceholdersBase, table=True):
     __tablename__ = "Placeholders"
 
-    placeholder_id: Optional[int] = Field(default=None, primary_key=True)
+    placeholder_id: int | None = Field(default=None, primary_key=True)
     question: Questions = Relationship(back_populates="placeholders")
 
 
 # ===== Item =====
 class ItemBase(SQLModel):
-    license: Optional[int] = Field(default=None, foreign_key="license.license_id")
-    status: Optional[int] = Field(default=None, foreign_key="status.status_id")
-    fragestellung: Optional[str] = None
+    license: int | None = Field(default=None, foreign_key="license.license_id")
+    status: int | None = Field(default=None, foreign_key="status.status_id")
     solution: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
-    fragenart: Optional[int] = Field(default=None, foreign_key="themenbereich.themenbereich_id")
-    question_type: Optional[QuestionTypes] = None  ## TODO entferne und durch ContentType Picese ersetzen
-    interaction_content: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
-    stimuli_content: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    themenbereich: int | None = Field(
+        default=None, foreign_key="themenbereich.themenbereich_id"
+    )
+    interaction_content: list[dict[str, Any]] = Field(
+        default_factory=list, sa_column=Column(JSON)
+    )
+    stimuli_content: list[dict[str, Any]] = Field(
+        default_factory=list, sa_column=Column(JSON)
+    )
     item_metadata: dict = Field(default_factory=dict, sa_column=Column(JSON))
-    tags_id: Optional[int] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    tags_id: int | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     author_id: UUID = Field(foreign_key="Author.author_id")
-    database_id: Optional[int] = Field(default=None, foreign_key="database.database_id")
-    item_type_id: Optional[int] = Field(default=None, foreign_key="ItemType.item_type_id")
+    item_type_id: int | None = Field(default=None, foreign_key="ItemType.item_type_id")
 
 
 class Item(ItemBase, table=True):
     __tablename__ = "Item"
 
-    item_id: Optional[int] = Field(default=None, primary_key=True)
+    item_id: int | None = Field(default=None, primary_key=True)
     author: Creator = Relationship(back_populates="items")
-    database: Optional[Database] = Relationship(back_populates="items")
     item_type: Optional["ItemType"] = Relationship(back_populates="items")
-    content_values: List["ItemContent"] = Relationship(back_populates="item")
+    content_values: list["ItemContent"] = Relationship(back_populates="item")

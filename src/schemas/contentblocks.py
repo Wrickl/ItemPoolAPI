@@ -1,9 +1,9 @@
 from abc import ABC
 from enum import StrEnum
-from typing import Annotated, Literal, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import TypeAdapter
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
 
 class ContentBlockType(StrEnum):
@@ -19,12 +19,14 @@ class ContentBlockBase(SQLModel, ABC):
 
 class TextBlock(ContentBlockBase):
     """Content Block für einfachen Text"""
+
     type: Literal[ContentBlockType.TEXT] = ContentBlockType.TEXT
     text: str
 
 
 class ImageBlock(ContentBlockBase):
     """Content Block für ein Bild"""
+
     type: Literal[ContentBlockType.IMAGE] = ContentBlockType.IMAGE
     url: str
     alt_text: str | None = None

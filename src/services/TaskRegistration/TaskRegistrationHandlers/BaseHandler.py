@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
 
-from ....database.dao import DAO
-from ....models.error import RecordNotFoundError
 from archiv.models.TaskMaterials.BaseTaskMaterial import (
     MaterialIdOrMaterialReqestObject,
     TaskMaterial,
     TaskMaterialRegistrationRequestObject,
 )
 from archiv.models.Tasks.BaseTask import Task
+
+from ....database.dao import DAO
+from ....models.error import RecordNotFoundError
 
 
 class TaskHandler(ABC):
@@ -21,9 +21,7 @@ class TaskHandler(ABC):
         self._task_material_service = task_material_service
 
     def _is_id(self, id_or_material: MaterialIdOrMaterialReqestObject):
-        if isinstance(id_or_material, int):
-            return True
-        return False
+        return bool(isinstance(id_or_material, int))
 
     def _is_single_material(self, material: TaskMaterial):
         return not isinstance(material, list)
@@ -48,9 +46,9 @@ class TaskHandler(ABC):
     def _register_materials(
         self,
         materials: (
-            MaterialIdOrMaterialReqestObject | List[MaterialIdOrMaterialReqestObject]
+            MaterialIdOrMaterialReqestObject | list[MaterialIdOrMaterialReqestObject]
         ),
-    ) -> Dict:
+    ) -> dict:
         """
         This method registers any task material via the TaskMaterialRegistrationService.
         TODO: Wrap the registration of subsequent materials into a transaction that aborts on error to avoid partial write operations of materials which may be duplicated in follow up requests.
@@ -66,5 +64,5 @@ class TaskHandler(ABC):
                 return material_ids
 
     @abstractmethod
-    def process_task(self, task: Task) -> Dict:
+    def process_task(self, task: Task) -> dict:
         return

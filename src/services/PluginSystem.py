@@ -31,7 +31,9 @@ def register_on_create_plugin(plugin: OnCreatePlugin) -> None:
     _on_create_plugins.append(plugin)
 
 
-def register_on_solution_attempt_create_plugin(plugin: OnSolutionAttemptCreatePlugin) -> None:
+def register_on_solution_attempt_create_plugin(
+    plugin: OnSolutionAttemptCreatePlugin,
+) -> None:
     _on_solution_attempt_create_plugins.append(plugin)
 
 

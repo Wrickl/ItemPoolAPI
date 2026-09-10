@@ -30,7 +30,11 @@ def run_on_create_plugin_backfill(session: Session = Depends(get_session)):
 
 
 @router.post("/runOnSolutionAttemptCreatePluginBackfill", tags=["Plugins"])
-def run_on_solution_attempt_create_plugin_backfill(session: Session = Depends(get_session)):
+def run_on_solution_attempt_create_plugin_backfill(
+    session: Session = Depends(get_session),
+):
     """Wendet alle `on_solutions_attempt_create`-Plugins auf bereits vorhandene Daten an."""
     run_on_existing_solution_attempts(session)
-    return {"message": "on_solutions_attempt_create plugins were applied to existing solution attempts"}
+    return {
+        "message": "on_solutions_attempt_create plugins were applied to existing solution attempts"
+    }

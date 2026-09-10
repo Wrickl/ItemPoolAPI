@@ -1,12 +1,18 @@
+from typing import Literal, cast
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
 from ..database.dao_connection import get_session
-from ..models.Tasks.content_types import ContentPiece, DataType, ItemType, ItemTypeContentPiece
+from ..models.Tasks.content_types import (
+    ContentPiece,
+    DataType,
+    ItemType,
+    ItemTypeContentPiece,
+)
 from ..schemas.Tasks.content_types import (
     ContentPieceCreate,
     ContentPieceRead,
-    DataTypeCreate,
     DataTypeRead,
     ItemTypeContentPieceAssign,
     ItemTypeContentPieceRead,
@@ -27,7 +33,9 @@ def _build_content_piece_read(content_piece: ContentPiece) -> ContentPieceRead:
         name=content_piece.name,
         description=content_piece.description,
         data_type_id=content_piece.data_type_id,
-        data_type_name=content_piece.data_type.name if content_piece.data_type else None,
+        data_type_name=content_piece.data_type.name
+        if content_piece.data_type
+        else None,
     )
 
 
