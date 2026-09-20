@@ -12,12 +12,13 @@ class StatusCreate(BaseModel):
 
 
 class StatusUpdate(BaseModel):
-    pass
+    name: str = Field(..., description="Name des Status")
+    description: str | None = Field(default=None, description="Beschreibung des Status")
 
 
 class StatusResponse(BaseModel):
     """Response-Modell fuer einen erstellten oder gelesenen Status."""
 
-    status_id: int | None
-    name: str | None
+    status_id: int
+    name: str
     description: str | None

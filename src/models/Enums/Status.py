@@ -13,9 +13,6 @@ class StatusBase(SQLModel):
         description="Beschreibung des Status",
     )
 
-    # TODO Inklusive Testsfälle und Automatisch Daten befüllung
-
-
 class Status(StatusBase, table=True):
     __tablename__ = "status"
     status_id: int | None = Field(

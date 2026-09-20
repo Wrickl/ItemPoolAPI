@@ -13,7 +13,6 @@ from ..models.author import Creator
 from ..models.Enums.License import License
 from ..models.Enums.Status import Status
 from ..models.Enums.Themenbereich import Themenbereich
-from ..models.organisation import Organisation
 from ..models.Tasks.content_types import (
     ContentPiece,
     DataType,
@@ -21,16 +20,12 @@ from ..models.Tasks.content_types import (
     ItemTypeContentPiece,
 )
 from ..models.Tasks.tasks import Item
-from ..schemas.Author.Author import CreatorCreate, CreatorRead
 from ..schemas.Tasks.Item import (
     ItemCreate,
     ItemExportResponse,
     ItemResponse,
     ItemWithAuthorResponse,
 )
-from ..schemas.Tasks.License import LicenseCreate, LicenseResponse
-from ..schemas.Tasks.Status import StatusCreate, StatusResponse
-from ..schemas.Tasks.Themenbereich import ThemenbereichCreate, ThemenbereichResponse
 from ..services.PluginSystem import run_on_item_create
 from ..Util.searching import search_for_item
 
@@ -53,9 +48,7 @@ def _validate_content_piece_ids(session: Session, content_piece_ids: list[int]) 
         )
 
 
-def _convert_item_to_export_format(
-    item: Item, session: Session, author_name: str | None = None
-) -> dict:
+def _convert_item_to_export_format(item: Item, session: Session, author_name: str | None = None) -> dict:
     """
     Konvertiert ein Item in das Export-Format mit Namen statt IDs und angereicherten Content-Pieces.
 
@@ -176,112 +169,6 @@ def _convert_item_to_export_format(
     }
 
     return export_data
-
-
-@router.get("/getAllCreator", response_model=list[CreatorRead])
-async def get_all_creators(session: Session = Depends(get_session)):
-    """
-    Alle Creator/Authors aus der Datenbank auslesen.
-    """
-    stmt = select(Creator, Organisation.name.label("organisation_name")).join(
-        Organisation,
-        Creator.organisation_id == Organisation.id,  # type: ignore[arg-type]
-    )
-    rows = session.exec(stmt).all()
-
-    creators = []
-    for creator, organisation_name in rows:
-        creators.append(
-            CreatorRead(
-                author_id=creator.author_id,
-                email=creator.email,
-                name=creator.name,
-                role=creator.role,
-                organisation_name=organisation_name,
-            )
-        )
-    return creators
-
-
-@router.post("/createCreator", response_model=Creator)
-async def create_creator(
-    creator_data: CreatorCreate, session: Session = Depends(get_session)
-):
-    """
-    Einen neuen Creator anlegen.
-    """
-    creator2add = Creator.model_validate(creator_data)
-
-    session.add(creator2add)
-    session.commit()
-    session.refresh(creator2add)
-
-    return creator2add
-
-
-@router.post("/createOrganisation")
-async def create_organisation(
-    organisation: Organisation, session: Session = Depends(get_session)
-):
-    """
-    Eine neue Organisation anlegen.
-    """
-    session.add(organisation)
-    session.commit()
-    session.refresh(organisation)
-    return organisation
-
-
-@router.get("/getAllOrganisations")
-async def get_all_organisations(session: Session = Depends(get_session)):
-    """
-    Rückgabe aller registrierten Organisationen
-    """
-    organisations = session.exec(select(Organisation)).all()
-    return organisations
-
-
-@router.put("/updateOrganisation/{organisation_id}")
-async def update_organisation(
-    organisation_id: UUID,
-    organisation: Organisation,
-    session: Session = Depends(get_session),
-):
-    """
-    Eine bestehende Organisation aktualisieren.
-    """
-    existing = session.exec(
-        select(Organisation).where(Organisation.id == organisation_id)
-    ).first()
-    if not existing:
-        raise HTTPException(status_code=404, detail="Organisation nicht gefunden")
-
-    existing.name = organisation.name
-    existing.contact = organisation.contact
-    existing.faculty = organisation.faculty
-
-    session.add(existing)
-    session.commit()
-    session.refresh(existing)
-    return existing
-
-
-@router.delete("/deleteOrganisation/{organisation_id}")
-async def delete_organisation(
-    organisation_id: UUID, session: Session = Depends(get_session)
-):
-    """
-    Eine Organisation aus der Datenbank löschen.
-    """
-    organisation = session.exec(
-        select(Organisation).where(Organisation.id == organisation_id)
-    ).first()
-    if not organisation:
-        raise HTTPException(status_code=404, detail="Organisation nicht gefunden")
-
-    session.delete(organisation)
-    session.commit()
-    return {"detail": "Organisation gelöscht"}
 
 
 @router.get("/getAllItems", response_model=list[ItemExportResponse], tags=["Items"])
@@ -457,77 +344,3 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     #    pass
 
     return new_item
-
-
-@router.get(
-    "/getThemenbereich",
-    response_model=list[ThemenbereichResponse],
-    tags=["Themenbereich"],
-)
-async def get_themenbereich(session: Session = Depends(get_session)):
-    """
-    Rückgabe aller registrierten Themenbereiche.
-    """
-    return session.exec(select(Themenbereich)).all()
-
-
-@router.post(
-    "/createThemenbereich", response_model=ThemenbereichResponse, tags=["Themenbereich"]
-)
-async def create_themenbereich(
-    themenbereich_data: ThemenbereichCreate, session: Session = Depends(get_session)
-):
-    """
-    Einen neuen Themenbereich anlegen.
-    """
-    themenbereich2add = Themenbereich(
-        name=themenbereich_data.name, description=themenbereich_data.description
-    )
-    session.add(themenbereich2add)
-    session.commit()
-    session.refresh(themenbereich2add)
-    return themenbereich2add
-
-
-@router.get("/getStatus", response_model=list[StatusResponse], tags=["Status"])
-async def get_status(session: Session = Depends(get_session)):
-    """
-    Rückgabe aller registrierten Status.
-    """
-    return session.exec(select(Status)).all()
-
-
-@router.post("/createStatus", response_model=StatusResponse, tags=["Status"])
-async def create_status(
-    status_data: StatusCreate, session: Session = Depends(get_session)
-):
-    """
-    Einen neuen Status anlegen.
-    """
-    status2add = Status(name=status_data.name, description=status_data.description)
-    session.add(status2add)
-    session.commit()
-    session.refresh(status2add)
-    return status2add
-
-
-@router.get("/getLicence", response_model=list[LicenseResponse], tags=["Licence"])
-async def get_licence(session: Session = Depends(get_session)):
-    """
-    Rückgabe aller registrierten Lizenzen.
-    """
-    return session.exec(select(License)).all()
-
-
-@router.post("/createLicense", response_model=LicenseResponse, tags=["Licence"])
-async def create_license(
-    license_data: LicenseCreate, session: Session = Depends(get_session)
-):
-    """
-    Einen neuen Lizenz anlegen.
-    """
-    license2add = License(name=license_data.name, description=license_data.description)
-    session.add(license2add)
-    session.commit()
-    session.refresh(license2add)
-    return license2add

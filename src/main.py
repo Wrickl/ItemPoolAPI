@@ -7,17 +7,23 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 from starlette.staticfiles import StaticFiles
 
+from .Util.logging.logger_config import log_config
 from .controllers import (
     item_collection,
     item_type_administration,
     plugin_administration,
     solution_attempt,
+    status_administration,
     task_generation,
+    organisation_administration,
+    themenbereich_administration,
+    complexType_administration,
+    creator_administration,
+    license_administration
 )
 from .database.dao_connection import create_db_and_tables, get_engine
 from .database.mongo_connection import close_mongo_client
 from .services.data_type_registry import sync_database_types
-from .Util.logging.logger_config import log_config
 
 dictConfig(log_config)
 
@@ -32,11 +38,26 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(task_generation.router)
+
+## Router für einfache Typen
+app.include_router(status_administration.router)
+app.include_router(organisation_administration.router)
+app.include_router(license_administration.router)
+app.include_router(themenbereich_administration.router)
+app.include_router(creator_administration.router)
+
+### Router für komplexe Typen
+app.include_router(complexType_administration.router)
 app.include_router(item_type_administration.router)
-app.include_router(solution_attempt.router)
+
+### Router für Items
+app.include_router(task_generation.router)
 app.include_router(item_collection.router)
-app.include_router(database_generation.router)
+
+### Router für SolutionAttempts
+app.include_router(solution_attempt.router)
+
+### Router für Plugin-Administration
 app.include_router(plugin_administration.router)
 
 # Mount static UI files (Bootstrap-based frontend)
@@ -72,6 +93,7 @@ async def ui_items():
 async def ui_create():
     """Neue Aufgabe erstellen."""
     return RedirectResponse(url="/static/ui/create_form.html")
+
 
 @app.get("/ui/new/solutionAttempts", include_in_schema=False)
 async def ui_create_solution_attempt():
