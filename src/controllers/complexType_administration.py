@@ -1,13 +1,15 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
-from ..database import get_session
-from ..models.Tasks.tasks import Item
-from ..models.complextype import ComplexType
-from ..models.error import ResourceInUseException
-from ..schemas.complextype import ComplexTypeResponse, ComplexTypeCreate
+from database import get_session
+from models.Tasks.tasks import Item
+from models.complextype import ComplexType
+from models.error import ResourceInUseException
+from schemas.complextype import ComplexTypeResponse, ComplexTypeCreate
 
 router = APIRouter()
 
@@ -21,7 +23,7 @@ async def get_complex_types(session: Session = Depends(get_session)):
 
 
 @router.get('/getComplexTypeById/{complex_type_id}', response_model=ComplexTypeResponse, tags=["ComplexType"])
-async def get_complex_type_by_id(complex_type_id: int, session: Session = Depends(get_session)):
+async def get_complex_type_by_id(complex_type_id: UUID, session: Session = Depends(get_session)):
     """
     Rückgabe eines komplexen Typs anhand der ID.
     """
@@ -53,7 +55,7 @@ async def create_complex_type(complex_type_data: ComplexTypeCreate, session: Ses
 
 
 @router.put("/updateComplexType/{complex_type_id}", response_model=ComplexTypeResponse, tags=["ComplexType"])
-async def update_complex_type(complex_type_id: int, complex_type_data: ComplexTypeCreate,
+async def update_complex_type(complex_type_id: UUID, complex_type_data: ComplexTypeCreate,
                               session: Session = Depends(get_session)):
     """
     Einen bestehenden komplexen Typ aktualisieren.
@@ -71,7 +73,7 @@ async def update_complex_type(complex_type_id: int, complex_type_data: ComplexTy
 
 
 @router.delete("/deleteComplexType/{complex_type_id}", status_code=204, tags=["ComplexType"])
-async def delete_complex_type(complex_type_id: int, session: Session = Depends(get_session)):
+async def delete_complex_type(complex_type_id: UUID, session: Session = Depends(get_session)):
     """
     Einen bestehenden Status löschen.
     """

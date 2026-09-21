@@ -2,10 +2,11 @@ import inspect
 import json
 import logging
 
-from sqlglot import parse_one, exp, Expression
+from sqlglot import Expression, exp, parse_one
 
-from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
 from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial
+
+from services.MetaDataInference.BaseMetaDataInferenceHandler import MetaDataInferenceHandler
 
 logger = logging.getLogger("uvicorn.error")
 

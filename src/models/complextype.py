@@ -1,5 +1,6 @@
 """Hier werden die Datenmodelle der Komplexen JSON Types abgelegt."""
 from typing import Optional
+from uuid import UUID, uuid4
 
 from sqlalchemy import Column, JSON
 from sqlmodel import Field, SQLModel
@@ -24,7 +25,4 @@ class ComplexTypeBase(SQLModel):
 
 class ComplexType(ComplexTypeBase, table=True):
     __tablename__ = "complex_type"
-    complex_type_id: int | None = Field(
-        default=None,
-        primary_key=True,
-    )
+    id: UUID = Field(default_factory=uuid4, primary_key=True)

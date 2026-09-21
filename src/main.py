@@ -98,7 +98,7 @@ async def ui_create():
 @app.get("/ui/new/solutionAttempts", include_in_schema=False)
 async def ui_create_solution_attempt():
     """Neue Lösung versuchen."""
-    return RedirectResponse(url="/static/ui/solution-attempt-create.html")
+    return RedirectResponse(url="/static/ui/solution_content-attempt-create.html")
 
 
 @app.get("/ui/items/new", include_in_schema=False)
@@ -116,7 +116,7 @@ async def ui_item_detail(item_id: str):
 @app.get("/ui/items/{item_id}/attempts", include_in_schema=False)
 async def ui_solution_attempt(item_id: str):
     """Lösungsversuch eingeben."""
-    return RedirectResponse(url="/static/ui/solution-attempt.html")
+    return RedirectResponse(url="/static/ui/solution_content-attempt.html")
 
 
 @app.get("/ui/collections", include_in_schema=False)

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any
+from uuid import UUID, uuid4
 
 from sqlalchemy import JSON, Column, String
 from sqlalchemy.dialects.postgresql import JSONB
@@ -29,7 +30,7 @@ class ItemTypeBase(SQLModel):
 class ItemType(ItemTypeBase, table=True):
     __tablename__ = "ItemType"
 
-    item_type_id: int | None = Field(default=None, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     content_piece_assignments: list["ItemTypeContentPiece"] = Relationship(
         back_populates="item_type"
     )
@@ -53,7 +54,7 @@ class ContentPiece(ContentPieceBase, table=True):
 
 
 class ItemTypeContentPieceBase(SQLModel):
-    item_type_id: int = Field(foreign_key="ItemType.item_type_id")
+    item_type_id: UUID = Field(foreign_key="ItemType.id")
     content_piece_id: int = Field(foreign_key="ContentPiece.content_piece_id")
     usage_area: str = Field(max_length=32)
     is_required: bool = Field(default=False)
@@ -71,7 +72,7 @@ class ItemTypeContentPiece(ItemTypeContentPieceBase, table=True):
 
 
 class ItemContentBase(SQLModel):
-    item_id: int = Field(foreign_key="Item.item_id")
+    item_id: UUID = Field(foreign_key="Item.item_id")
     item_type_content_piece_id: int = Field(
         foreign_key="ItemTypeContentPiece.item_type_content_piece_id"
     )

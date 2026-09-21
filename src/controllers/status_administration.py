@@ -3,12 +3,12 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
-from ..Util.database_functions import addmodell2database
-from ..database import get_session
-from ..models.Enums.Status import Status
-from ..models.Tasks.tasks import Item
-from ..models.error import ResourceInUseException
-from ..schemas.Tasks.Status import StatusResponse, StatusCreate, StatusUpdate
+from Util.database_functions import addmodell2database
+from database import get_session
+from models.Enums.Status import Status
+from models.Tasks.tasks import Item
+from models.error import ResourceInUseException
+from schemas.Tasks.Status import StatusResponse, StatusCreate, StatusUpdate
 
 router = APIRouter()
 

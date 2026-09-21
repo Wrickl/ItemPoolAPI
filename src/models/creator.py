@@ -9,14 +9,15 @@ if TYPE_CHECKING:
 
 
 class CreatorBase(SQLModel):
-    email: str | None = Field(default=None, max_length=255)
-    name: str | None = Field(default=None, max_length=255)
+    contact: str | None = Field(default=None, max_length=255)
+    name: str = Field(..., max_length=255)
+    ### Todo Rechte Rollen Konzept erstellen
     role: int
     organisation_id: UUID = Field(foreign_key="Organisation.id")
 
 
 class Creator(CreatorBase, table=True):
-    __tablename__ = "Author"
-    author_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    __tablename__ = "creator"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     organisation: "Organisation" = Relationship(back_populates="creators")
     items: list["Item"] = Relationship(back_populates="author")

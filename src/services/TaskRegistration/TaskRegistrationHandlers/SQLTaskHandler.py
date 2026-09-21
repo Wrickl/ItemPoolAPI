@@ -1,8 +1,9 @@
 import logging
 
-from .BaseHandler import TaskHandler
-from archiv.models.Tasks.BaseTask import ResponseStatus, ResponseResult
+from archiv.models.Tasks.BaseTask import ResponseResult, ResponseStatus
 from archiv.models.Tasks.SQLTask import SQLTask
+
+from .BaseHandler import TaskHandler
 
 
 class SQLTaskHandler(TaskHandler):

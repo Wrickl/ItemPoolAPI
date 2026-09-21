@@ -6,7 +6,7 @@ from .content_types import (
     ItemTypeContentPiece,
 )
 from .item_collection import ItemCollection
-from .tasks import Item, Placeholders, Questions
+from .tasks import Item
 
 __all__ = [
     "ContentPiece",
@@ -16,6 +16,4 @@ __all__ = [
     "ItemContent",
     "ItemType",
     "ItemTypeContentPiece",
-    "Placeholders",
-    "Questions",
 ]

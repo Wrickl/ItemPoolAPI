@@ -9,10 +9,7 @@ class FlexibleContentBlock(BaseModel):
     """Verweist auf ein flexibles ContentPiece und speichert den konkreten Wert."""
 
     content_piece_id: int = Field(
-        ...,
-        ge=1,
-        description="ID eines ContentPiece aus dem flexiblen Content-Type-System",
-    )
+        ...,ge=1,description="ID eines ContentPiece aus dem flexiblen Content-Type-System",)
     value: Any = Field(..., description="Inhalt fuer das referenzierte ContentPiece")
 
 
@@ -46,10 +43,10 @@ class ItemCreate(BaseModel):
 
     - Erforderliche Felder: license, status_id, author_id
     - Pflichtfelder fuer flexible Fragebestandteile: interaction_content, stimuli_content
-    - Optionale Felder: solution, tags_id, item_metadata
+    - Optionale Felder: solution_content, tags_id, item_metadata
     """
 
-    license: int = Field(..., description="ID der zugehoerigen License")
+    license: UUID = Field(..., description="ID der zugehoerigen License")
     author_id: UUID = Field(..., description="UUID des Autors/Creators")
     solution: list[FlexibleContentBlock] | None = Field(
         default=None,
@@ -73,9 +70,9 @@ class ItemCreate(BaseModel):
     themenbereich_id: int | None = Field(
         default=None, description="ID des zugehoerigen Themenbereichs (optional)"
     )
-    status_id: int = Field(..., description="ID des zugehoerigen Status")
-    tags_id: int | None = Field(default=None, description="ID der Tags (optional)")
-    item_type_id: int | None = Field(
+    status_id: UUID = Field(..., description="ID des zugehoerigen Status")
+    #tags_id: UUID | None = Field(default=None, description="ID der Tags (optional)")
+    item_type_id: UUID | None = Field(
         default=None, description="ID des ItemTypes (optional)"
     )
 
@@ -83,16 +80,16 @@ class ItemCreate(BaseModel):
 class ItemResponse(BaseModel):
     """Response-Modell fuer ein erstelltes oder abgerufenes Item."""
 
-    item_id: int | None
-    license: int | None
-    status: int | None
+    item_id: UUID
+    license: UUID | None
+    status: UUID | None
     author_id: UUID
-    solution: list[dict[str, Any]]
+    solution_content: list[dict[str, Any]]
     interaction_content: list[dict[str, Any]]
     stimuli_content: list[dict[str, Any]]
     item_metadata: dict | None
-    tags_id: int | None
-    item_type_id: int | None
+    #tags_id: UUID | None
+    item_type_id: UUID | None
     created_at: datetime
 
     class Config:
@@ -102,17 +99,17 @@ class ItemResponse(BaseModel):
 class ItemWithAuthorResponse(BaseModel):
     """Response-Modell fuer Items inklusive Author-Name (server-side join)."""
 
-    item_id: int | None
-    license: int | None
-    status: int | None
+    item_id: UUID
+    license: UUID
+    status: UUID
     author_id: UUID
     author_name: str | None
-    solution: list[dict[str, Any]]
+    solution_content: list[dict[str, Any]]
     interaction_content: list[dict[str, Any]]
     stimuli_content: list[dict[str, Any]]
     item_metadata: dict | None
-    tags_id: int | None
-    item_type_id: int | None
+    #tags_id: UUID | None
+    item_type_id: UUID
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -121,7 +118,7 @@ class ItemWithAuthorResponse(BaseModel):
 class ItemExportResponse(BaseModel):
     """Export-Response-Modell mit Namen statt IDs und angereicherten Content-Pieces."""
 
-    item_id: int | None
+    item_id: UUID
     license: str | None = Field(None, description="Name der Lizenz statt ID")
     status: str | None = Field(None, description="Name des Status statt ID")
     item_type: str | None = Field(None, description="Name des ItemType statt ID")
@@ -141,6 +138,6 @@ class ItemExportResponse(BaseModel):
         default_factory=list, description="Angereicherte Stimuli-Blöcke"
     )
     item_metadata: dict | None = None
-    themenbereich_id: int | None = None
-    tags_id: int | None = None
+    themenbereich_id: UUID
+    #tags_id: UUID | None = None
     created_at: datetime = Field(..., description="Erstellungsdatum")

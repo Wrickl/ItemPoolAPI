@@ -1,3 +1,5 @@
+from uuid import uuid4, UUID
+
 from sqlmodel import Field, SQLModel
 
 
@@ -15,7 +17,4 @@ class StatusBase(SQLModel):
 
 class Status(StatusBase, table=True):
     __tablename__ = "status"
-    status_id: int | None = Field(
-        default=None,
-        primary_key=True,
-    )
+    id: UUID = Field(default_factory=uuid4, primary_key=True)

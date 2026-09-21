@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from ..database.dao_connection import get_session
-from ..models.Tasks.item_collection import ItemCollection
-from ..models.Tasks.tasks import Item
-from ..schemas.Tasks.ItemCollection import ItemCollectionCreate, ItemCollectionRead
+from database.dao_connection import get_session
+from models.Tasks.item_collection import ItemCollection
+from models.Tasks.tasks import Item
+from schemas.Tasks.ItemCollection import ItemCollectionCreate, ItemCollectionRead
 
 router = APIRouter()
 

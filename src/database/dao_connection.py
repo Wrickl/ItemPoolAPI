@@ -48,6 +48,6 @@ def create_db_and_tables():
     Erstelle alle Tabellen basierend auf den SQLModel-Definitionen.
     Optional - wird beim Start oder manuell aufgerufen.
     """
-    from .. import models as _models  # noqa: F401
+    from models import _models  # noqa: F401
 
     SQLModel.metadata.create_all(get_engine())

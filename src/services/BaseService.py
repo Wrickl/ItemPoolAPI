@@ -1,6 +1,6 @@
 from abc import ABC
 
-from ..database.dao import DAO
+from database.dao import DAO
 
 
 class Service(ABC):

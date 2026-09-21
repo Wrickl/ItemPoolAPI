@@ -1,4 +1,4 @@
-from .author import Creator
+from .creator import Creator
 from .organisation import Organisation
 from .Solutions.SolutionAttempt import SolutionAttempt
 from .Tasks.content_types import (
@@ -9,8 +9,7 @@ from .Tasks.content_types import (
     ItemTypeContentPiece,
 )
 from .Tasks.item_collection import ItemCollection
-from .Tasks.question_type import QuestionType
-from .Tasks.tasks import Item, Placeholders, Questions
+from .Tasks.tasks import Item
 
 __all__ = [
     "ContentPiece",
@@ -22,8 +21,5 @@ __all__ = [
     "ItemType",
     "ItemTypeContentPiece",
     "Organisation",
-    "Placeholders",
-    "QuestionType",
-    "Questions",
     "SolutionAttempt",
 ]

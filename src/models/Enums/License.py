@@ -1,3 +1,5 @@
+from uuid import UUID, uuid4
+
 from sqlmodel import Field, SQLModel
 
 
@@ -18,7 +20,4 @@ class LicenseBase(SQLModel):
 
 class License(LicenseBase, table=True):
     __tablename__ = "license"
-    license_id: int | None = Field(
-        default=None,
-        primary_key=True,
-    )
+    id: UUID = Field(default_factory=uuid4, primary_key=True)

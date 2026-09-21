@@ -4,14 +4,14 @@ from typing import Literal, cast
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from ..database.dao_connection import get_session
-from ..models.Tasks.content_types import (
+from database.dao_connection import get_session
+from models.Tasks.content_types import (
     ContentPiece,
     DataType,
     ItemType,
     ItemTypeContentPiece,
 )
-from ..schemas.Tasks.content_types import (
+from schemas.Tasks.content_types import (
     ContentPieceCreate,
     ContentPieceRead,
     DataTypeRead,
@@ -21,7 +21,7 @@ from ..schemas.Tasks.content_types import (
     ItemTypeDetailRead,
     ItemTypeRead,
 )
-from ..services.data_type_registry import sync_database_types
+from services.data_type_registry import sync_database_types
 
 router = APIRouter()
 
@@ -90,7 +90,7 @@ def _build_item_type_assignment_read(
         item_type_id=assignment.item_type_id,
         content_piece_id=assignment.content_piece.content_piece_id,
         usage_area=cast(
-            Literal["solution", "stimuli_content", "interaction_content"],
+            Literal["solution_content", "stimuli_content", "interaction_content"],
             assignment.usage_area,
         ),
         is_required=assignment.is_required,

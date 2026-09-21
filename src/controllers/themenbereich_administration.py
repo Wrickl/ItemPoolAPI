@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from ..Util.database_functions import addmodell2database
-from ..database import get_session
-from ..models import Item
-from ..models.Enums.Themenbereich import Themenbereich
-from ..models.error import ResourceInUseException
-from ..schemas.Tasks.Themenbereich import ThemenbereichResponse, ThemenbereichCreate, ThemenbereichUpdate
+from Util.database_functions import addmodell2database
+from database import get_session
+from models import Item
+from models.Enums.Themenbereich import Themenbereich
+from models.error import ResourceInUseException
+from schemas.Tasks.Themenbereich import ThemenbereichResponse, ThemenbereichCreate, ThemenbereichUpdate
 
 router = APIRouter()
 

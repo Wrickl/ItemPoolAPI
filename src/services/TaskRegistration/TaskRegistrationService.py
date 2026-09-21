@@ -1,17 +1,18 @@
-from .TaskMaterialRegistrationHandlers.BaseHandler import TaskMaterialHandler
-from .TaskMaterialRegistrationHandlers.MaterialHandlers import material_handlers
-from .TaskRegistrationHandlers.BaseHandler import TaskHandler
-from .TaskRegistrationHandlers.SQLTaskHandler import SQLTaskHandler
-from ..BaseService import Service
 from archiv.models.TaskMaterials.BaseTaskMaterial import (
     MaterialType,
     TaskMaterialRegistrationRequestObject,
 )
 from archiv.models.Tasks.BaseTask import (
-    TaskType,
-    TaskRegistrationRequestObject,
     ResponseStatus,
+    TaskRegistrationRequestObject,
+    TaskType,
 )
+
+from services.BaseService import Service
+from services.TaskRegistration.TaskMaterialRegistrationHandlers.BaseHandler import TaskMaterialHandler
+from services.TaskRegistration.TaskMaterialRegistrationHandlers.MaterialHandlers import material_handlers
+from services.TaskRegistration.TaskRegistrationHandlers.BaseHandler import TaskHandler
+from services.TaskRegistration.TaskRegistrationHandlers.SQLTaskHandler import SQLTaskHandler
 
 
 class TaskMaterialRegistrationService(Service):

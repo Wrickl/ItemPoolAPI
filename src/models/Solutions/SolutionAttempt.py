@@ -2,55 +2,60 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
-# ===== SolutionAttempt =====
-class ScorePayload(BaseModel):
-    """Bewertungsergebnis eines Loesungsversuchs."""
+class Source(BaseModel):
+    """Quellsystem eines SA/Event/Analyse-Dokuments."""
 
-    value: int | float = Field(..., ge=0)
-    maximum: int | float = Field(..., ge=0)
-    correct: bool
-
-    @model_validator(mode="after")
-    def validate_score_range(self):
-        if self.value > self.maximum:
-            raise ValueError("score.value darf nicht groesser als score.maximum sein")
-        return self
+    system_id: str = Field(..., min_length=1)
+    system_version: str | None = None
 
 
-class TimestampsPayload(BaseModel):
-    """Zeitinformationen eines Loesungsversuchs."""
+class Submission(BaseModel):
+    """Finale Abgabe eines SolutionAttempts."""
 
-    started: datetime
-    submitted: datetime
-    duration: int = Field(..., ge=0)
+    format: str = Field(..., min_length=1)
+    data: Any
 
 
-class ProcessPayload(BaseModel):
-    """Prozessdaten eines Loesungsversuchs."""
+class EventLog(BaseModel):
+    """Zusammenfassung ueber importierte Rohereignisse."""
 
-    events: list[dict[str, Any]] = Field(default_factory=list)
+    event_count: int = Field(..., ge=0)
 
 
 class SolutionAttemptBase(BaseModel):
-    """Schema-freies MongoDB-Dokument fuer Loesungsversuche."""
+    """Kernmodell fuer `solution_attempts` ohne eingebettete Events/Analysen."""
 
     attempt_id: UUID
-    candidate_id: UUID
-    assessment_id: UUID
     item_id: int
-    item_version: int = Field(..., ge=0)
-    response: dict[str, Any]
-    score: ScorePayload
-    timestamps: TimestampsPayload
-    process: ProcessPayload
-    evaluation: dict[str, Any] = Field(default_factory=dict)
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    candidate: str = Field(..., min_length=1)
+    source: Source
+    submission: Submission
+    submitted_at: datetime
+    stored_at: datetime
+    event_log: EventLog
+    assessment_context: dict[str, Any] | None = None
+    extensions: dict[str, Any] = Field(default_factory=dict)
 
 
 class SolutionAttempt(SolutionAttemptBase):
-    """MongoDB-Dokument fuer Loesungsversuche."""
+    """Persistiertes SA-Dokument."""
+
     model_config = ConfigDict(populate_by_name=True)
     mongo_id: str | None = Field(default=None, alias="_id")
+
+
+class SolutionAttemptEvent(BaseModel):
+    """Dokumentmodell fuer `solution_attempt_events`."""
+
+    event_id: UUID
+    attempt_id: UUID
+    sequence: int = Field(..., ge=0)
+    occurred_at: datetime | None = None
+    recorded_at: datetime
+    event_type: str = Field(..., min_length=1)
+    source: Source
+    raw_event: Any
+    extensions: dict[str, Any] = Field(default_factory=dict)

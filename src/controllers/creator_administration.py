@@ -1,37 +1,51 @@
+from uuid import UUID
+
 from fastapi import Depends, APIRouter, HTTPException
 from sqlmodel import Session, select
 
-from ..schemas.Author.Author import CreatorRead, CreatorCreate
-from ..database import get_session
-from ..models.author import Creator
-from ..models.organisation import Organisation
+from Util.database_functions import addmodell2database
+from database import get_session
+from models.creator import Creator
+from schemas.Author.Author import CreatorCreate, CreatorResponse
 
 router = APIRouter()
 
 
-@router.get("/getAllCreator", response_model=list[CreatorRead], tags=["Creator"])
+@router.get("/getAllCreators", response_model=list[CreatorResponse], tags=["Creator"])
 async def get_all_creators(session: Session = Depends(get_session)):
     """
-    Alle Creator/Authors aus der Datenbank auslesen.
+    Alle Creator/Authors auslesen.
     """
-    stmt = select(Creator, Organisation.name.label("organisation_name")).join(
-        Organisation,
-        Creator.organisation_id == Organisation.id,  # type: ignore[arg-type]
-    )
-    rows = session.exec(stmt).all()
+    return session.exec(select(Creator)).all()
+    # stmt = select(Creator, Organisation.name.label("organisation_name")).join(
+    #     Organisation,
+    #     Creator.organisation_id == Organisation.id,  # type: ignore[arg-type]
+    # )
+    # rows = session.exec(stmt).all()
+    #
+    # creators = []
+    # for creator, organisation_name in rows:
+    #     creators.append(
+    #         CreatorRead(
+    #             author_id=creator.author_id,
+    #             email=creator.email,
+    #             name=creator.name,
+    #             role=creator.role,
+    #             organisation_name=organisation_name,
+    #         )
+    #     )
+    # return creators
 
-    creators = []
-    for creator, organisation_name in rows:
-        creators.append(
-            CreatorRead(
-                author_id=creator.author_id,
-                email=creator.email,
-                name=creator.name,
-                role=creator.role,
-                organisation_name=organisation_name,
-            )
-        )
-    return creators
+
+@router.get("/getCreatorById/{creator_id}", response_model=CreatorResponse, tags=["Creator"])
+def get_creator_by_id(creator_id: UUID, session: Session = Depends(get_session)):
+    """
+    Rückgabe eines Creators anhand der ID.
+    """
+    creator = session.get(Creator, creator_id)
+    if not creator:
+        raise HTTPException(status_code=404, detail="Creator nicht gefunden")
+    return creator
 
 
 @router.post("/createCreator", response_model=Creator, tags=["Creator"])
@@ -40,9 +54,8 @@ async def create_creator(creator_data: CreatorCreate, session: Session = Depends
     Einen neuen Creator anlegen.
     """
     creator2add = Creator.model_validate(creator_data)
-    session.add(creator2add)
-    session.commit()
-    session.refresh(creator2add)
+    ## C
+    addmodell2database("Creator", creator2add, session)
     return creator2add
 
 

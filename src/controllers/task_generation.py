@@ -8,26 +8,26 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 
-from ..database.dao_connection import get_session
-from ..models.author import Creator
-from ..models.Enums.License import License
-from ..models.Enums.Status import Status
-from ..models.Enums.Themenbereich import Themenbereich
-from ..models.Tasks.content_types import (
+from database.dao_connection import get_session
+from models.creator import Creator
+from models.Enums.License import License
+from models.Enums.Status import Status
+from models.Enums.Themenbereich import Themenbereich
+from models.Tasks.content_types import (
     ContentPiece,
     DataType,
     ItemType,
     ItemTypeContentPiece,
 )
-from ..models.Tasks.tasks import Item
-from ..schemas.Tasks.Item import (
+from models.Tasks.tasks import Item
+from schemas.Tasks.Item import (
     ItemCreate,
     ItemExportResponse,
     ItemResponse,
     ItemWithAuthorResponse,
 )
-from ..services.PluginSystem import run_on_item_create
-from ..Util.searching import search_for_item
+from services.PluginSystem import run_on_item_create
+from Util.searching import search_for_item
 
 router = APIRouter()
 
@@ -154,7 +154,7 @@ def _convert_item_to_export_format(item: Item, session: Session, author_name: st
         "item_type": item_type_name,
         "author_id": item.author_id,
         "author_name": author_name,
-        "solution": enrich_content_blocks(item.solution or [], "solution"),
+        "solution_content": enrich_content_blocks(item.solution_content or [], "solution_content"),
         "interaction_content": enrich_content_blocks(
             item.interaction_content or [], "interaction_content"
         ),
@@ -272,7 +272,7 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
     - license: int (erforderlich) - ID der Lizenz
     - status_id: int (erforderlich) - Status-ID des Items
     - author_id: UUID (erforderlich) - UUID des Autors
-    - solution: list[object] (optional) - Flexible Loesungsbloecke auf Basis von ContentPiece-IDs
+    - solution_content: list[object] (optional) - Flexible Loesungsbloecke auf Basis von ContentPiece-IDs
     - interaction_content: list[object] (erforderlich) - Flexible Inhaltsbausteine fuer Interaktion
     - stimuli_content: list[object] (erforderlich) - Flexible Inhaltsbausteine fuer Stimuli/Material
     - tags_id: int (optional) - ID der Tags
@@ -317,7 +317,7 @@ async def create_item(item_data: ItemCreate, session: Session = Depends(get_sess
         status=item_data.status_id,
         themenbereich=item_data.themenbereich_id,
         author_id=item_data.author_id,
-        solution=[block.model_dump(mode="json") for block in item_data.solution]
+        solution_content=[block.model_dump(mode="json") for block in item_data.solution]
         if item_data.solution is not None
         else [],
         interaction_content=[

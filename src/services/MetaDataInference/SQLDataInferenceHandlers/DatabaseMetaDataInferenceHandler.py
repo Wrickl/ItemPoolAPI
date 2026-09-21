@@ -1,10 +1,11 @@
-from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
+from services.MetaDataInference.BaseMetaDataInferenceHandler import MetaDataInferenceHandler
 
 
 class DatabaseMetricsHandler(MetaDataInferenceHandler):
     """
     TODO
     """
+
     def __init__(self):
         super().__init__()
 

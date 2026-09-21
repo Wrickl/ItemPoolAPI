@@ -43,7 +43,7 @@ class ContentPieceRead(BaseModel):
 
 class ItemTypeContentPieceAssign(BaseModel):
     content_piece_id: int
-    usage_area: Literal["solution", "stimuli_content", "interaction_content"]
+    usage_area: Literal["solution_content", "stimuli_content", "interaction_content"]
     is_required: bool = False
 
 
@@ -51,7 +51,7 @@ class ItemTypeContentPieceRead(BaseModel):
     item_type_content_piece_id: int
     item_type_id: int
     content_piece_id: int
-    usage_area: Literal["solution", "stimuli_content", "interaction_content"]
+    usage_area: Literal["solution_content", "stimuli_content", "interaction_content"]
     is_required: bool
     content_piece_name: str
     content_piece_description: str | None = None

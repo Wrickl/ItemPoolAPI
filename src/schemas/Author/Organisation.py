@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ...models.organisation import OrganisationBase
+from models.organisation import OrganisationBase
 
 
 class OrganisationCreate(OrganisationBase):

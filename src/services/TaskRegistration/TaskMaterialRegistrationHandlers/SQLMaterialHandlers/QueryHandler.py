@@ -1,9 +1,12 @@
-from ..BaseHandler import TaskMaterialHandler
-from archiv.models.TaskMaterials.QueryTaskMaterial import QueryTaskMaterial, QueryMetadata
+from archiv.models.TaskMaterials.QueryTaskMaterial import (
+    QueryMetadata,
+    QueryTaskMaterial,
+)
 
-from ....MetaDataInference.SQLDataInferenceHandlers.QueryMetaDataInferenceHandler import (
+from services.MetaDataInference.SQLDataInferenceHandlers.QueryMetaDataInferenceHandler import (
     QueryMetricsHandler,
 )
+from services.TaskRegistration.TaskMaterialRegistrationHandlers.BaseHandler import TaskMaterialHandler
 
 
 class QueryMaterialHandler(TaskMaterialHandler):

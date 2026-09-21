@@ -1,12 +1,13 @@
 from textstat import textstat
 
-from ..BaseMetaDataInferenceHandler import MetaDataInferenceHandler
+from services.MetaDataInference.BaseMetaDataInferenceHandler import MetaDataInferenceHandler
 
 
 class TextMetricsHandler(MetaDataInferenceHandler):
     """
     Wraps the textstat python library and calculates all its available metrics for the passed text.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -27,5 +28,5 @@ class TextMetricsHandler(MetaDataInferenceHandler):
             "gutierrez_polini": textstat.gutierrez_polini(text),
             "crawford": textstat.crawford(text),
             "gulpease_index": textstat.gulpease_index(text),
-            "osman": textstat.osman(text)
+            "osman": textstat.osman(text),
         }

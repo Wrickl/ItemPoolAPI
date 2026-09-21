@@ -3,7 +3,7 @@ from typing import Any
 from sqlmodel import select
 from sqlmodel.sql._expression_select_cls import SelectOfScalar
 
-from ..models import Creator, Item
+from models import Creator, Item
 
 
 def search_for_item(

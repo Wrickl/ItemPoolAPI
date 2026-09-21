@@ -1,10 +1,10 @@
-from ..BaseHandler import TaskMaterialHandler
-from archiv.models.Tasks.BaseTask import Metadata
 from archiv.models.TaskMaterials.SchemaTaskMaterial import SchemaTaskMaterial
+from archiv.models.Tasks.BaseTask import Metadata
 
-from ....MetaDataInference.SQLDataInferenceHandlers.SchemaMetaDataInferenceHandler import (
+from services.MetaDataInference.SQLDataInferenceHandlers.SchemaMetaDataInferenceHandler import (
     SchemaMetricsHandler,
 )
+from services.TaskRegistration.TaskMaterialRegistrationHandlers.BaseHandler import TaskMaterialHandler
 
 
 class SchemaMaterialHandler(TaskMaterialHandler):

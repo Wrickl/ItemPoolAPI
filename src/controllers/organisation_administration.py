@@ -4,12 +4,12 @@ from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from ..models.author import Creator
-from ..Util.database_functions import addmodell2database
-from ..schemas.Tasks.Organisation import OrganisationResponse,OrganisationCreate,OrganisationUpdate
-from ..database import get_session
-from ..models import Organisation
-from ..models.error import ResourceInUseException
+from models.creator import Creator
+from Util.database_functions import addmodell2database
+from schemas.Tasks.Organisation import OrganisationResponse,OrganisationCreate,OrganisationUpdate
+from database import get_session
+from models import Organisation
+from models.error import ResourceInUseException
 
 router = APIRouter()
 
@@ -19,8 +19,7 @@ def get_all_organisations(session: Session = Depends(get_session)):
     """
     Rückgabe aller registrierten Organisationen
     """
-    organisations = session.exec(select(Organisation)).all()
-    return organisations
+    return session.exec(select(Organisation)).all()
 
 @router.get("/getOrganisation/{organisation_id}",response_model=OrganisationResponse, tags=["Organisation"])
 def get_organisation(organisation_id: UUID, session: Session = Depends(get_session)):
@@ -34,7 +33,6 @@ def get_organisation(organisation_id: UUID, session: Session = Depends(get_sessi
 
 @router.post("/createOrganisation",response_model=OrganisationResponse, tags=["Organisation"])
 def create_organisation(organisation_data: OrganisationCreate, session: Session = Depends(get_session)):
-    ### TODO Organisation,benötigt ein Schema?
     """
     Eine neue Organisation anlegen.
     """
