@@ -7,14 +7,16 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 from starlette.staticfiles import StaticFiles
 
+from controllers import contentSection_administration, datatypes_administration
 from .Util.logging.logger_config import log_config
 from .controllers import (
     item_collection,
     item_type_administration,
     plugin_administration,
+    contentPieces_administration,
     solution_attempt,
     status_administration,
-    task_generation,
+    item_administration,
     organisation_administration,
     themenbereich_administration,
     complexType_administration,
@@ -38,7 +40,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+##  Router für ENV Variablen
+app.include_router(datatypes_administration.router)
 ## Router für einfache Typen
 app.include_router(status_administration.router)
 app.include_router(organisation_administration.router)
@@ -49,9 +52,11 @@ app.include_router(creator_administration.router)
 ### Router für komplexe Typen
 app.include_router(complexType_administration.router)
 app.include_router(item_type_administration.router)
+app.include_router(contentPieces_administration.router)
 
+app.include_router(contentSection_administration.router)
 ### Router für Items
-app.include_router(task_generation.router)
+app.include_router(item_administration.router)
 app.include_router(item_collection.router)
 
 ### Router für SolutionAttempts

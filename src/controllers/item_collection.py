@@ -12,14 +12,9 @@ router = APIRouter()
 @router.post(
     "/createItemCollection", response_model=ItemCollectionRead, tags=["ItemCollections"]
 )
-async def create_item_collection(
-    collection_data: ItemCollectionCreate, session: Session = Depends(get_session)
-):
+async def create_item_collection(collection_data: ItemCollectionCreate, session: Session = Depends(get_session)):
     existing_item_ids = set(
-        session.exec(
-            select(Item.item_id).where(Item.item_id.in_(collection_data.item_ids))
-        ).all()
-    )
+        session.exec(select(Item.item_id).where(Item.item_id.in_(collection_data.item_ids))).all())
     requested_item_ids = set(collection_data.item_ids)
 
     missing_item_ids = sorted(

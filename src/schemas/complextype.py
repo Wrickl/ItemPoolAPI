@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 
@@ -18,7 +20,7 @@ class ComplexTypeUpdate(BaseModel):
 class ComplexTypeResponse(BaseModel):
     """Response-Modell fuer einen erstellten oder gelesenen komplexen Typ."""
 
-    complex_type_id: int | None
-    name: str | None
+    id: UUID
+    name: str
     description: str | None
-    json_schema: dict | None
+    json_schema: dict

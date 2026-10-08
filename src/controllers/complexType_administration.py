@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from database import get_session
-from models.Tasks.tasks import Item
+from models import ContentPiece
 from models.complextype import ComplexType
 from models.error import ResourceInUseException
 from schemas.complextype import ComplexTypeResponse, ComplexTypeCreate
@@ -14,7 +14,7 @@ from schemas.complextype import ComplexTypeResponse, ComplexTypeCreate
 router = APIRouter()
 
 
-@router.get("/getAllComplexType", response_model=list[ComplexTypeResponse], tags=["ComplexType"])
+@router.get("/getAllComplexTypes" , response_model=list[ComplexTypeResponse], tags=["ComplexType"])
 async def get_complex_types(session: Session = Depends(get_session)):
     """
     Rückgabe aller registrierten komplexen Typen.
@@ -80,10 +80,10 @@ async def delete_complex_type(complex_type_id: UUID, session: Session = Depends(
     complex_type2delete = session.get(ComplexType, complex_type_id)
     if not complex_type2delete:
         raise HTTPException(status_code=404, detail="Complex Type not found")
-    # TODO einfügen wenn klar wo Complex Type eingesetzen werden. Frage wie kommt man an diese Information.??
-    # usage_count = session.scalar(select(func.count()).select_from(Status).where(Item.status == status_id))
-    # if usage_count:
-    #     raise ResourceInUseException(usage_count)
+    usage_count = int(session.scalar(
+        select(func.count()).select_from(ContentPiece).where(ContentPiece.complex_type_id == complex_type_id)))
+    if usage_count:
+        raise ResourceInUseException(usage_count)
     session.delete(complex_type2delete)
     session.commit()
     return complex_type2delete

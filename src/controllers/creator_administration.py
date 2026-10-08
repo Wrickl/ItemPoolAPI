@@ -17,24 +17,6 @@ async def get_all_creators(session: Session = Depends(get_session)):
     Alle Creator/Authors auslesen.
     """
     return session.exec(select(Creator)).all()
-    # stmt = select(Creator, Organisation.name.label("organisation_name")).join(
-    #     Organisation,
-    #     Creator.organisation_id == Organisation.id,  # type: ignore[arg-type]
-    # )
-    # rows = session.exec(stmt).all()
-    #
-    # creators = []
-    # for creator, organisation_name in rows:
-    #     creators.append(
-    #         CreatorRead(
-    #             author_id=creator.author_id,
-    #             email=creator.email,
-    #             name=creator.name,
-    #             role=creator.role,
-    #             organisation_name=organisation_name,
-    #         )
-    #     )
-    # return creators
 
 
 @router.get("/getCreatorById/{creator_id}", response_model=CreatorResponse, tags=["Creator"])
@@ -59,8 +41,8 @@ async def create_creator(creator_data: CreatorCreate, session: Session = Depends
     return creator2add
 
 
-@router.get("/updateCreator/{creator_id}", response_model=Creator, tags=["Creator"])
-def update_organisation(creator_id: int, creator: Creator, session: Session = Depends(get_session)):
+@router.put("/updateCreator/{creator_id}", response_model=Creator, tags=["Creator"])
+def update_organisation(creator_id: UUID, creator: Creator, session: Session = Depends(get_session)):
     """
     Update eines bestehenden Creators.
     """
@@ -68,7 +50,7 @@ def update_organisation(creator_id: int, creator: Creator, session: Session = De
 
 
 @router.delete("/deleteCreator/{creator_id}", status_code=204, tags=["Creator"])
-async def delete_creator(creator_id: int, session: Session = Depends(get_session)):
+async def delete_creator(creator_id: UUID, session: Session = Depends(get_session)):
     """
     Einen Creator aus der Datenbank löschen.
     """

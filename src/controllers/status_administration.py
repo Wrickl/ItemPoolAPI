@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -22,7 +24,7 @@ async def get_status(session: Session = Depends(get_session)):
 
 
 @router.get('/getStatusById/{status_id}', response_model=StatusResponse, tags=["Status"])
-def get_status_by_id(status_id: int, session: Session = Depends(get_session)):
+def get_status_by_id(status_id: UUID, session: Session = Depends(get_session)):
     """
     Rückgabe eines Status anhand der ID.
     """
@@ -43,7 +45,7 @@ def create_status(status_data: StatusCreate, session: Session = Depends(get_sess
 
 
 @router.put("/updateStatus/{status_id}", response_model=StatusResponse, tags=["Status"])
-def update_status(status_id: int, status_data: StatusUpdate, session: Session = Depends(get_session)):
+def update_status(status_id: UUID, status_data: StatusUpdate, session: Session = Depends(get_session)):
     """
     Einen bestehenden Status aktualisieren.
     """
@@ -61,7 +63,7 @@ def update_status(status_id: int, status_data: StatusUpdate, session: Session = 
 
 
 @router.delete("/deleteStatus/{status_id}", status_code=204, tags=["Status"])
-def delete_status(status_id: int, session: Session = Depends(get_session)):
+def delete_status(status_id: UUID, session: Session = Depends(get_session)):
     """
     Einen bestehenden Status löschen.
     """

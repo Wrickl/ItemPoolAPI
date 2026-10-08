@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 
@@ -18,6 +20,6 @@ class LicenseUpdate(BaseModel):
 class LicenseResponse(BaseModel):
     """Response-Modell fuer eine erstellte oder gelesene Lizenz."""
 
-    license_id: int | None
-    name: str | None
+    id: UUID
+    name: str
     description: str | None

@@ -1,25 +1,31 @@
-from .creator import Creator
-from .organisation import Organisation
 from .Solutions.SolutionAttempt import SolutionAttempt
-from .Tasks.content_types import (
+from .Tasks import (
     ContentPiece,
+    ContentSection,
+    ContentSectionContentPiece,
+    ContentSectionItem,
+    ContentSectionItemType,
+)
+from .Tasks.content_types import (
     DataType,
-    ItemContent,
     ItemType,
-    ItemTypeContentPiece,
 )
 from .Tasks.item_collection import ItemCollection
 from .Tasks.tasks import Item
+from .creator import Creator
+from .organisation import Organisation
 
 __all__ = [
     "ContentPiece",
+    "ContentSection",
+    "ContentSectionContentPiece",
+    "ContentSectionItem",
+    "ContentSectionItemType",
     "Creator",
     "DataType",
     "Item",
     "ItemCollection",
-    "ItemContent",
     "ItemType",
-    "ItemTypeContentPiece",
     "Organisation",
     "SolutionAttempt",
 ]

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 
@@ -28,6 +30,6 @@ class ThemenbereichUpdate(BaseModel):
 class ThemenbereichResponse(BaseModel):
     """Response-Modell fuer einen erstellten oder gelesenen Themenbereich."""
 
-    themenbereich_id: int
+    id: UUID
     name: str
     description: str | None

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlmodel import Session, select
@@ -21,7 +23,7 @@ async def get_themenbereich(session: Session = Depends(get_session)):
 
 
 @router.get('/getThemenbereichById/{themenbereich_id}', response_model=ThemenbereichResponse, tags=["Themenbereich"])
-def get_themenbereich_by_id(themenbereich_id: int, session: Session = Depends(get_session)):
+def get_themenbereich_by_id(themenbereich_id: UUID, session: Session = Depends(get_session)):
     """
     Rückgabe eines Themenbereichs anhand der ID.
     """
@@ -42,7 +44,7 @@ def create_themenbereich(themenbereich_data: ThemenbereichCreate, session: Sessi
 
 
 @router.put("/updateThemenbereich/{themenbereich_id}", response_model=ThemenbereichResponse, tags=["Themenbereich"])
-def update_themenbereich(themenbereich_id: int, themenbereich_data: ThemenbereichUpdate,
+def update_themenbereich(themenbereich_id: UUID, themenbereich_data: ThemenbereichUpdate,
                          session: Session = Depends(get_session)):
     """
     Einen bestehenden Themenbereich aktualisieren.
@@ -61,7 +63,7 @@ def update_themenbereich(themenbereich_id: int, themenbereich_data: Themenbereic
 
 
 @router.delete("/deleteThemenbereich/{themenbereich_id}", response_model=ThemenbereichResponse, tags=["Themenbereich"])
-def delete_themenbereich(themenbereich_id: int, session: Session = Depends(get_session)):
+def delete_themenbereich(themenbereich_id: UUID, session: Session = Depends(get_session)):
     """
     Einen bestehenden Themenbereich löschen.
     """

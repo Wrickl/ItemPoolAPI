@@ -1,4 +1,6 @@
 ### TODO Vollstädnige CRUD Anwendung für Lizenzverwaltung implementieren
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlmodel import Session, select
@@ -22,7 +24,7 @@ async def get_licence(session: Session = Depends(get_session)):
 
 
 @router.get("/getLicenceById/{license_id}", response_model=LicenseResponse, tags=["Licence"])
-async def get_licence(license_id: int, session: Session = Depends(get_session)):
+async def get_licence(license_id: UUID, session: Session = Depends(get_session)):
     """
     Rückgabe einer registrierten Lizenz anhand der ID.
     """
@@ -45,7 +47,7 @@ async def create_license(
 
 
 @router.put("/updateLicense/{license_id}", response_model=LicenseResponse, tags=["Licence"])
-async def update_license(license_id: int, license_data: LicenseCreate, session: Session = Depends(get_session)):
+async def update_license(license_id: UUID, license_data: LicenseCreate, session: Session = Depends(get_session)):
     """
     Eine bestehende Lizenz aktualisieren.
     """
@@ -63,7 +65,7 @@ async def update_license(license_id: int, license_data: LicenseCreate, session: 
 
 
 @router.delete("/deleteLicense/{license_id}", response_model=LicenseResponse, tags=["Licence"])
-async def delete_license(license_id: int, session: Session = Depends(get_session)):
+async def delete_license(license_id: UUID, session: Session = Depends(get_session)):
     """
     Eine bestehende Lizenz löschen.
     """

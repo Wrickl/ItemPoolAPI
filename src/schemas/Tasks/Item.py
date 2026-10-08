@@ -4,12 +4,14 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .ContentPiece import ContentPieceReadTemplate
+
 
 class FlexibleContentBlock(BaseModel):
     """Verweist auf ein flexibles ContentPiece und speichert den konkreten Wert."""
 
     content_piece_id: int = Field(
-        ...,ge=1,description="ID eines ContentPiece aus dem flexiblen Content-Type-System",)
+        ..., ge=1, description="ID eines ContentPiece aus dem flexiblen Content-Type-System", )
     value: Any = Field(..., description="Inhalt fuer das referenzierte ContentPiece")
 
 
@@ -39,39 +41,16 @@ class EnrichedContentBlock(BaseModel):
 
 class ItemCreate(BaseModel):
     """
-    Schema fuer die Erstellung eines neuen Items ueber die API.
-
-    - Erforderliche Felder: license, status_id, author_id
-    - Pflichtfelder fuer flexible Fragebestandteile: interaction_content, stimuli_content
-    - Optionale Felder: solution_content, tags_id, item_metadata
+    Schema fuer die Erstellung eines neuen Items.
     """
 
     license: UUID = Field(..., description="ID der zugehoerigen License")
     author_id: UUID = Field(..., description="UUID des Autors/Creators")
-    solution: list[FlexibleContentBlock] | None = Field(
-        default=None,
-        min_length=1,
-        description="Optionale flexible Loesungsbloecke auf Basis des Content-Type-Systems",
-    )
-    interaction_content: list[FlexibleContentBlock] = Field(
-        ...,
-        min_length=1,
-        description="Flexible Interaction-Bloecke, die Teil der eigentlichen Aufgabeninteraktion sind",
-    )
-    stimuli_content: list[FlexibleContentBlock] = Field(
-        ...,
-        min_length=1,
-        description="Flexible Stimuli-Bloecke, die z. B. Material/Prompt-Kontext fuer die Aufgabe liefern",
-    )
-    item_metadata: dict = Field(
-        default_factory=dict,
-        description="Schema-freie Metadaten (JSON), vollkommen flexibel",
-    )
     themenbereich_id: int | None = Field(
         default=None, description="ID des zugehoerigen Themenbereichs (optional)"
     )
     status_id: UUID = Field(..., description="ID des zugehoerigen Status")
-    #tags_id: UUID | None = Field(default=None, description="ID der Tags (optional)")
+    # tags_id: UUID | None = Field(default=None, description="ID der Tags (optional)")
     item_type_id: UUID | None = Field(
         default=None, description="ID des ItemTypes (optional)"
     )
@@ -84,11 +63,7 @@ class ItemResponse(BaseModel):
     license: UUID | None
     status: UUID | None
     author_id: UUID
-    solution_content: list[dict[str, Any]]
-    interaction_content: list[dict[str, Any]]
-    stimuli_content: list[dict[str, Any]]
-    item_metadata: dict | None
-    #tags_id: UUID | None
+    # tags_id: UUID | None
     item_type_id: UUID | None
     created_at: datetime
 
@@ -104,11 +79,7 @@ class ItemWithAuthorResponse(BaseModel):
     status: UUID
     author_id: UUID
     author_name: str | None
-    solution_content: list[dict[str, Any]]
-    interaction_content: list[dict[str, Any]]
-    stimuli_content: list[dict[str, Any]]
-    item_metadata: dict | None
-    #tags_id: UUID | None
+    # tags_id: UUID | None
     item_type_id: UUID
     created_at: datetime
 
@@ -127,17 +98,39 @@ class ItemExportResponse(BaseModel):
     themenbereich: str | None = Field(
         default=None, description="Name des Themenbereichs statt ID"
     )
-    solution: list[EnrichedContentBlock] = Field(
-        default_factory=list,
-        description="Angereicherte Solution-Blöcke mit vollständigen ContentPiece-Info",
-    )
-    interaction_content: list[EnrichedContentBlock] = Field(
-        default_factory=list, description="Angereicherte Interaction-Blöcke"
-    )
-    stimuli_content: list[EnrichedContentBlock] = Field(
-        default_factory=list, description="Angereicherte Stimuli-Blöcke"
-    )
-    item_metadata: dict | None = None
     themenbereich_id: UUID
-    #tags_id: UUID | None = None
+    # tags_id: UUID | None = None
     created_at: datetime = Field(..., description="Erstellungsdatum")
+
+
+class ItemTemplateContentSectionResponse(BaseModel):
+    """Template-Ansicht einer ContentSection inklusive ihrer ContentPieces."""
+
+    id: UUID
+    name: str
+    description: str | None = None
+    content_pieces: list[ContentPieceReadTemplate] = Field(default_factory=list)
+
+
+class ItemTemplateResponse(BaseModel):
+    """Response-Modell für ein Item-Template, das alle Sections eines ItemTypes mit ihren ContentPieces enthält."""
+
+    item_type_id: UUID
+    item_type_name: str
+    item_type_description: str | None = None
+    license_id: UUID | None | str = Field(
+        default=None,
+        description="Blanko-Feld fuer die spätere Lizenzzuordnung",
+    )
+    status_id: UUID | None| str  = Field(
+        default=None,
+        description="Blanko-Feld fuer die spätere Statuszuordnung",
+    )
+    themenbereich_id: UUID | None | str = Field(
+        default=None,
+        description="Blanko-Feld fuer die spätere Themenbereichszuordnung",
+    )
+    content_sections: list[ItemTemplateContentSectionResponse] = Field(
+        default_factory=list,
+        description="Liste der Sections des ItemTypes inklusive ihrer ContentPieces",
+    )

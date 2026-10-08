@@ -1,9 +1,12 @@
 """Hier werden die Datenmodelle der Komplexen JSON Types abgelegt."""
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import Column, JSON
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
+
+if TYPE_CHECKING:
+    from .Tasks.contentPiece import ContentPiece
 
 
 class ComplexTypeBase(SQLModel):
@@ -26,3 +29,4 @@ class ComplexTypeBase(SQLModel):
 class ComplexType(ComplexTypeBase, table=True):
     __tablename__ = "complex_type"
     id: UUID = Field(default_factory=uuid4, primary_key=True)
+    content_pieces: list["ContentPiece"] = Relationship(back_populates="complex_type")

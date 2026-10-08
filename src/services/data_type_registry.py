@@ -4,7 +4,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlmodel import Session, select
 
-from models.Tasks.content_types import DataType, ItemTypeContentPiece
+from models.Tasks.content_types import DataType
 
 
 def _get_allowed_database_data_types() -> set[str]:
@@ -131,9 +131,3 @@ def validate_value_against_data_type(type_name: str, value: Any) -> None:
             )
         return
 
-
-def ensure_assignment_belongs_to_item_type(
-    assignment: ItemTypeContentPiece, item_type_id: int
-) -> None:
-    if assignment.item_type_id != item_type_id:
-        raise ValueError("Das ContentPiece gehoert nicht zum ausgewaehlten ItemType")
