@@ -8,9 +8,9 @@ from sqlmodel import Session, select
 from Util.database_functions import addmodell2database
 from database import get_session
 from models.Enums.Status import Status
-from models.Tasks.tasks import Item
+from models.items.tasks import Item
 from models.error import ResourceInUseException
-from schemas.Tasks.Status import StatusResponse, StatusCreate, StatusUpdate
+from schemas.items.status import StatusResponse, StatusCreate, StatusUpdate
 
 router = APIRouter()
 
@@ -58,7 +58,7 @@ def update_status(status_id: UUID, status_data: StatusUpdate, session: Session =
         session.refresh(status2change)
     except IntegrityError:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"This Status already exists.")
+        raise HTTPException(status_code=409, detail="This Status already exists.")
     return status2change
 
 

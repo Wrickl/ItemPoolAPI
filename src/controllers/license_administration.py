@@ -8,9 +8,9 @@ from sqlmodel import Session, select
 from Util.database_functions import addmodell2database
 from database import get_session
 from models.Enums.License import License
-from models.Tasks.tasks import Item
+from models.items.tasks import Item
 from models.error import ResourceInUseException
-from schemas.Tasks.License import LicenseResponse, LicenseCreate
+from schemas.items.license import LicenseResponse, LicenseCreate
 
 router = APIRouter()
 
@@ -24,14 +24,14 @@ async def get_licence(session: Session = Depends(get_session)):
 
 
 @router.get("/getLicenceById/{license_id}", response_model=LicenseResponse, tags=["Licence"])
-async def get_licence(license_id: UUID, session: Session = Depends(get_session)):
+async def get_licence_by_id(license_id: UUID, session: Session = Depends(get_session)):
     """
     Rückgabe einer registrierten Lizenz anhand der ID.
     """
-    license = session.get(License, license_id)
-    if not license:
+    license2get = session.get(License, license_id)
+    if not license2get:
         raise HTTPException(status_code=404, detail="License mit dieser ID nicht gefunden")
-    return license
+    return license2get
 
 
 @router.post("/createLicense", response_model=LicenseResponse, tags=["Licence"])

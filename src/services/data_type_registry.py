@@ -4,7 +4,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlmodel import Session, select
 
-from models.Tasks.content_types import DataType
+from models.items.content_types import DataType
 
 
 def _get_allowed_database_data_types() -> set[str]:

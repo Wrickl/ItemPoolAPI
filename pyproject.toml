@@ -17,11 +17,12 @@ dependencies = [
     "sqlalchemy>=2.0.49",
 ]
 
-[tool.setuptools]
-packages = ["src"]
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
 
-[tool.setuptools.package-dir]
-"" = "src"
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [dependency-groups]
 dev = [
@@ -66,4 +67,3 @@ max-attributes = 12
 
 [tool.pylint.basic]
 good-names = ["i", "j", "k", "q", "db", "it", "id", "pk"]
-

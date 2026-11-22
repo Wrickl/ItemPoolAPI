@@ -1,4 +1,4 @@
-from .SolutionAttempt import (
+from .solution_attempt import (
     EventLog,
     SolutionAttempt,
     SolutionAttemptBase,

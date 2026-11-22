@@ -6,7 +6,7 @@ from sqlalchemy import Column, JSON
 from sqlmodel import Field, SQLModel, Relationship
 
 if TYPE_CHECKING:
-    from .Tasks.contentPiece import ContentPiece
+    from .items.content_piece import ContentPiece
 
 
 class ComplexTypeBase(SQLModel):

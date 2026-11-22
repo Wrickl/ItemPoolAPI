@@ -36,20 +36,20 @@ from .Author.Organisation import (
 )
 
 # Task Schemas - ContentPiece
-from .Tasks.ContentPiece import (
+from .items.content_piece import (
     ContentPieceCreate,
     ContentPieceRead,
     ContentPieceReadFull,
 )
 
 # Task Schemas - DataTypes
-from .Tasks.DataTypes import (
+from .items.data_types import (
     DataTypeRead,
     DataTypeResponse,
 )
 
 # Task Schemas - Item
-from .Tasks.Item import (
+from .items.Item import (
     FlexibleContentBlock,
     ExportContentPiece,
     EnrichedContentBlock,
@@ -62,60 +62,50 @@ from .Tasks.Item import (
 )
 
 # Task Schemas - ItemType
-from .Tasks.ItemType import (
+from .items.item_type import (
     ItemTypeCreate,
     ItemTypeRead,
 )
 
 # Task Schemas - ItemCollection
-from .Tasks.ItemCollection import (
+from .items.item_collection import (
     ItemCollectionCreate,
     ItemCollectionRead,
 )
 
 # Task Schemas - License
-from .Tasks.License import (
+from .items.license import (
     LicenseCreate,
     LicenseUpdate,
     LicenseResponse,
 )
 
 # Task Schemas - Status
-from .Tasks.Status import (
+from .items.status import (
     StatusCreate,
     StatusUpdate,
     StatusResponse,
 )
 
 # Task Schemas - Themenbereich
-from .Tasks.Themenbereich import (
+from .items.themenbereich import (
     ThemenbereichCreate,
     ThemenbereichUpdate,
     ThemenbereichResponse,
 )
 
 # Task Schemas - Organisation
-from .Tasks.Organisation import (
+from .items.organisation import (
     OrganisationCreate,
     OrganisationUpdate,
     OrganisationResponse,
 )
 
 # Task Schemas - Content Types
-from .Tasks.content_types import (
+from .items.content_types import (
     ContentSectionRead,
     ItemTypeContentSectionAssign,
     ItemTypeDetailRead,
-)
-
-# Task Schemas - Question Type
-from .Tasks.question_type import (
-    QuestionTypeBase,
-    QuestionTypeCreate,
-    QuestionTypeUpdate,
-    QuestionTypeInDBBase,
-    QuestionTypeRead,
-    QuestionTypePublic,
 )
 
 # Solution Schemas
@@ -149,14 +139,14 @@ __all__ = [
     "CreatorResponse",
     "AuthorOrganisationCreate",
     "AuthorOrganisationRead",
-    # Tasks - ContentPiece
+    # items - ContentPiece
     "ContentPieceCreate",
     "ContentPieceRead",
     "ContentPieceReadFull",
-    # Tasks - DataTypes
+    # items - DataTypes
     "DataTypeRead",
     "DataTypeResponse",
-    # Tasks - Item
+    # items - Item
     "FlexibleContentBlock",
     "ExportContentPiece",
     "EnrichedContentBlock",
@@ -166,39 +156,32 @@ __all__ = [
     "ItemExportResponse",
     "ItemTemplateContentSectionResponse",
     "ItemTemplateResponse",
-    # Tasks - ItemType
+    # items - ItemType
     "ItemTypeCreate",
     "ItemTypeRead",
-    # Tasks - ItemCollection
+    # items - ItemCollection
     "ItemCollectionCreate",
     "ItemCollectionRead",
-    # Tasks - License
+    # items - License
     "LicenseCreate",
     "LicenseUpdate",
     "LicenseResponse",
-    # Tasks - Status
+    # items - Status
     "StatusCreate",
     "StatusUpdate",
     "StatusResponse",
-    # Tasks - Themenbereich
+    # items - Themenbereich
     "ThemenbereichCreate",
     "ThemenbereichUpdate",
     "ThemenbereichResponse",
-    # Tasks - Organisation
+    # items - Organisation
     "OrganisationCreate",
     "OrganisationUpdate",
     "OrganisationResponse",
-    # Tasks - Content Types
+    # items - Content Types
     "ContentSectionRead",
     "ItemTypeContentSectionAssign",
     "ItemTypeDetailRead",
-    # Tasks - Question Type
-    "QuestionTypeBase",
-    "QuestionTypeCreate",
-    "QuestionTypeUpdate",
-    "QuestionTypeInDBBase",
-    "QuestionTypeRead",
-    "QuestionTypePublic",
     # Solutions
     "SourcePayload",
     "SubmissionPayload",

@@ -1,18 +1,20 @@
-from .Solutions.SolutionAttempt import SolutionAttempt
-from .Tasks import (
+from .Solutions.solution_attempt import SolutionAttempt
+from .creator import Creator
+from .items import (
     ContentPiece,
     ContentSection,
     ContentSectionContentPiece,
     ContentSectionItem,
     ContentSectionItemType,
+    ItemContentPieceValue,
 )
-from .Tasks.content_types import (
+from .items.content_types import (
     DataType,
     ItemType,
 )
-from .Tasks.item_collection import ItemCollection
-from .Tasks.tasks import Item
-from .creator import Creator
+from .items.item_collection import ItemCollection
+from .items.item_type_plugin import ItemTypePlugin
+from .items.tasks import Item
 from .organisation import Organisation
 
 __all__ = [
@@ -25,7 +27,9 @@ __all__ = [
     "DataType",
     "Item",
     "ItemCollection",
+    "ItemContentPieceValue",
     "ItemType",
+    "ItemTypePlugin",
     "Organisation",
     "SolutionAttempt",
 ]

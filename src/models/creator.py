@@ -5,7 +5,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from .organisation import Organisation
-    from .Tasks.tasks import Item
+    from .items.tasks import Item
 
 
 class CreatorBase(SQLModel):
@@ -18,6 +18,6 @@ class CreatorBase(SQLModel):
 
 class Creator(CreatorBase, table=True):
     __tablename__ = "creator"
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    author_id: UUID = Field(default_factory=uuid4, primary_key=True)
     organisation: "Organisation" = Relationship(back_populates="creators")
     items: list["Item"] = Relationship(back_populates="author")

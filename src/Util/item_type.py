@@ -1,10 +1,12 @@
 import os
 
 from fastapi import HTTPException
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from models import ContentPiece, DataType, ItemType
 from models.complextype import ComplexType
+from models.items.item_type_plugin import ItemTypePlugin
+from schemas.items.item_type import ItemTypePluginAssignment
 from schemas import (
     ContentPieceRead,
     ContentPieceReadFull,
@@ -74,6 +76,12 @@ def build_item_type_detail(item_type: ItemType, session: Session) -> ItemTypeDet
         name=item_type.name,
         description=item_type.description,
         content_sections=content_sections,
+        plugins=[
+            ItemTypePluginAssignment.model_validate(assignment, from_attributes=True)
+            for assignment in session.exec(
+                select(ItemTypePlugin).where(ItemTypePlugin.item_type_id == item_type.id)
+            )
+        ],
     )
 
 
@@ -103,4 +111,3 @@ def build_full_content_piece_read(content_piece:ContentPiece, session: Session) 
             else None,
             complex_type_id=content_piece.complex_type_id,
             complex_schema=schema.json_schema if schema else None,)
-

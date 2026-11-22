@@ -7,25 +7,25 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 from starlette.staticfiles import StaticFiles
 
-from controllers import contentSection_administration, datatypes_administration
-from .Util.logging.logger_config import log_config
-from .controllers import (
+from Util.logging.logger_config import log_config
+from controllers import content_section_administration, data_types_administration
+from controllers import (
     item_collection,
     item_type_administration,
     plugin_administration,
-    contentPieces_administration,
+    content_pieces_administration,
     solution_attempt,
     status_administration,
     item_administration,
     organisation_administration,
     themenbereich_administration,
-    complexType_administration,
+    complex_type_administration,
     creator_administration,
     license_administration
 )
-from .database.dao_connection import create_db_and_tables, get_engine
-from .database.mongo_connection import close_mongo_client
-from .services.data_type_registry import sync_database_types
+from database.dao_connection import create_db_and_tables, get_engine
+from database.mongo_connection import close_mongo_client
+from services.data_type_registry import sync_database_types
 
 dictConfig(log_config)
 
@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 ##  Router für ENV Variablen
-app.include_router(datatypes_administration.router)
+app.include_router(data_types_administration.router)
 ## Router für einfache Typen
 app.include_router(status_administration.router)
 app.include_router(organisation_administration.router)
@@ -50,11 +50,11 @@ app.include_router(themenbereich_administration.router)
 app.include_router(creator_administration.router)
 
 ### Router für komplexe Typen
-app.include_router(complexType_administration.router)
+app.include_router(complex_type_administration.router)
 app.include_router(item_type_administration.router)
-app.include_router(contentPieces_administration.router)
+app.include_router(content_pieces_administration.router)
 
-app.include_router(contentSection_administration.router)
+app.include_router(content_section_administration.router)
 ### Router für Items
 app.include_router(item_administration.router)
 app.include_router(item_collection.router)
