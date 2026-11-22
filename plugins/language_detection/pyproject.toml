@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "itempool-language-detection-plugin"
+version = "0.1.0"
+description = "Language detection plugin for ItemPoolAPI"
+requires-python = ">=3.12"
+dependencies = ["langdetect==1.0.9"]
+
+[project.entry-points."itempoolapi.plugins"]
+language_detection = "language_detection_plugin:LanguageDetectionPlugin"
+
+[tool.setuptools]
+py-modules = ["language_detection_plugin"]

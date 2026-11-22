@@ -1,0 +1,74 @@
+body {
+  background: #f8f9fa;
+}
+
+#resultsTable td, #resultsTable th {
+  vertical-align: middle;
+}
+
+#resultsTable tbody tr.table-active {
+  background-color: #e8f4f8 !important;
+}
+
+#resultsTable tbody input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.card {
+  border-radius: 0.75rem;
+}
+
+textarea.font-monospace {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+#selectionControls a {
+  color: #0d6efd;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#selectionControls a:hover {
+  text-decoration: underline;
+}
+
+#downloadSelectedBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#resultsTable td:last-child {
+  min-width: 190px;
+}
+
+.detail-table {
+  background: #fff;
+}
+
+.detail-table .detail-key {
+  width: 220px;
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.detail-array-entry {
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: #fcfcfd;
+}
+
+.detail-array-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+

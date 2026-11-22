@@ -1,9 +1,8 @@
-from ..database.DAO import dao, DAO
-
 from abc import ABC
+
+from database.dao import DAO
 
 
 class Service(ABC):
     def __init__(self):
-        self._dao: DAO = dao
-        pass
+        self._dao: DAO = DAO

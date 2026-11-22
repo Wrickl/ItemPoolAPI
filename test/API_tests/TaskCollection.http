@@ -1,69 +1,33 @@
-POST http://127.0.0.1:8000/registerTask
+### Voraussetzung: Es existieren bereits Items (z. B. via dummydaten/INITIAL_FILL.http)
+
+### 1) Collection aus bestehenden Item-IDs anlegen
+POST {{baseUrl}}/createItemCollection
+Content-Type: application/json
 
 {
-    "type": "sql",
-    "task": {
-        "task_stimulus": {
-            "instruction": [
-                {
-                    "type": "text",
-                    "material_information": {
-                        "text": "Hello World!",
-                        "constraint": [],
-                        "metadata": {}
-                    }
-                }
-            ],
-            "problem_statement": [{
-                    "type": "text",
-                    "material_information": {
-                        "text": "Hello World!",
-                        "metadata": {}
-                    }
-                }],
-            "db_schema": {
-                "type": "schema",
-                "material_information": {
-                    "schema": "Some schema definition",
-                    "name": "Test",
-                    "metadata": {}
-                }
-            },
-            "database": {
-                "type": "database",
-                "material_information": {
-                    "database": "CREATE database ...",
-                    "name": "Test",
-                    "dialect": "postgres",
-                    "metadata": {}
-                }
-            }
-        },
-        "task_solutions": {
-            "query": [{
-                "type": "query",
-                "material_information": {
-                    "query": "SELECT a, b, sum(a) FROM test;",
-                    "dialect": "postgres",
-                    "metadata": {}
-                }
-            }]
-        },
-        "metadata": {
-            "name": "3a)"
-        }
-    }
+  "name": "Klausurpool SQL SS26",
+  "item_ids": [1, 2]
 }
 
 ###
+### 2) Alle Collections abrufen
+GET {{baseUrl}}/getAllItemCollections
 
-POST http://127.0.0.1:8000/createTaskCollection
+###
+### 3) Einzelne Collection per ID abrufen
+GET {{baseUrl}}/getItemCollection/1
+
+###
+### 4) Collection aktualisieren (Name und Item-IDs ändern)
+PUT {{baseUrl}}/updateItemCollection/1
+Content-Type: application/json
 
 {
-    "task_collection": [1,2,3],
-    "task_collection_name": ""
+  "name": "SQL Grundlagen SS26 - Updated",
+  "item_ids": [1, 2, 3]
 }
 
 ###
+### 5) Collection löschen
+DELETE {{baseUrl}}/deleteItemCollection/1
 
-GET http://127.0.0.1:8000/fetchTaskCollection?id=2

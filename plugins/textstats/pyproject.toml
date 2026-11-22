@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "itempool-textstats-plugin"
+version = "0.1.0"
+description = "Text statistics plugin for ItemPoolAPI"
+requires-python = ">=3.12"
+dependencies = ["textstat>=0.7.11"]
+
+[project.entry-points."itempoolapi.plugins"]
+textstats = "textstats_plugin:TextStatisticsPlugin"
+
+[tool.setuptools]
+py-modules = ["textstats_plugin"]

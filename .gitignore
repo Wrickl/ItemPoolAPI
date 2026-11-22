@@ -1,9 +1,14 @@
 __pycache__/main.cpython-312.pyc
 **/__pycache__/**/*.pyc
 __pycache__/
-*/__pycahe__/
+*/__pycache__/
 .env
 .vscode
 .coverage
 /.venv/
 .idea
+/.github/
+/.copilot/
+.DS_Store
+test
+ausarbeitung
