@@ -48,7 +48,8 @@ async def create_item_type(item_type_data: ItemTypeCreate, session: Session = De
             raise HTTPException(status_code=400, detail=f"Plugin {assignment.plugin_name} nicht gefunden")
         if assignment.content_section_id not in item_type_data.content_section_ids:
             raise HTTPException(status_code=400, detail="Plugin-ContentSection gehört nicht zum ItemType")
-        if session.get(ContentSectionContentPiece, (assignment.content_section_id, assignment.content_piece_id)) is None:
+        if session.get(ContentSectionContentPiece,
+                       (assignment.content_section_id, assignment.content_piece_id)) is None:
             raise HTTPException(status_code=400, detail="Plugin-ContentPiece gehört nicht zur ContentSection")
         piece = session.get(ContentPiece, assignment.content_piece_id)
         data_type = session.get(DataType, piece.data_type_id) if piece else None

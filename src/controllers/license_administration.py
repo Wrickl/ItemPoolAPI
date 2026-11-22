@@ -60,7 +60,7 @@ async def update_license(license_id: UUID, license_data: LicenseCreate, session:
         session.refresh(license2change)
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren der License: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren der License: {str(e)}") from e
     return license2change
 
 
@@ -80,5 +80,5 @@ async def delete_license(license_id: UUID, session: Session = Depends(get_sessio
         session.commit()
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Löschen der License: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Löschen der License: {str(e)}") from e
     return license2delete

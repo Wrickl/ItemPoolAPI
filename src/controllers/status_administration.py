@@ -56,9 +56,9 @@ def update_status(status_id: UUID, status_data: StatusUpdate, session: Session =
         status2change.sqlmodel_update(status_data)
         session.commit()
         session.refresh(status2change)
-    except IntegrityError:
+    except IntegrityError as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail="This Status already exists.")
+        raise HTTPException(status_code=409, detail="This Status already exists.") from e
     return status2change
 
 

@@ -46,12 +46,9 @@ async def create_complex_type(complex_type_data: ComplexTypeCreate, session: Ses
         session.refresh(complex_type2add)
         return complex_type2add
 
-    except IntegrityError:
+    except IntegrityError as e:
         session.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Ein komplexer Typ mit diesem Namen existiert bereits.",
-        )
+        raise HTTPException(status_code=409,detail="Ein komplexer Typ mit diesem Namen existiert bereits.") from e
 
 
 @router.put("/updateComplexType/{complex_type_id}", response_model=ComplexTypeResponse, tags=["ComplexType"])

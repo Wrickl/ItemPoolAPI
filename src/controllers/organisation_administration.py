@@ -58,7 +58,7 @@ def update_organisation(organisation_id: UUID, organisation_data: OrganisationUp
         session.refresh(organisation2change)
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren der Organisation: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren der Organisation: {str(e)}") from e
     return organisation2change
 
 

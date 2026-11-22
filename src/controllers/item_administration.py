@@ -70,35 +70,35 @@ def get_all_items(
     return _build_export_payload(session, session.exec(statement).unique().all())
 
 
-@router.get("/searchItems", response_model=list[ItemWithAuthorResponse], tags=["Items"])
-def search_items(
-        session: SessionDependency,
-        q: TextFilter = None,
-        author_id: AuthorIdFilter = None,
-        author_name: AuthorNameFilter = None,
-        limit: SearchLimit = 100,
-        offset: SearchOffset = 0,
-        tags: TagFilter = None,
-) -> list[dict[str, Any]]:
-    """Liefert Items inklusive Autorenname und optionalen Filtern."""
-    statement = select(Item, col(Creator.name)).join(
-        Creator, col(Item.author_id) == col(Creator.author_id)
-    )
-    if author_id:
-        statement = statement.where(Item.author_id == author_id)
-    elif author_name:
-        statement = statement.where(col(Creator.name).ilike(f"%{author_name}%"))
-
-    if tags:
-        statement = statement.where(has_all_tags(tags))
-
-    statement = statement.order_by(col(Item.item_id)).offset(offset).limit(limit).options(joinedload(Item.tag_links))
-    rows = session.exec(statement).unique().all()
-    sections = _build_item_content_sections(session, [item.item_id for item, _ in rows])
-    return [
-        {**_build_item_response_payload(item, sections[item.item_id]), "author_name": name}
-        for item, name in rows
-    ]
+# @router.get("/searchItems", response_model=list[ItemWithAuthorResponse], tags=["Items"])
+# def search_items(
+#         session: SessionDependency,
+# #        q: TextFilter = None,
+#         author_id: AuthorIdFilter = None,
+#         author_name: AuthorNameFilter = None,
+#         limit: SearchLimit = 100,
+#         offset: SearchOffset = 0,
+#         tags: TagFilter = None,
+# ) -> list[dict[str, Any]]:
+#     """Liefert Items inklusive Autorenname und optionalen Filtern."""
+#     statement = select(Item, col(Creator.name)).join(
+#         Creator, col(Item.author_id) == col(Creator.author_id)
+#     )
+#     if author_id:
+#         statement = statement.where(Item.author_id == author_id)
+#     elif author_name:
+#         statement = statement.where(col(Creator.name).ilike(f"%{author_name}%"))
+#
+#     if tags:
+#         statement = statement.where(has_all_tags(tags))
+#
+#     statement = statement.order_by(col(Item.item_id)).offset(offset).limit(limit).options(joinedload(Item.tag_links))
+#     rows = session.exec(statement).unique().all()
+#     sections = _build_item_content_sections(session, [item.item_id for item, _ in rows])
+#     return [
+#         {**_build_item_response_payload(item, sections[item.item_id]), "author_name": name}
+#         for item, name in rows
+#     ]
 
 
 @router.get("/exportItems", tags=["Items", "UI"])

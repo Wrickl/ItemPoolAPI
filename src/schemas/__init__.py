@@ -24,13 +24,13 @@ from .contentblocks import (
 )
 
 # Author Schemas
-from .Author.Author import (
+from .Author.author import (
     CreatorCreate,
     CreatorRead,
     CreatorUpdate,
     CreatorResponse,
 )
-from .Author.Organisation import (
+from .Author.organisation import (
     OrganisationCreate as AuthorOrganisationCreate,
     OrganisationRead as AuthorOrganisationRead,
 )

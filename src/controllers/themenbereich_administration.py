@@ -58,7 +58,7 @@ def update_themenbereich(themenbereich_id: UUID, themenbereich_data: Themenberei
         session.refresh(themenbereich2change)
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren des Themenbereichs: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren des Themenbereichs: {str(e)}") from e
     return themenbereich2change
 
 
@@ -78,5 +78,5 @@ def delete_themenbereich(themenbereich_id: UUID, session: Session = Depends(get_
         session.commit()
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Löschen des Themenbereichs: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Löschen des Themenbereichs: {str(e)}") from e
     return themenbereich2delete

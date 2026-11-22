@@ -1,10 +1,10 @@
-from .Author import (
+from .author import (
     CreatorCreate,
     CreatorRead,
     CreatorUpdate,
     CreatorResponse,
 )
-from .Organisation import (
+from .organisation import (
     OrganisationCreate,
     OrganisationRead,
 )
