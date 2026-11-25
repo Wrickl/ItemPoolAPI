@@ -11,7 +11,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.orm import aliased, joinedload, selectinload
 from sqlmodel import Session, col, select
 
-from Util.searching import has_all_tags, search_for_item
+from util.searching import has_all_tags, search_for_item
 from models import ContentPiece
 from models.Enums.License import License
 from models.Enums.Status import Status
@@ -294,7 +294,7 @@ def generate_item_export(
     separator = ""
     yield "["
 
-    statement = search_for_item(author_id, author_name, query).options(
+    statement = search_for_item(author_id, author_name).options(
         joinedload(Item.tag_links)
     ).order_by(col(Item.item_id)).limit(FETCH_BATCH_SIZE)
     if tags:

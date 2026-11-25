@@ -6,7 +6,7 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-_mongo_client: Any | None = None
+_MONGO_CLIENT: Any | None = None
 
 
 def _get_mongo_uri() -> str:
@@ -25,10 +25,10 @@ def _get_mongo_uri() -> str:
 
 
 def get_mongo_client() -> Any:
-    global _mongo_client
-    if _mongo_client is None:
-        _mongo_client = MongoClient(_get_mongo_uri())
-    return _mongo_client
+    global _MONGO_CLIENT
+    if _MONGO_CLIENT is None:
+        _MONGO_CLIENT = MongoClient(_get_mongo_uri())
+    return _MONGO_CLIENT
 
 
 def get_mongo_database() -> Any:
@@ -58,7 +58,7 @@ def get_solution_attempt_analyses_collection() -> Any:
 
 
 def close_mongo_client() -> None:
-    global _mongo_client
-    if _mongo_client is not None:
-        _mongo_client.close()
-        _mongo_client = None
+    global _MONGO_CLIENT
+    if _MONGO_CLIENT is not None:
+        _MONGO_CLIENT.close()
+        _MONGO_CLIENT = None

@@ -20,18 +20,18 @@ if not all([PG_USER, PG_PW, PG_DB]):
 # Datenbank-URL für SQLModel
 DATABASE_URL = f"postgresql+psycopg2://{PG_USER}:{PG_PW}@{PG_HOST}:{PG_PORT}/{PG_DB}"
 
-_engine = None
+_ENGINE = None
 
 
 def get_engine():
-    global _engine
-    if _engine is None:
-        _engine = create_engine(
+    global _ENGINE
+    if _ENGINE is None:
+        _ENGINE = create_engine(
             DATABASE_URL,
             echo=False,  # Setze auf True für SQL-Debugging
             future=True,
         )
-    return _engine
+    return _ENGINE
 
 
 def get_session():

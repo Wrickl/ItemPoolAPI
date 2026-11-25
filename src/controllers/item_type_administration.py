@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
-from Util.item_type import build_item_type_detail, build_content_piece_read
+from util.item_type import build_item_type_detail, build_content_piece_read
 from database.dao_connection import get_session
 from models import ContentSectionItemType, ContentSection, ContentPiece, ContentSectionContentPiece
 from models.items.content_types import (

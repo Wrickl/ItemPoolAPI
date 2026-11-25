@@ -16,4 +16,4 @@ def addmodell2database(model_name: str, model_data, database_session: Session):
     except IntegrityError as e:
         database_session.rollback()
         logging.warning(f"Conflict: IntegrityError {e.__traceback__} while adding {model_name} to the database.")
-        raise HTTPException(status_code=409, detail=f"This {model_name} already exists.", )
+        raise HTTPException(status_code=409, detail=f"This {model_name} already exists.", ) from e

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from Util.database_functions import addmodell2database
+from util.database_functions import addmodell2database
 from database import get_session
 from models import Item
 from models.creator import Creator

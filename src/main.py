@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 from starlette.staticfiles import StaticFiles
 
-from Util.logging.logger_config import log_config
+from util.logging.logger_config import log_config
 from controllers import (
     item_collection,
     item_type_administration,

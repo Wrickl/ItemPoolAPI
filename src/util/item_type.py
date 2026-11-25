@@ -6,7 +6,6 @@ from sqlmodel import Session, select
 from models import ContentPiece, DataType, ItemType
 from models.complextype import ComplexType
 from models.items.item_type_plugin import ItemTypePlugin
-from schemas.items.item_type import ItemTypePluginAssignment
 from schemas import (
     ContentPieceRead,
     ContentPieceReadFull,
@@ -14,6 +13,7 @@ from schemas import (
     DataTypeRead,
     ItemTypeDetailRead,
 )
+from schemas.items.item_type import ItemTypePluginAssignment
 
 
 def get_configured_upload_data_types() -> list[str]:
@@ -85,29 +85,29 @@ def build_item_type_detail(item_type: ItemType, session: Session) -> ItemTypeDet
     )
 
 
-def build_full_content_piece_read(content_piece:ContentPiece, session: Session) -> ContentPieceReadFull:
+def build_full_content_piece_read(content_piece: ContentPiece, session: Session) -> ContentPieceReadFull:
     if content_piece.id is None:
         raise HTTPException(status_code=500, detail="ContentPiece ohne ID gefunden")
+    if content_piece.data_type:
+        data_type_name = content_piece.data_type.name
+    else:
+        data_type_name = None
+
     if content_piece.complex_type_id is None:
         return ContentPieceReadFull(
             id=content_piece.id,
             name=content_piece.name,
             description=content_piece.description,
             data_type_id=content_piece.data_type_id,
-            data_type_name=content_piece.data_type.name
-            if content_piece.data_type
-            else None,
+            data_type_name=data_type_name,
             complex_type_id=None,
-            complex_schema=None,)
-    else:
-        schema = session.get(ComplexType, content_piece.complex_type_id)
-        return ContentPieceReadFull(
-            id=content_piece.id,
-            name=content_piece.name,
-            description=content_piece.description,
-            data_type_id=content_piece.data_type_id,
-            data_type_name=content_piece.data_type.name
-            if content_piece.data_type
-            else None,
-            complex_type_id=content_piece.complex_type_id,
-            complex_schema=schema.json_schema if schema else None,)
+            complex_schema=None, )
+    schema = session.get(ComplexType, content_piece.complex_type_id)
+    return ContentPieceReadFull(
+        id=content_piece.id,
+        name=content_piece.name,
+        description=content_piece.description,
+        data_type_id=content_piece.data_type_id,
+        data_type_name=data_type_name,
+        complex_type_id=content_piece.complex_type_id,
+        complex_schema=schema.json_schema if schema else None, )

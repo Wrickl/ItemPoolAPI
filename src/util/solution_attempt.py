@@ -32,7 +32,8 @@ def _prepare_solution_attempt_document(
     return document
 
 
-def _prepare_solution_attempt_events(attempt_id: UUID,source_system_id: str,stored_at_iso: str,events: list[dict]) -> list[dict]:
+def _prepare_solution_attempt_events(attempt_id: UUID,source_system_id: str,
+                                     stored_at_iso: str,events: list[dict]) -> list[dict]:
 
     prepared_events: list[dict] = []
     for index, event in enumerate(events):

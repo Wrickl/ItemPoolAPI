@@ -15,9 +15,6 @@ class LicenseBase(SQLModel):
         description="Beschreibung der Lizenz",
     )
 
-    # TODO Inklusive Testsfälle und Automatisch Daten befüllung
-
-
 class License(LicenseBase, table=True):
     __tablename__ = "license"
     id: UUID = Field(default_factory=uuid4, primary_key=True)

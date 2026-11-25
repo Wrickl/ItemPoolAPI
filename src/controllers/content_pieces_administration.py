@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from Util.item_type import build_content_piece_read, build_full_content_piece_read
+from util.item_type import build_content_piece_read, build_full_content_piece_read
 from database.dao_connection import get_session
 from models import ContentPiece
 from models.items.content_types import (

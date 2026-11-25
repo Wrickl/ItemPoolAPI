@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from sqlmodel import Session
 
-from Util.solution_attempt import (
+from util.solution_attempt import (
     _ensure_item_exists,
     _find_solution_attempt_by_attempt_id,
     _normalize_solution_attempt_document,

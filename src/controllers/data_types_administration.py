@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 from sqlmodel import Session, select
 
-from Util.item_type import build_data_type_read, get_configured_upload_data_types
+from util.item_type import build_data_type_read, get_configured_upload_data_types
 from database import get_session
 from models import DataType
 from schemas import DataTypeRead

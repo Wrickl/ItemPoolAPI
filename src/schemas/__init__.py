@@ -24,16 +24,6 @@ from .complextype import (
     ComplexTypeUpdate,
     ComplexTypeResponse,
 )
-# Content Blocks
-from .contentblocks import (
-    ContentBlockType,
-    ContentBlockBase,
-    TextBlock,
-    ImageBlock,
-    JsonBlock,
-    ContentBlock,
-    ContentBlockAdapter,
-)
 # Task Schemas - Item
 from .items.item import (
     FlexibleContentBlock,
