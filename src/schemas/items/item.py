@@ -22,13 +22,33 @@ MAX_ITEM_TAGS = 100
 ItemTagList = Annotated[list[TagName], Field(max_length=MAX_ITEM_TAGS)]
 
 
+def _validate_change_note(note: str) -> str:
+    if "\x00" in note:
+        raise ValueError("Eine Änderungsbeschreibung darf kein Nullzeichen enthalten")
+    return note
+
+
+ChangeNote = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000),
+    AfterValidator(_validate_change_note),
+]
+
+
 class ItemTagsUpdate(BaseModel):
     tags: ItemTagList
+    change_note: ChangeNote
 
 
 class ItemTagsResponse(BaseModel):
     item_id: UUID
     tags: list[str]
+    version_group_id: UUID
+    version_number: int
+    previous_item_id: UUID | None
+    change_note: str | None
+    is_current: bool
+    current_item_id: UUID
+    current_version_number: int
 
 
 class ItemContentPieceCreate(BaseModel):
@@ -112,7 +132,22 @@ class ItemCreate(BaseModel):
     tags: ItemTagList = Field(default_factory=list)
 
 
-class ItemResponse(BaseModel):
+class ItemUpdate(ItemCreate):
+    change_note: ChangeNote
+
+
+class ItemVersionInfo(BaseModel):
+    item_id: UUID
+    version_group_id: UUID
+    version_number: int
+    previous_item_id: UUID | None
+    change_note: str | None
+    is_current: bool
+    current_item_id: UUID
+    current_version_number: int
+
+
+class ItemResponse(ItemVersionInfo):
     """Response-Modell fuer ein erstelltes oder abgerufenes Item."""
 
     item_id: UUID
@@ -129,7 +164,7 @@ class ItemResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ItemWithAuthorResponse(BaseModel):
+class ItemWithAuthorResponse(ItemVersionInfo):
     """Response-Modell fuer Items inklusive Author-Name (server-side join)."""
 
     item_id: UUID
@@ -146,7 +181,7 @@ class ItemWithAuthorResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ItemExportResponse(BaseModel):
+class ItemExportResponse(ItemVersionInfo):
     """Export-Response-Modell mit Namen statt IDs und angereicherten Content-Pieces."""
 
     item_id: UUID

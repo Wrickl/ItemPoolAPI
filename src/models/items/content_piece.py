@@ -8,10 +8,10 @@ from uuid import UUID, uuid4
 
 from sqlmodel import SQLModel, Field, Relationship, Session
 
+from .content_types import DataType
 from .content_section_content_piece import ContentSectionContentPiece
 
 if TYPE_CHECKING:
-    from .content_types import DataType
     from .content_section import ContentSection
     from ..complextype import ComplexType
 
@@ -43,8 +43,10 @@ class ContentPiece(ContentPieceBase, table=True):
             ValueError: Wenn complex_type_id gesetzt ist, aber DataType nicht erlaubt ist
         """
 
-        allowed_datatypes = getenv("ALLOWED_COMPLEX_TYPE_DATATYPES", "JSON,JSONB").split(",")
-        allowed_datatypes = [dt.strip().upper() for dt in allowed_datatypes]
+        allowed_datatypes = [
+            dt.strip().upper()
+            for dt in getenv("ALLOWED_COMPLEX_TYPE_DATATYPES", "JSON,JSONB").split(",")
+        ]
 
         if self.complex_type_id is not None:
             # Lade den DataType falls nicht bereits geladen

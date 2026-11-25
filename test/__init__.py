@@ -3,16 +3,16 @@ import sys
 import types
 
 # Test-only Kompatibilitaetsalias:
-# Teile des Codes importieren weiterhin `src.models.Tasks.tasks`,
+# Teile des Codes importieren weiterhin `src.models.items.tasks`,
 # waehrend im Repository die Datei anders benannt ist.
-module_names = ["ItemPoolAPI.src.models.Tasks.tasks", "src.models.Tasks.tasks"]
+module_names = ["ItemPoolAPI.src.models.items.tasks", "src.models.items.tasks"]
 
 loaded_module = next(
-    (sys.modules[name] for name in module_names if name in sys.modules), None
+    (sys.modules[name] for name in ["models.items.tasks", *module_names] if name in sys.modules), None
 )
 
 if loaded_module is None:
-    for name in module_names:
+    for name in ["models.items.tasks", *module_names]:
         try:
             loaded_module = importlib.import_module(name)
             break

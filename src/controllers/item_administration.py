@@ -3,7 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
-from sqlalchemy import delete
 from sqlalchemy.orm import joinedload
 from sqlmodel import Session, col, select
 
@@ -12,29 +11,29 @@ from Util.item import (
     _build_item_content_sections,
     _build_item_response_payload,
     _load_item_type,
+    _item_version_info,
     _persist_item,
     _validate_item_create,
     generate_item_export,
 )
-from Util.searching import has_all_tags
 from database.dao_connection import get_session
 from models.items.content_section_item import ContentSectionItem
 from models.items.item_content_piece_value import ItemContentPieceValue
 from models.items.item_tag import ItemTag
 from models.items.tasks import Item
-from models.creator import Creator
-from schemas.items.Item import (
+from schemas.items.item import (
     MAX_ITEM_TAGS,
     ItemCreate,
+    ItemUpdate,
+    ItemVersionInfo,
     ItemExportResponse,
     ItemResponse,
     ItemTagsResponse,
     ItemTagsUpdate,
     ItemTemplateResponse,
-    ItemWithAuthorResponse,
     TagName,
 )
-from services.PluginSystem import run_item_plugins
+from services.item_plugin_service import run_item_plugins
 
 router = APIRouter()
 
@@ -123,59 +122,85 @@ def create_item(item_data: ItemCreate, session: SessionDependency) -> dict[str, 
 
     session.refresh(item)
     sections = _build_item_content_sections(session, [item.item_id])
-    return _build_item_response_payload(item, sections[item.item_id])
+    return _build_item_response_payload(item, sections[item.item_id], _item_version_info(session, [item])[item.item_id])
+
+
+def _lock_current_item(session: Session, item_id: UUID) -> Item:
+    item = session.get(Item, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail=f"Item {item_id} nicht gefunden")
+    session.exec(
+        select(Item.item_id)
+        .where(Item.version_group_id == item.version_group_id, Item.version_number == 1)
+        .with_for_update()
+    ).one()
+    current = session.exec(
+        select(Item).where(Item.version_group_id == item.version_group_id)
+        .order_by(col(Item.version_number).desc()).limit(1)
+    ).one()
+    if current.item_id != item_id:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Item ist nicht aktuell; aktuelle Item-ID: {current.item_id}",
+        )
+    return current
+
+
+@router.get("/getItemVersions/{item_id}", response_model=list[ItemVersionInfo], tags=["Items"])
+def get_item_versions(item_id: UUID, session: SessionDependency) -> list[dict[str, Any]]:
+    item = session.get(Item, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail=f"Item {item_id} nicht gefunden")
+    items = session.exec(
+        select(Item).where(Item.version_group_id == item.version_group_id)
+        .order_by(col(Item.version_number))
+    ).all()
+    versions = _item_version_info(session, items)
+    return [{"item_id": entry.item_id, **versions[entry.item_id]} for entry in items]
 
 
 @router.put("/updateItem/{item_id}", response_model=ItemResponse, tags=["Items"])
-def update_item(item_id: UUID, item_data: ItemCreate, session: SessionDependency) -> dict[str, Any]:
-    """Ersetzt die Item-Daten und berechnet die zugeordneten Plugins neu."""
+def update_item(item_id: UUID, item_data: ItemUpdate, session: SessionDependency) -> dict[str, Any]:
+    """Erstellt eine neue Item-Version aus den übermittelten Daten."""
     with session.begin():
-        item = session.exec(select(Item).where(Item.item_id == item_id).with_for_update()).first()
-        if item is None:
-            raise HTTPException(status_code=404, detail=f"Item {item_id} nicht gefunden")
+        previous = _lock_current_item(session, item_id)
         _validate_item_create(session, item_data)
-        item.license = item_data.license
-        item.status = item_data.status_id
-        item.themenbereich = item_data.themenbereich_id
-        item.author_id = item_data.author_id
-        item.item_type_id = item_data.item_type_id
-        session.execute(delete(ItemContentPieceValue).where(ItemContentPieceValue.item_id == item_id))
-        session.execute(delete(ContentSectionItem).where(ContentSectionItem.item_id == item_id))
-        session.execute(delete(ItemTag).where(ItemTag.item_id == item_id))
-        session.add_all(ItemTag(item_id=item_id, name=name) for name in set(item_data.tags))
-        for section in item_data.content_sections:
-            session.add(ContentSectionItem(content_section_id=section.id, item_id=item_id))
-            session.add_all(
-                ItemContentPieceValue(
-                    item_id=item_id,
-                    content_section_id=section.id,
-                    content_piece_id=piece.id,
-                    value=piece.value,
-                )
-                for piece in section.content_pieces
-            )
+        item = _persist_item(session, item_data, previous=previous, change_note=item_data.change_note)
         session.flush()
         run_item_plugins(item, session)
     session.refresh(item)
-    sections = _build_item_content_sections(session, [item_id])
-    return _build_item_response_payload(item, sections[item_id])
+    sections = _build_item_content_sections(session, [item.item_id])
+    return _build_item_response_payload(item, sections[item.item_id], _item_version_info(session, [item])[item.item_id])
 
 
 @router.put("/updateItemTags/{item_id}", response_model=ItemTagsResponse, tags=["Items"])
 def update_item_tags(item_id: UUID, item_data: ItemTagsUpdate, session: SessionDependency) -> ItemTagsResponse:
-    """Ersetzt alle Tags eines Items. Eine leere Liste entfernt die Zuordnungen."""
+    """Erstellt eine neue Version mit den angegebenen Tags."""
     names = sorted(set(item_data.tags))
     with session.begin():
-        # Sperrt auch Items, die noch keine Tag-Zuordnungen haben.
-        locked_id = session.exec(select(Item.item_id).where(Item.item_id == item_id).with_for_update()).one_or_none()
-        if locked_id is None:
-            raise HTTPException(status_code=404, detail=f"Item {item_id} nicht gefunden")
-        session.execute(delete(ItemTag).where(ItemTag.item_id == item_id))
-        session.add_all(ItemTag(item_id=item_id, name=name) for name in names)
+        previous = _lock_current_item(session, item_id)
+        item = Item(
+            license=previous.license, status=previous.status, themenbereich=previous.themenbereich,
+            author_id=previous.author_id, item_type_id=previous.item_type_id,
+            version_group_id=previous.version_group_id, version_number=previous.version_number + 1,
+            previous_item_id=previous.item_id, change_note=item_data.change_note,
+        )
+        session.add(item)
         session.flush()
-        item = session.get(Item, item_id)
+        sections = session.exec(select(ContentSectionItem).where(ContentSectionItem.item_id == item_id)).all()
+        values = session.exec(select(ItemContentPieceValue).where(ItemContentPieceValue.item_id == item_id)).all()
+        session.add_all(ItemTag(item_id=item.item_id, name=name) for name in names)
+        session.add_all(ContentSectionItem(item_id=item.item_id, content_section_id=section.content_section_id)
+                        for section in sections)
+        session.add_all(
+            ItemContentPieceValue(item_id=item.item_id, content_section_id=value.content_section_id,
+                                  content_piece_id=value.content_piece_id, value=value.value)
+            for value in values
+        )
+        session.flush()
         run_item_plugins(item, session)
-    return ItemTagsResponse(item_id=item_id, tags=names)
+    session.refresh(item)
+    return ItemTagsResponse(item_id=item.item_id, tags=names, **_item_version_info(session, [item])[item.item_id])
 
 
 @router.get("/createItem/template/{item_type_id}", response_model=ItemTemplateResponse, tags=["Items"])

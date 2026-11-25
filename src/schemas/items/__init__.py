@@ -1,6 +1,6 @@
-from .ContentPiece import ContentPieceCreate, ContentPieceRead
-from .DataTypes import DataTypeRead, DataTypeResponse
-from .Item import (
+from .content_piece import ContentPieceCreate, ContentPieceRead
+from .data_types import DataTypeRead, DataTypeResponse
+from .item import (
     FlexibleContentBlock,
     ExportContentPiece,
     EnrichedContentBlock,
@@ -11,12 +11,12 @@ from .Item import (
     ItemTemplateContentSectionResponse,
     ItemTemplateResponse,
 )
-from .ItemCollection import ItemCollectionCreate, ItemCollectionRead
-from .ItemType import ItemTypeCreate, ItemTypeRead
-from .License import LicenseCreate, LicenseUpdate, LicenseResponse
-from .Organisation import OrganisationCreate, OrganisationUpdate, OrganisationResponse
-from .Status import StatusCreate, StatusUpdate, StatusResponse
-from .Themenbereich import ThemenbereichCreate, ThemenbereichUpdate, ThemenbereichResponse
+from .item_collection import ItemCollectionCreate, ItemCollectionRead
+from .item_type import ItemTypeCreate, ItemTypeRead
+from .license import LicenseCreate, LicenseUpdate, LicenseResponse
+from .organisation import OrganisationCreate, OrganisationUpdate, OrganisationResponse
+from .status import StatusCreate, StatusUpdate, StatusResponse
+from .themenbereich import ThemenbereichCreate, ThemenbereichUpdate, ThemenbereichResponse
 from .content_types import (
     ContentSectionRead,
     ItemTypeContentSectionAssign,

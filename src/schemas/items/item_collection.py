@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -7,7 +8,7 @@ class ItemCollectionCreate(BaseModel):
     name: str = Field(
         ..., min_length=1, max_length=255, description="Anzeigename der Collection"
     )
-    item_ids: list[int] = Field(..., min_length=1, description="Liste der Item-IDs")
+    item_ids: list[UUID] = Field(..., min_length=1, description="Liste der Item-IDs")
 
     @model_validator(mode="after")
     def validate_unique_item_ids(self):
@@ -17,9 +18,9 @@ class ItemCollectionCreate(BaseModel):
 
 
 class ItemCollectionRead(BaseModel):
-    collection_id: int
+    collection_id: UUID
     name: str
-    item_ids: list[int]
+    item_ids: list[UUID]
     created_at: datetime
 
     class Config:

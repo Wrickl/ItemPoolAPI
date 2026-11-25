@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
+from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from sqlmodel import Session
 
@@ -32,10 +33,6 @@ def create_solution_attempt(solution_attempt_data: SolutionAttemptCreate):
     """Speichert einen Loesungsversuch in MongoDB."""
     _ensure_item_exists(solution_attempt_data.item_id, session_factory=Session, engine_factory=get_engine)
 
-    collection = get_solution_attempt_collection()
-    events_collection = get_solution_attempt_events_collection()
-    document = _prepare_solution_attempt_document(solution_attempt_data)
-
     expected_event_count = solution_attempt_data.event_log.event_count
     actual_event_count = len(solution_attempt_data.events)
     if expected_event_count != actual_event_count:
@@ -44,16 +41,26 @@ def create_solution_attempt(solution_attempt_data: SolutionAttemptCreate):
             detail="event_log.event_count passt nicht zur Anzahl mitgelieferter Events",
         )
 
+    document = _prepare_solution_attempt_document(solution_attempt_data)
+    event_documents = _prepare_solution_attempt_events(
+        attempt_id=solution_attempt_data.attempt_id,
+        source_system_id=solution_attempt_data.source.system_id,
+        stored_at_iso=document["stored_at"],
+        events=solution_attempt_data.events,
+    )
+    try:
+        event_documents = [
+            SolutionAttemptEventRead.model_validate(event).model_dump(mode="json")
+            for event in event_documents
+        ]
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=f"Ungültiges SolutionAttempt-Event: {exc}") from exc
+
+    collection = get_solution_attempt_collection()
+    events_collection = get_solution_attempt_events_collection()
     try:
         result = collection.insert_one(document)
         stored_document = collection.find_one({"_id": result.inserted_id})
-
-        event_documents = _prepare_solution_attempt_events(
-            attempt_id=solution_attempt_data.attempt_id,
-            source_system_id=solution_attempt_data.source.system_id,
-            stored_at_iso=document["stored_at"],
-            events=solution_attempt_data.events,
-        )
         if event_documents:
             events_collection.insert_many(event_documents)
     except PyMongoError as exc:
@@ -76,21 +83,27 @@ def create_solution_attempt(solution_attempt_data: SolutionAttemptCreate):
     "/getSolutionAttempts", response_model=list[SolutionAttemptRead], tags=["Solutions"]
 )
 def get_solution_attempts(
-    item_id: int | None = None, limit: int = 100, cursor: str | None = None
+    item_id: UUID | None = None, limit: int = 100, cursor: str | None = None
 ):
     """Liest SA-Uebersicht aus MongoDB; optional gefiltert nach item_id."""
-    _ = cursor  # Cursor wird im naechsten Schritt fuer echte Pagination genutzt.
+    if cursor is not None:
+        raise HTTPException(status_code=400, detail="Cursor-Pagination wird noch nicht unterstützt")
+    if limit <= 0:
+        return []
     collection = get_solution_attempt_collection()
 
     query: dict = {}
     if item_id is not None:
-        query["item_id"] = item_id
+        query["item_id"] = str(item_id)
 
-    documents = list(collection.find(query))[: max(limit, 0)]
-    return [
-        SolutionAttemptRead.model_validate(_normalize_solution_attempt_document(doc))
-        for doc in documents
-    ]
+    try:
+        documents = collection.find(query, limit=limit)
+        return [
+            SolutionAttemptRead.model_validate(_normalize_solution_attempt_document(doc))
+            for doc in documents
+        ]
+    except PyMongoError as exc:
+        raise HTTPException(status_code=500, detail=f"Fehler beim Lesen der SolutionAttempts: {exc}") from exc
 
 
 @router.get(
@@ -130,19 +143,16 @@ def get_solution_attempt_events(
     attempt_id: UUID, after_sequence: int | None = None, limit: int = 100
 ):
     """Liest Eventdaten eines SA aus der Event-Collection."""
+    if limit <= 0:
+        return []
     collection = get_solution_attempt_events_collection()
+    query = {"attempt_id": str(attempt_id)}
+    if after_sequence is not None:
+        query["sequence"] = {"$gt": after_sequence}
     try:
-        events = list(collection.find({"attempt_id": str(attempt_id)}))
+        events = collection.find(query).sort("sequence", 1).limit(limit)
+        return [SolutionAttemptEventRead.model_validate(event) for event in events]
     except PyMongoError as exc:
         raise HTTPException(
             status_code=500, detail=f"Fehler beim Lesen der SA-Events: {exc}"
         ) from exc
-
-    if after_sequence is not None:
-        events = [
-            event for event in events if event.get("sequence", -1) > after_sequence
-        ]
-    events.sort(key=lambda event: event.get("sequence", -1))
-    events = events[: max(limit, 0)]
-
-    return [SolutionAttemptEventRead.model_validate(event) for event in events]

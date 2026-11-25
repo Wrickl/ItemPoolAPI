@@ -31,7 +31,7 @@ class SolutionAttemptCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     attempt_id: UUID
-    item_id: int
+    item_id: UUID
     candidate: str = Field(..., min_length=1)
     source: SourcePayload
     submission: SubmissionPayload

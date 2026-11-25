@@ -3,7 +3,7 @@ from typing import Any
 from sqlmodel import select
 from textstat import textstat
 
-from models.Tasks.tasks import Item
+from models.items.tasks import Item
 
 
 def _generate_textstats(text: str) -> dict:

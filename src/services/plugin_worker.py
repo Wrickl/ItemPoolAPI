@@ -26,6 +26,8 @@ def main() -> None:
             result = []
             for entry in entries:
                 plugin = entry.load()()
+                if not callable(getattr(plugin, "execute", None)):
+                    raise ValueError(f"Plugin {entry.name} needs an execute method")
                 result.append({
                     "entry_point": entry.name,
                     "name": plugin.name,

@@ -32,12 +32,8 @@ def _prepare_solution_attempt_document(
     return document
 
 
-def _prepare_solution_attempt_events(
-    attempt_id: UUID,
-    source_system_id: str,
-    stored_at_iso: str,
-    events: list[dict],
-) -> list[dict]:
+def _prepare_solution_attempt_events(attempt_id: UUID,source_system_id: str,stored_at_iso: str,events: list[dict]) -> list[dict]:
+
     prepared_events: list[dict] = []
     for index, event in enumerate(events):
         prepared_events.append(
@@ -57,13 +53,10 @@ def _prepare_solution_attempt_events(
 
 
 def _find_solution_attempt_by_attempt_id(collection, attempt_id: str):
-    documents = list(collection.find({"attempt_id": attempt_id}))
-    if not documents:
-        return None
-    return documents[0]
+    return collection.find_one({"attempt_id": attempt_id})
 
 
-def _ensure_item_exists(item_id: int, *, session_factory=Session, engine_factory=get_engine) -> None:
+def _ensure_item_exists(item_id: UUID, *, session_factory=Session, engine_factory=get_engine) -> None:
     """Prueft, ob das referenzierte Item in der SQL-Datenbank existiert."""
     try:
         with session_factory(engine_factory()) as session:

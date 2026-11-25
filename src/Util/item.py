@@ -6,8 +6,9 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy import func
 from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import aliased, joinedload, selectinload
 from sqlmodel import Session, col, select
 
 from Util.searching import has_all_tags, search_for_item
@@ -23,7 +24,7 @@ from models.items.item_tag import ItemTag
 from models.items.tasks import Item
 from models.complextype import ComplexType
 from models.creator import Creator
-from schemas.items.Item import ItemContentSectionCreate, ItemCreate
+from schemas.items.item import ItemContentSectionCreate, ItemCreate
 
 FETCH_BATCH_SIZE = 200
 
@@ -79,9 +80,52 @@ def _build_item_content_sections(
     return sections_by_item
 
 
-def _build_item_response_payload(item: Item, content_sections: list[dict[str, Any]]) -> dict[str, Any]:
+def _version_fields(item: Item, current_id: UUID, current_number: int) -> dict[str, Any]:
+    return {
+        "version_group_id": item.version_group_id,
+        "version_number": item.version_number,
+        "previous_item_id": item.previous_item_id,
+        "change_note": item.change_note,
+        "is_current": item.item_id == current_id,
+        "current_item_id": current_id,
+        "current_version_number": current_number,
+    }
+
+
+def _item_version_info(session: Session, items: Sequence[Item]) -> dict[UUID, dict[str, Any]]:
+    groups = list({item.version_group_id for item in items})
+    current: dict[UUID, tuple[UUID, int]] = {}
+    for start in range(0, len(groups), FETCH_BATCH_SIZE):
+        ranked = (
+            select(
+                Item.item_id,
+                Item.version_group_id,
+                Item.version_number,
+                func.row_number().over(
+                    partition_by=Item.version_group_id,
+                    order_by=col(Item.version_number).desc(),
+                ).label("rank"),
+            )
+            .where(col(Item.version_group_id).in_(groups[start:start + FETCH_BATCH_SIZE]))
+            .subquery()
+        )
+        for item_id, group_id, version_number in session.exec(
+            select(ranked.c.item_id, ranked.c.version_group_id, ranked.c.version_number)
+            .where(ranked.c.rank == 1)
+        ):
+            current[group_id] = (item_id, version_number)
+    return {
+        item.item_id: _version_fields(item, *current[item.version_group_id])
+        for item in items
+    }
+
+
+def _build_item_response_payload(
+    item: Item, content_sections: list[dict[str, Any]], version_info: dict[str, Any]
+) -> dict[str, Any]:
     return {
         "item_id": item.item_id,
+        **version_info,
         "license": item.license,
         "status": item.status,
         "status_id": item.status,
@@ -97,11 +141,21 @@ def _build_item_response_payload(item: Item, content_sections: list[dict[str, An
 def _build_export_payload(session: Session, items: Sequence[Item]) -> list[dict[str, Any]]:
     item_ids = [item.item_id for item in items]
     sections = _build_item_content_sections(session, item_ids)
-    labels: dict[UUID, tuple[str | None, str | None, str | None, str | None, str | None]] = {}
+    labels: dict[UUID, tuple[Any, ...]] = {}
+    latest = aliased(Item)
+    latest_id = (
+        select(latest.item_id).where(latest.version_group_id == Item.version_group_id)
+        .order_by(col(latest.version_number).desc()).limit(1).correlate(Item).scalar_subquery()
+    )
+    latest_number = (
+        select(latest.version_number).where(latest.version_group_id == Item.version_group_id)
+        .order_by(col(latest.version_number).desc()).limit(1).correlate(Item).scalar_subquery()
+    )
     for start in range(0, len(item_ids), FETCH_BATCH_SIZE):
         batch = item_ids[start: start + FETCH_BATCH_SIZE]
         rows = session.exec(
-            select(Item.item_id, Creator.name, License.name, Status.name, ItemType.name, Themenbereich.name)
+            select(Item.item_id, Creator.name, License.name, Status.name, ItemType.name, Themenbereich.name,
+                   latest_id, latest_number)
             .outerjoin(Creator, col(Item.author_id) == col(Creator.author_id))
             .outerjoin(License, col(Item.license) == col(License.id))
             .outerjoin(Status, col(Item.status) == col(Status.id))
@@ -109,14 +163,15 @@ def _build_export_payload(session: Session, items: Sequence[Item]) -> list[dict[
             .outerjoin(Themenbereich, col(Item.themenbereich) == col(Themenbereich.id))
             .where(col(Item.item_id).in_(batch))
         )
-        for item_id, author, license_name, status, item_type, topic in rows:
-            labels[item_id] = (author, license_name, status, item_type, topic)
+        for item_id, author, license_name, status, item_type, topic, current_id, current_number in rows:
+            labels[item_id] = (author, license_name, status, item_type, topic, current_id, current_number)
     payload = []
     for item in items:
-        author, license_name, status, item_type, topic = labels[item.item_id]
+        author, license_name, status, item_type, topic, current_id, current_number = labels[item.item_id]
         payload.append(
             {
                 "item_id": item.item_id,
+                **_version_fields(item, current_id, current_number),
                 "license": license_name,
                 "status": status,
                 "item_type": item_type,
@@ -189,7 +244,9 @@ def _validate_item_create(session: Session, item_data: ItemCreate) -> None:
             raise HTTPException(status_code=404, detail=f"{label} {record_id} nicht gefunden")
 
 
-def _persist_item(session: Session, item_data: ItemCreate) -> Item:
+def _persist_item(
+    session: Session, item_data: ItemCreate, *, previous: Item | None = None, change_note: str | None = None
+) -> Item:
     item = Item(
         license=item_data.license,
         status=item_data.status_id,
@@ -197,6 +254,12 @@ def _persist_item(session: Session, item_data: ItemCreate) -> Item:
         author_id=item_data.author_id,
         item_type_id=item_data.item_type_id,
         created_at=datetime.now(UTC),
+        **({
+            "version_group_id": previous.version_group_id,
+            "version_number": previous.version_number + 1,
+            "previous_item_id": previous.item_id,
+            "change_note": change_note,
+        } if previous is not None else {}),
     )
 
     session.add(item)

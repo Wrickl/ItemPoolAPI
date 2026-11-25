@@ -5,7 +5,6 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 from Util.item_type import build_item_type_detail, build_content_piece_read
-
 from database.dao_connection import get_session
 from models import ContentSectionItemType, ContentSection, ContentPiece, ContentSectionContentPiece
 from models.items.content_types import (
@@ -13,12 +12,12 @@ from models.items.content_types import (
     ItemType,
 )
 from models.items.item_type_plugin import ItemTypePlugin
-from services.PluginSystem import METADATA_SECTION_NAME, plugins
 from schemas import ItemTemplateResponse
-from schemas.items.item_type import ItemTypeCreate, ItemTypeRead
 from schemas.items.content_types import (
     ItemTypeDetailRead,
 )
+from schemas.items.item_type import ItemTypeCreate, ItemTypeRead
+from services import PluginSystem
 
 router = APIRouter(tags=["ItemType"])
 
@@ -36,14 +35,14 @@ async def create_item_type(item_type_data: ItemTypeCreate, session: Session = De
         section = session.get(ContentSection, section_id)
         if section is None:
             raise HTTPException(status_code=404, detail=f"ContentSection {section_id} nicht gefunden")
-        if section.name == METADATA_SECTION_NAME:
+        if section.name == PluginSystem.METADATA_SECTION_NAME:
             raise HTTPException(status_code=400, detail="Die Plugin-Metadaten-Section wird automatisch verwaltet")
     seen_plugins = set()
     for assignment in item_type_data.plugins:
         if assignment.plugin_name in seen_plugins:
             raise HTTPException(status_code=400, detail=f"Plugin {assignment.plugin_name} mehrfach zugeordnet")
         seen_plugins.add(assignment.plugin_name)
-        plugin = plugins.get(assignment.plugin_name)
+        plugin = PluginSystem.plugins.get(assignment.plugin_name)
         if plugin is None:
             raise HTTPException(status_code=400, detail=f"Plugin {assignment.plugin_name} nicht gefunden")
         if assignment.content_section_id not in item_type_data.content_section_ids:
@@ -69,11 +68,11 @@ async def create_item_type(item_type_data: ItemTypeCreate, session: Session = De
     )
     if item_type_data.plugins:
         metadata_section = session.exec(
-            select(ContentSection).where(ContentSection.name == METADATA_SECTION_NAME)
+            select(ContentSection).where(ContentSection.name == PluginSystem.METADATA_SECTION_NAME)
         ).first()
         if metadata_section is None:
             metadata_section = ContentSection(
-                name=METADATA_SECTION_NAME,
+                name=PluginSystem.METADATA_SECTION_NAME,
                 description="Automatisch erzeugte Plugin-Ergebnisse",
             )
             session.add(metadata_section)
@@ -85,7 +84,7 @@ async def create_item_type(item_type_data: ItemTypeCreate, session: Session = De
         for assignment in item_type_data.plugins:
             output_piece = ContentPiece(
                 name=assignment.plugin_name,
-                description=plugins[assignment.plugin_name].return_description,
+                description=PluginSystem.plugins[assignment.plugin_name].return_description,
                 data_type_id=data_type.data_type_id,
             )
             session.add(output_piece)

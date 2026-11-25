@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
+from sqlalchemy import CheckConstraint, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 from models.creator import Creator
@@ -24,8 +25,17 @@ class ItemBase(SQLModel):
 
 class Item(ItemBase, table=True):
     __tablename__ = "Item"
+    __table_args__ = (
+        UniqueConstraint("version_group_id", "version_number", name="uq_item_version"),
+        UniqueConstraint("previous_item_id", name="uq_item_previous_version"),
+        CheckConstraint("version_number >= 1", name="ck_item_version_positive"),
+    )
 
     item_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    version_group_id: UUID = Field(default_factory=uuid4, index=True, nullable=False)
+    version_number: int = Field(default=1, nullable=False)
+    previous_item_id: UUID | None = Field(default=None, foreign_key="Item.item_id")
+    change_note: str | None = Field(default=None)
     author: Creator = Relationship(back_populates="items")
     item_type: Optional["ItemType"] = Relationship(back_populates="items")
     tag_links: list[ItemTag] = Relationship(passive_deletes="all")

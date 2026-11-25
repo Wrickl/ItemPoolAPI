@@ -4,8 +4,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from sqlmodel import select
 from textstat import textstat
 
-from ...models.Tasks.tasks import Item
-from ..PluginSystem import register_on_create_plugin
+from models.items.tasks import Item
 
 
 def _generate_textstats(text: str) -> dict:
@@ -42,11 +41,16 @@ def _ensure_metadata_dict(item: Item) -> None:
 
 
 class CreateTextStatsPlugin:
-    """Erstellt die TextStat für den Fragentext beim Einfügen eines Items."""
+    """DISABLED: Erstellt die TextStat für flexibles Content.
+
+    Hinweis: Dieses Plugin ist deaktiviert, da fragestellung generalisiert wurde.
+    Zukünftig sollte dies über generische Content-Block-Verarbeitung erfolgen.
+    """
 
     def _apply(self, item: Any) -> None:
         _ensure_metadata_dict(item)
-        item.item_metadata["textstats"] = _generate_textstats(item.fragestellung)
+        # NOTE: fragestellung not available anymore - field generalized
+        # Text stats should be calculated from interaction_content/stimuli_content blocks
 
     def on_item_create(self, item: Any, session) -> None:
         self._apply(item)
@@ -69,4 +73,5 @@ class CreateTextStatsPlugin:
             session.refresh(item)
 
 
-register_on_create_plugin(CreateTextStatsPlugin())
+# Plugin registration disabled until generic content processing is implemented
+# register_on_create_plugin(CreateTextStatsPlugin())

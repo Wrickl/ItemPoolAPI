@@ -29,7 +29,7 @@ class SolutionAttemptBase(BaseModel):
     """Kernmodell fuer eine SolutionAttempts"""
 
     attempt_id: UUID
-    item_id: int # Verknüpfung zum Item (Aufgabe)
+    item_id: UUID # Verknüpfung zur konkreten Item-Version
     candidate: str = Field(..., min_length=1)
     source: Source
     submission: Submission
