@@ -4,10 +4,10 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, SQLModel, Relationship
 
-from models.items.item_collection_item import ItemCollectionItem
+from .item_collection_item import ItemCollectionItem
 
 if TYPE_CHECKING:
-    from .tasks import Item
+    from models import Item
 
 
 class ItemCollectionBase(SQLModel):

@@ -6,8 +6,7 @@ repos:
         entry: uv run pylint
         language: system
         types: [python]
-        files: ^(src/controllers|src/database|src/models|src/schemas|src/services/on_create_plugins|src/services/on_solutions_attempt_create_plugins|test)/.*\.py$
-        exclude: ^(src/database/DAO\.py|test/test_query_meta_data_inference\.py)$
+        files: ^(src/.*\.py)$
         pass_filenames: true
 
 

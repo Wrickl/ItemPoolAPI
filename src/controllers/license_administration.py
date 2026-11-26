@@ -5,12 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from Util.database_functions import addmodell2database
+from util.database_functions import addmodell2database
 from database import get_session
-from models.Enums.License import License
-from models.items.tasks import Item
-from models.error import ResourceInUseException
-from schemas.items.license import LicenseResponse, LicenseCreate
+from models import License
+from models import Item
+from models import ResourceInUseException
+from schemas.basic_metadata.license import LicenseResponse, LicenseCreate
 
 router = APIRouter()
 
@@ -60,7 +60,7 @@ async def update_license(license_id: UUID, license_data: LicenseCreate, session:
         session.refresh(license2change)
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren der License: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Aktualisieren der License: {str(e)}") from e
     return license2change
 
 
@@ -80,5 +80,5 @@ async def delete_license(license_id: UUID, session: Session = Depends(get_sessio
         session.commit()
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail=f"Fehler beim Löschen der License: {str(e)}")
+        raise HTTPException(status_code=409, detail=f"Fehler beim Löschen der License: {str(e)}") from e
     return license2delete

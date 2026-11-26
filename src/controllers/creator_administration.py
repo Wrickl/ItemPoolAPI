@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from Util.database_functions import addmodell2database
+from util.database_functions import addmodell2database
 from database import get_session
 from models import Item
-from models.creator import Creator
-from models.error import ResourceInUseException
-from schemas.Author.Author import CreatorCreate, CreatorResponse, CreatorUpdate
+from models import Creator
+from models import ResourceInUseException
+from schemas.basic_metadata.author import CreatorCreate, CreatorResponse, CreatorUpdate
 
 router = APIRouter()
 

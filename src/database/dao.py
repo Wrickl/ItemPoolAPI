@@ -37,7 +37,7 @@ class DAO:
         self.__conn = psycopg2.connect(conn_str)
         self.__conn.autocommit = True
 
-    def _isPydanticObject(self, obj: Any) -> bool:
+    def _is_pydantic_object(self, obj: Any) -> bool:
         return hasattr(obj, "model_dump")
 
     def _get_next_seq(self, collection_name: str) -> int:
@@ -59,7 +59,7 @@ class DAO:
     def store_task_material(self, material: Any) -> int | None:
         new_id = self._get_next_seq(Collections.TASK_MATERIAL.value)
 
-        if self._isPydanticObject(material):
+        if self._is_pydantic_object(material):
             material_obj = material.model_dump(mode="json")
         else:
             material_obj = material

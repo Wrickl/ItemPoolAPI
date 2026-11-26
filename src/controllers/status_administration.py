@@ -5,12 +5,12 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
-from Util.database_functions import addmodell2database
 from database import get_session
-from models.Enums.Status import Status
-from models.items.tasks import Item
-from models.error import ResourceInUseException
-from schemas.items.status import StatusResponse, StatusCreate, StatusUpdate
+from models import Status
+from models import ResourceInUseException
+from models import Item
+from schemas.basic_metadata.status import StatusResponse, StatusCreate, StatusUpdate
+from util.database_functions import addmodell2database
 
 router = APIRouter()
 
@@ -56,9 +56,9 @@ def update_status(status_id: UUID, status_data: StatusUpdate, session: Session =
         status2change.sqlmodel_update(status_data)
         session.commit()
         session.refresh(status2change)
-    except IntegrityError:
+    except IntegrityError as e:
         session.rollback()
-        raise HTTPException(status_code=409, detail="This Status already exists.")
+        raise HTTPException(status_code=409, detail="This Status already exists.") from e
     return status2change
 
 

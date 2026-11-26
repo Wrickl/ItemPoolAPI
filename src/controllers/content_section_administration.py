@@ -5,7 +5,7 @@ from sqlalchemy import delete, func
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
-from Util.content_section import (
+from util.content_section import (
     add_content_section_pieces,
     build_content_section_response,
     build_content_section_responses,
@@ -13,7 +13,7 @@ from Util.content_section import (
     load_content_piece_ids_by_section,
     validate_content_piece_ids,
 )
-from Util.item_type import build_item_type_detail
+from util.item_type import build_item_type_detail
 from database import get_session
 from models import (
     ContentSection,
@@ -22,10 +22,10 @@ from models import (
     ContentSectionItemType,
     ItemType,
 )
-from models.items.item_type_plugin import ItemTypePlugin
-from models.error import ResourceInUseException
+from models import ItemTypePlugin
+from models import ResourceInUseException
 from schemas import ItemTypeDetailRead
-from schemas.items.content_section import ContentSectionResponse, ContentSectionCreate
+from schemas.content.content_section import ContentSectionResponse, ContentSectionCreate
 from services.PluginSystem import METADATA_SECTION_NAME
 
 router = APIRouter(tags=["ContentSection"])

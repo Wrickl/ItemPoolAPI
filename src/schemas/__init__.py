@@ -1,55 +1,58 @@
-"""
-Pydantic Schemas für die ItemPool API.
-
-Diese Datei exportiert alle verfügbaren Schemas für die verschiedenen API-Endpunkte.
-Die Schemas sind nach Modulen organisiert und können direkt von hier importiert werden.
-"""
-
+# Task Schemas - License
+from .basic_metadata.license import (
+    LicenseCreate,
+    LicenseUpdate,
+    LicenseResponse,
+)
+# Task Schemas - Organisation
+from .basic_metadata.organisation import (
+    OrganisationCreate,
+    OrganisationUpdate,
+    OrganisationResponse,
+)
+# Task Schemas - Status
+from .basic_metadata.status import (
+    StatusCreate,
+    StatusUpdate,
+    StatusResponse,
+)
+# Task Schemas - Themenbereich
+from .basic_metadata.themenbereich import (
+    ThemenbereichCreate,
+    ThemenbereichUpdate,
+    ThemenbereichResponse,
+)
+from .basic_metadata.author import (
+    CreatorCreate,
+    CreatorRead,
+    CreatorUpdate,
+    CreatorResponse,
+)
 # ComplexType Schemas
 from .complextype import (
     ComplexTypeCreate,
     ComplexTypeUpdate,
     ComplexTypeResponse,
 )
-
-# Content Blocks
-from .contentblocks import (
-    ContentBlockType,
-    ContentBlockBase,
-    TextBlock,
-    ImageBlock,
-    JsonBlock,
-    ContentBlock,
-    ContentBlockAdapter,
-)
-
-# Author Schemas
-from .Author.Author import (
-    CreatorCreate,
-    CreatorRead,
-    CreatorUpdate,
-    CreatorResponse,
-)
-from .Author.Organisation import (
-    OrganisationCreate as AuthorOrganisationCreate,
-    OrganisationRead as AuthorOrganisationRead,
-)
-
 # Task Schemas - ContentPiece
-from .items.content_piece import (
+from .content.content_piece import (
     ContentPieceCreate,
     ContentPieceRead,
     ContentPieceReadFull,
 )
-
+# Task Schemas - Content Types
+from .content.content_types import (
+    ContentSectionRead,
+    ItemTypeContentSectionAssign,
+    ItemTypeDetailRead,
+)
 # Task Schemas - DataTypes
-from .items.data_types import (
+from .content.data_types import (
     DataTypeRead,
     DataTypeResponse,
 )
-
 # Task Schemas - Item
-from .items.Item import (
+from .items.item import (
     FlexibleContentBlock,
     ExportContentPiece,
     EnrichedContentBlock,
@@ -57,59 +60,20 @@ from .items.Item import (
     ItemResponse,
     ItemWithAuthorResponse,
     ItemExportResponse,
-    ItemTemplateContentSectionResponse,
-    ItemTemplateResponse,
 )
-
-# Task Schemas - ItemType
-from .items.item_type import (
-    ItemTypeCreate,
-    ItemTypeRead,
-)
-
 # Task Schemas - ItemCollection
 from .items.item_collection import (
     ItemCollectionCreate,
     ItemCollectionRead,
 )
-
-# Task Schemas - License
-from .items.license import (
-    LicenseCreate,
-    LicenseUpdate,
-    LicenseResponse,
+from .items.item_template import ItemTemplateContentSectionResponse, ItemTemplateResponse
+# Task Schemas - ItemType
+from .items.item_type import (
+    ItemTypeCreate,
+    ItemTypeRead,
 )
-
-# Task Schemas - Status
-from .items.status import (
-    StatusCreate,
-    StatusUpdate,
-    StatusResponse,
-)
-
-# Task Schemas - Themenbereich
-from .items.themenbereich import (
-    ThemenbereichCreate,
-    ThemenbereichUpdate,
-    ThemenbereichResponse,
-)
-
-# Task Schemas - Organisation
-from .items.organisation import (
-    OrganisationCreate,
-    OrganisationUpdate,
-    OrganisationResponse,
-)
-
-# Task Schemas - Content Types
-from .items.content_types import (
-    ContentSectionRead,
-    ItemTypeContentSectionAssign,
-    ItemTypeDetailRead,
-)
-
 # Solution Schemas
-from .Solutions.SolutionAttempt import (
+from .solution_attempts.SolutionAttempt import (
     SourcePayload,
     SubmissionPayload,
     EventLogPayload,
@@ -124,21 +88,11 @@ __all__ = [
     "ComplexTypeCreate",
     "ComplexTypeUpdate",
     "ComplexTypeResponse",
-    # Content Blocks
-    "ContentBlockType",
-    "ContentBlockBase",
-    "TextBlock",
-    "ImageBlock",
-    "JsonBlock",
-    "ContentBlock",
-    "ContentBlockAdapter",
-    # Author
+    # basic_metadata
     "CreatorCreate",
     "CreatorRead",
     "CreatorUpdate",
     "CreatorResponse",
-    "AuthorOrganisationCreate",
-    "AuthorOrganisationRead",
     # items - ContentPiece
     "ContentPieceCreate",
     "ContentPieceRead",
@@ -182,7 +136,7 @@ __all__ = [
     "ContentSectionRead",
     "ItemTypeContentSectionAssign",
     "ItemTypeDetailRead",
-    # Solutions
+    # solution_attempts
     "SourcePayload",
     "SubmissionPayload",
     "EventLogPayload",
