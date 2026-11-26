@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from .item_type import ItemTypePluginAssignment
+from schemas.items.item_type import ItemTypePluginAssignment
 
 
 class ContentSectionRead(BaseModel):

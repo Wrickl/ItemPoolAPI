@@ -3,13 +3,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from util.item_type import build_content_piece_read, build_full_content_piece_read
 from database.dao_connection import get_session
-from models import ContentPiece
-from models.items.content_types import (
-    DataType,
-)
-from schemas.items.content_piece import ContentPieceCreate, ContentPieceRead, ContentPieceReadFull
+from models import ContentPiece, DataType
+from schemas import ContentPieceCreate, ContentPieceRead, ContentPieceReadFull
+from util.item_type import build_content_piece_read, build_full_content_piece_read
 
 router = APIRouter(tags=["ContentPieces"])
 
@@ -39,7 +36,7 @@ async def create_content_piece(content_piece_data: ContentPieceCreate, session: 
 
 
 @router.get("/getContentPieceById/{content_piece_id}")
-async def get_content_piece_by_id(content_piece_id: UUID,show_complex_schema: bool,
+async def get_content_piece_by_id(content_piece_id: UUID, show_complex_schema: bool,
                                   session: Session = Depends(get_session)):
     """Gibt ein ContentPiece anhand seiner ID zurueck."""
     content_piece = session.get(ContentPiece, content_piece_id)
@@ -49,6 +46,6 @@ async def get_content_piece_by_id(content_piece_id: UUID,show_complex_schema: bo
             detail=f"ContentPiece {content_piece_id} nicht gefunden",
         )
     if show_complex_schema:
-        return ContentPieceReadFull.model_validate(build_full_content_piece_read(content_piece,session))
+        return ContentPieceReadFull.model_validate(build_full_content_piece_read(content_piece, session))
 
     return build_content_piece_read(content_piece)

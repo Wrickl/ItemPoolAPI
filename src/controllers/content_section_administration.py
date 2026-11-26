@@ -22,10 +22,10 @@ from models import (
     ContentSectionItemType,
     ItemType,
 )
-from models.items.item_type_plugin import ItemTypePlugin
-from models.error import ResourceInUseException
+from models import ItemTypePlugin
+from models import ResourceInUseException
 from schemas import ItemTypeDetailRead
-from schemas.items.content_section import ContentSectionResponse, ContentSectionCreate
+from schemas.content.content_section import ContentSectionResponse, ContentSectionCreate
 from services.PluginSystem import METADATA_SECTION_NAME
 
 router = APIRouter(tags=["ContentSection"])

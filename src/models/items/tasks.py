@@ -5,13 +5,12 @@ from uuid import UUID, uuid4
 from sqlalchemy import CheckConstraint, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
-from models.creator import Creator
+from models.basic_metadata.creator import Creator
 from .item_collection_item import ItemCollectionItem
 from .item_tag import ItemTag
 
 if TYPE_CHECKING:
-    from src.models.items.content_types import ItemType
-    from src.models.items.item_collection import ItemCollection
+    from models import ItemCollection, ItemType
 
 
 class ItemBase(SQLModel):

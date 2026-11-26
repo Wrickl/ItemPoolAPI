@@ -8,8 +8,7 @@ from .content_section_content_piece import ContentSectionContentPiece
 from .content_section_item_type import ContentSectionItemType
 
 if TYPE_CHECKING:
-    from models.items.content_piece import ContentPiece
-    from .content_types import ItemType
+    from models import ContentPiece, ItemType
 
 
 class ContentSectionBase(SQLModel):

@@ -4,20 +4,24 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
-from util.item_type import build_item_type_detail, build_content_piece_read
 from database.dao_connection import get_session
-from models import ContentSectionItemType, ContentSection, ContentPiece, ContentSectionContentPiece
-from models.items.content_types import (
+from models import (
+    ContentSectionItemType,
+    ContentSection,
+    ContentPiece,
+    ContentSectionContentPiece,
     DataType,
     ItemType,
+    ItemTypePlugin
 )
-from models.items.item_type_plugin import ItemTypePlugin
-from schemas import ItemTemplateResponse
-from schemas.items.content_types import (
+from schemas import (
+    ItemTemplateResponse,
     ItemTypeDetailRead,
+    ItemTypeCreate,
+    ItemTypeRead,
 )
-from schemas.items.item_type import ItemTypeCreate, ItemTypeRead
 from services import PluginSystem
+from util.item_type import build_item_type_detail, build_content_piece_read
 
 router = APIRouter(tags=["ItemType"])
 
@@ -27,7 +31,7 @@ async def create_item_type(item_type_data: ItemTypeCreate, session: Session = De
     """Legt einen neuen ItemType an."""
     existing = session.exec(select(ItemType).where(ItemType.name == item_type_data.name)).first()
     if existing:
-        raise HTTPException(status_code=409,detail=f"ItemType '{item_type_data.name}' existiert bereits")
+        raise HTTPException(status_code=409, detail=f"ItemType '{item_type_data.name}' existiert bereits")
 
     if len(set(item_type_data.content_section_ids)) != len(item_type_data.content_section_ids):
         raise HTTPException(status_code=400, detail="ContentSections dürfen nicht mehrfach zugeordnet werden")
@@ -59,7 +63,7 @@ async def create_item_type(item_type_data: ItemTypeCreate, session: Session = De
 
     item_type = ItemType.model_validate(item_type_data)
     session.add(item_type)
-    session.flush()    # Ensure the item_type gets an ID before committing
+    session.flush()  # Ensure the item_type gets an ID before committing
     session.add_all(
         [
             ContentSectionItemType(content_section_id=content_section, item_type_id=item_type.id)
@@ -125,19 +129,20 @@ async def get_itemtype(item_type_id: UUID, session: Session = Depends(get_sessio
         raise HTTPException(status_code=404, detail=f"ItemType {item_type_id} nicht gefunden")
     return build_item_type_detail(item_type, session)
 
+
 @router.get("/getItemTypeById/{item_type_id}/", response_model=ItemTemplateResponse)
 async def get_itemtype_full(item_type_id: UUID, session: Session = Depends(get_session)):
     """Liefert eine leere Item-Vorlage für einen ItemType inklusive aller Sections und ContentPieces."""
     item_type = session.exec(select(ItemType)
-        .where(ItemType.id == item_type_id)
-        .options(
-            selectinload(ItemType.content_sections)
-            .selectinload(ContentSection.content_pieces)
-            .selectinload(ContentPiece.data_type)
-        )).first()
+    .where(ItemType.id == item_type_id)
+    .options(
+        selectinload(ItemType.content_sections)
+        .selectinload(ContentSection.content_pieces)
+        .selectinload(ContentPiece.data_type)
+    )).first()
 
     if item_type is None:
-        raise HTTPException(status_code=404,detail=f"ItemType {item_type_id} nicht gefunden")
+        raise HTTPException(status_code=404, detail=f"ItemType {item_type_id} nicht gefunden")
 
     content_sections = []
     for section2get in sorted(item_type.content_sections, key=lambda section2get: section2get.name):
@@ -149,10 +154,10 @@ async def get_itemtype_full(item_type_id: UUID, session: Session = Depends(get_s
             if content_piece.id is not None
         ]
         content_sections.append({
-                "id": section2get.id,
-                "name": section2get.name,
-                "description": section2get.description,
-                "content_pieces": content_pieces})
+            "id": section2get.id,
+            "name": section2get.name,
+            "description": section2get.description,
+            "content_pieces": content_pieces})
     return {
         "item_type_id": item_type.id,
         "item_type_name": item_type.name,

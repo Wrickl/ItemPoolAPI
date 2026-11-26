@@ -7,9 +7,9 @@ from sqlmodel import Session, select
 from util.database_functions import addmodell2database
 from database import get_session
 from models import Organisation
-from models.creator import Creator
-from models.error import ResourceInUseException
-from schemas.items.organisation import OrganisationResponse, OrganisationCreate, OrganisationUpdate
+from models import Creator
+from models import ResourceInUseException
+from schemas.basic_metadata.organisation import OrganisationResponse, OrganisationCreate, OrganisationUpdate
 
 router = APIRouter()
 

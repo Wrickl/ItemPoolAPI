@@ -11,20 +11,23 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.orm import aliased, joinedload, selectinload
 from sqlmodel import Session, col, select
 
-from util.searching import has_all_tags, search_for_item
-from models import ContentPiece
-from models.Enums.License import License
-from models.Enums.Status import Status
-from models.Enums.Themenbereich import Themenbereich
-from models.items.content_section_item import ContentSectionItem
-from models.items.content_types import DataType, ItemType
-from models.items.content_section import ContentSection
-from models.items.item_content_piece_value import ItemContentPieceValue
-from models.items.item_tag import ItemTag
-from models.items.tasks import Item
-from models.complextype import ComplexType
-from models.creator import Creator
+from models import (
+    ComplexType,
+    ContentPiece,
+    ContentSection,
+    ContentSectionItem,
+    Creator,
+    DataType,
+    Item,
+    ItemContentPieceValue,
+    ItemTag,
+    ItemType,
+    License,
+    Status,
+    Themenbereich,
+)
 from schemas.items.item import ItemContentSectionCreate, ItemCreate
+from util.searching import has_all_tags, search_for_item
 
 FETCH_BATCH_SIZE = 200
 
@@ -110,8 +113,8 @@ def _item_version_info(session: Session, items: Sequence[Item]) -> dict[UUID, di
             .subquery()
         )
         for item_id, group_id, version_number in session.exec(
-            select(ranked.c.item_id, ranked.c.version_group_id, ranked.c.version_number)
-            .where(ranked.c.rank == 1)
+                select(ranked.c.item_id, ranked.c.version_group_id, ranked.c.version_number)
+                        .where(ranked.c.rank == 1)
         ):
             current[group_id] = (item_id, version_number)
     return {
@@ -121,7 +124,7 @@ def _item_version_info(session: Session, items: Sequence[Item]) -> dict[UUID, di
 
 
 def _build_item_response_payload(
-    item: Item, content_sections: list[dict[str, Any]], version_info: dict[str, Any]
+        item: Item, content_sections: list[dict[str, Any]], version_info: dict[str, Any]
 ) -> dict[str, Any]:
     return {
         "item_id": item.item_id,
@@ -245,7 +248,7 @@ def _validate_item_create(session: Session, item_data: ItemCreate) -> None:
 
 
 def _persist_item(
-    session: Session, item_data: ItemCreate, *, previous: Item | None = None, change_note: str | None = None
+        session: Session, item_data: ItemCreate, *, previous: Item | None = None, change_note: str | None = None
 ) -> Item:
     item = Item(
         license=item_data.license,
@@ -255,11 +258,11 @@ def _persist_item(
         item_type_id=item_data.item_type_id,
         created_at=datetime.now(UTC),
         **({
-            "version_group_id": previous.version_group_id,
-            "version_number": previous.version_number + 1,
-            "previous_item_id": previous.item_id,
-            "change_note": change_note,
-        } if previous is not None else {}),
+               "version_group_id": previous.version_group_id,
+               "version_number": previous.version_number + 1,
+               "previous_item_id": previous.item_id,
+               "change_note": change_note,
+           } if previous is not None else {}),
     )
 
     session.add(item)

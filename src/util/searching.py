@@ -7,7 +7,7 @@ from sqlmodel import col, func, select
 from sqlmodel.sql._expression_select_cls import SelectOfScalar
 
 from models import Creator, Item
-from models.items.item_tag import ItemTag
+from models import ItemTag
 
 
 def has_all_tags(names: Collection[str]) -> ColumnElement[bool]:

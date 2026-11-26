@@ -7,9 +7,9 @@ from sqlmodel import Session, select
 from util.database_functions import addmodell2database
 from database import get_session
 from models import Item
-from models.Enums.Themenbereich import Themenbereich
-from models.error import ResourceInUseException
-from schemas.items.themenbereich import ThemenbereichResponse, ThemenbereichCreate, ThemenbereichUpdate
+from models import Themenbereich
+from models import ResourceInUseException
+from schemas.basic_metadata.themenbereich import ThemenbereichResponse, ThemenbereichCreate, ThemenbereichUpdate
 
 router = APIRouter()
 

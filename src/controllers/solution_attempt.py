@@ -17,7 +17,7 @@ from database.mongo_connection import (
     get_solution_attempt_collection,
     get_solution_attempt_events_collection,
 )
-from schemas.Solutions.SolutionAttempt import (
+from schemas.solution_attempts.SolutionAttempt import (
     SolutionAttemptCreate,
     SolutionAttemptEventRead,
     SolutionAttemptRead,
@@ -27,7 +27,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/createSolutionAttempt", response_model=SolutionAttemptRead, tags=["Solutions"]
+    "/createSolutionAttempt", response_model=SolutionAttemptRead, tags=["solution_attempts"]
 )
 def create_solution_attempt(solution_attempt_data: SolutionAttemptCreate):
     """Speichert einen Loesungsversuch in MongoDB."""
@@ -80,7 +80,7 @@ def create_solution_attempt(solution_attempt_data: SolutionAttemptCreate):
 
 
 @router.get(
-    "/getSolutionAttempts", response_model=list[SolutionAttemptRead], tags=["Solutions"]
+    "/getSolutionAttempts", response_model=list[SolutionAttemptRead], tags=["solution_attempts"]
 )
 def get_solution_attempts(
     item_id: UUID | None = None, limit: int = 100, cursor: str | None = None
@@ -109,7 +109,7 @@ def get_solution_attempts(
 @router.get(
     "/getSolutionAttempt/{attempt_id}",
     response_model=SolutionAttemptRead,
-    tags=["Solutions"],
+    tags=["solution_attempts"],
 )
 def get_solution_attempt(attempt_id: UUID):
     """Liest einen einzelnen SA ueber seine fachliche attempt_id."""
@@ -137,7 +137,7 @@ def get_solution_attempt(attempt_id: UUID):
 @router.get(
     "/getSolutionAttempt/{attempt_id}/events",
     response_model=list[SolutionAttemptEventRead],
-    tags=["Solutions"],
+    tags=["solution_attempts"],
 )
 def get_solution_attempt_events(
     attempt_id: UUID, after_sequence: int | None = None, limit: int = 100

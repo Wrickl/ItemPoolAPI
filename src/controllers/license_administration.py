@@ -7,10 +7,10 @@ from sqlmodel import Session, select
 
 from util.database_functions import addmodell2database
 from database import get_session
-from models.Enums.License import License
-from models.items.tasks import Item
-from models.error import ResourceInUseException
-from schemas.items.license import LicenseResponse, LicenseCreate
+from models import License
+from models import Item
+from models import ResourceInUseException
+from schemas.basic_metadata.license import LicenseResponse, LicenseCreate
 
 router = APIRouter()
 

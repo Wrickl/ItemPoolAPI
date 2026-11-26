@@ -12,8 +12,7 @@ from .content_types import DataType
 from .content_section_content_piece import ContentSectionContentPiece
 
 if TYPE_CHECKING:
-    from .content_section import ContentSection
-    from ..complextype import ComplexType
+    from models import ComplexType, ContentSection
 
 
 class ContentPieceBase(SQLModel):

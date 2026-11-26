@@ -4,7 +4,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlmodel import Session, select
 
-from models.items.content_types import DataType
+from models import DataType
 
 
 def _get_allowed_database_data_types() -> set[str]:
@@ -33,12 +33,12 @@ def _discover_types_from_dialect(session: Session) -> list[tuple[str, str]]:
         rows = session.execute(
             text(
                 """
-            SELECT DISTINCT t.typname, pg_catalog.format_type(t.oid, NULL)
-            FROM pg_catalog.pg_type AS t
-            JOIN pg_catalog.pg_namespace AS n ON n.oid = t.typnamespace
-            WHERE n.nspname NOT IN ('pg_toast', 'information_schema')
-            ORDER BY t.typname
-            """
+                SELECT DISTINCT t.typname, pg_catalog.format_type(t.oid, NULL)
+                FROM pg_catalog.pg_type AS t
+                         JOIN pg_catalog.pg_namespace AS n ON n.oid = t.typnamespace
+                WHERE n.nspname NOT IN ('pg_toast', 'information_schema')
+                ORDER BY t.typname
+                """
             )
         )
         return [(row[0].upper(), row[1]) for row in rows]
@@ -100,8 +100,8 @@ def validate_value_against_data_type(type_name: str, value: Any) -> None:
         return
 
     if any(
-        token in normalized
-        for token in ["NUMERIC", "DECIMAL", "FLOAT", "DOUBLE", "REAL"]
+            token in normalized
+            for token in ["NUMERIC", "DECIMAL", "FLOAT", "DOUBLE", "REAL"]
     ):
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise ValueError(f"Datentyp {type_name} erwartet eine Zahl")
@@ -130,4 +130,3 @@ def validate_value_against_data_type(type_name: str, value: Any) -> None:
                 f"Datentyp {type_name} erwartet eine Zeichenkette im Datums-/Zeitformat"
             )
         return
-

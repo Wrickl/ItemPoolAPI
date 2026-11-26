@@ -4,13 +4,17 @@ from uuid import UUID
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StringConstraints
 
-from .content_piece import ContentPieceReadTemplate
-
 
 def _reject_null_character(name: str) -> str:
     if "\x00" in name:
         raise ValueError("Ein Tag darf kein Nullzeichen enthalten")
     return name
+
+
+def _validate_change_note(note: str) -> str:
+    if "\x00" in note:
+        raise ValueError("Eine Änderungsbeschreibung darf kein Nullzeichen enthalten")
+    return note
 
 
 TagName = Annotated[
@@ -20,13 +24,6 @@ TagName = Annotated[
 ]
 MAX_ITEM_TAGS = 100
 ItemTagList = Annotated[list[TagName], Field(max_length=MAX_ITEM_TAGS)]
-
-
-def _validate_change_note(note: str) -> str:
-    if "\x00" in note:
-        raise ValueError("Eine Änderungsbeschreibung darf kein Nullzeichen enthalten")
-    return note
-
 
 ChangeNote = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000),
@@ -165,7 +162,7 @@ class ItemResponse(ItemVersionInfo):
 
 
 class ItemWithAuthorResponse(ItemVersionInfo):
-    """Response-Modell fuer Items inklusive Author-Name (server-side join)."""
+    """Response-Modell fuer Items inklusive basic_metadata-Name (server-side join)."""
 
     item_id: UUID
     license: UUID
@@ -197,29 +194,3 @@ class ItemExportResponse(ItemVersionInfo):
     content_sections: list[ItemContentSectionResponse] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     created_at: datetime = Field(..., description="Erstellungsdatum")
-
-
-class ItemTemplateContentSectionResponse(BaseModel):
-    """Template-Ansicht einer ContentSection inklusive ihrer ContentPieces."""
-
-    id: UUID
-    name: str
-    description: str | None = None
-    content_pieces: list[ContentPieceReadTemplate] = Field(default_factory=list)
-
-
-class ItemTemplateResponse(BaseModel):
-    """Ausfüllbare Vorlage für ein Item eines ItemTypes."""
-
-    item_type_id: UUID
-    item_type_name: str
-    item_type_description: str | None = None
-    license: UUID | None = None
-    author_id: UUID | None = None
-    status_id: UUID | None = None
-    themenbereich_id: UUID | None = None
-    tags: list[str] = Field(default_factory=list)
-    content_sections: list[ItemTemplateContentSectionResponse] = Field(
-        default_factory=list,
-        description="Liste der Sections des ItemTypes inklusive ihrer ContentPieces",
-    )

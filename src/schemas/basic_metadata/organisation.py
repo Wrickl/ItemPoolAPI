@@ -12,9 +12,7 @@ class OrganisationCreate(BaseModel):
     name: str | None  = Field(default=None, description="Name der Organisation")
     contact: str | None = Field(default=None, description="Kontaktinformationen der Organisation")
     faculty: str | None = Field(default=None, description="Fakultät der Organisation")
-    ### TODO sollte es erforderliche (required Felder geben)?
-    ### TODO sollten Fakultät und Organistation voneinander getrennt werden?
-    ###
+
 class OrganisationUpdate(BaseModel):
     """
     Schema fuer das Update einer bestehenden Organisation.

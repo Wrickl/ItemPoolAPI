@@ -6,8 +6,8 @@ from fastapi import HTTPException
 from sqlmodel import Session
 
 from database.dao_connection import get_engine
-from models.items.tasks import Item
-from schemas.Solutions.SolutionAttempt import SolutionAttemptCreate
+from models import Item
+from schemas.solution_attempts.SolutionAttempt import SolutionAttemptCreate
 
 
 def _normalize_solution_attempt_document(document: dict) -> dict:

@@ -5,12 +5,12 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
-from util.database_functions import addmodell2database
 from database import get_session
-from models.Enums.Status import Status
-from models.items.tasks import Item
-from models.error import ResourceInUseException
-from schemas.items.status import StatusResponse, StatusCreate, StatusUpdate
+from models import Status
+from models import ResourceInUseException
+from models import Item
+from schemas.basic_metadata.status import StatusResponse, StatusCreate, StatusUpdate
+from util.database_functions import addmodell2database
 
 router = APIRouter()
 

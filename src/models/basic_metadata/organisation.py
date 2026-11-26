@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .creator import Creator
+    from models import Creator
 
 
 class OrganisationBase(SQLModel):

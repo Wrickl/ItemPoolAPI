@@ -4,8 +4,8 @@ from fastapi import HTTPException
 from sqlmodel import Session, select
 
 from models import ContentPiece, DataType, ItemType
-from models.complextype import ComplexType
-from models.items.item_type_plugin import ItemTypePlugin
+from models import ComplexType
+from models import ItemTypePlugin
 from schemas import (
     ContentPieceRead,
     ContentPieceReadFull,

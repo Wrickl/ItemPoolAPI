@@ -7,8 +7,8 @@ from sqlmodel import Session, select
 
 from database import get_session
 from models import ContentPiece
-from models.complextype import ComplexType
-from models.error import ResourceInUseException
+from models import ComplexType
+from models import ResourceInUseException
 from schemas.complextype import ComplexTypeResponse, ComplexTypeCreate
 
 router = APIRouter()

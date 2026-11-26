@@ -7,9 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .content_section_item_type import ContentSectionItemType
 
 if TYPE_CHECKING:
-    from .content_piece import ContentPiece
-    from .content_section import ContentSection
-    from .tasks import Item
+    from models import ContentPiece, ContentSection, Item
 
 
 class DataTypeBase(SQLModel):

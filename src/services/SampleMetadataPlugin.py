@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from textstat import textstat
 
-from .PluginSystem import register_plugin
-from ..models.Tasks.tasks import Item
+from models import Item
+from services.PluginSystem import register_plugin
 
 
 def _generate_textstats(text: str) -> dict:
@@ -24,7 +24,7 @@ def _generate_textstats(text: str) -> dict:
         "gutierrez_polini": textstat.gutierrez_polini(text),
         "crawford": textstat.crawford(text),
         "gulpease_index": textstat.gulpease_index(text),
-        "osman": textstat.osman(text)
+        "osman": textstat.osman(text),
     }
 
 
@@ -44,7 +44,7 @@ class SampleMetadataPlugin:
             item.item_metadata = dict(item.item_metadata)
 
         item.item_metadata["created_by_plugin"] = True
-        item.item_metadata["created_by_plugin_ts"] = datetime.now(timezone.utc).isoformat()
+        item.item_metadata["created_by_plugin_ts"] = datetime.now(UTC).isoformat()
         item.item_metadata["textstats"] = _generate_textstats(item.fragestellung)
         session.add(item)
         session.commit()
@@ -70,7 +70,9 @@ class SampleMetadataPlugin:
             counter = 0
         counter += 1
         item.item_metadata["solution_attempts_seen_by_plugin"] = counter
-        item.item_metadata["last_solution_attempt_plugin_ts"] = datetime.now(timezone.utc).isoformat()
+        item.item_metadata["last_solution_attempt_plugin_ts"] = datetime.now(
+            UTC
+        ).isoformat()
 
         session.add(item)
         session.commit()
@@ -80,6 +82,9 @@ class SampleMetadataPlugin:
 # Register this plugin on import so the default system has at least one plugin.
 register_plugin(SampleMetadataPlugin())
 
-if __name__ == '__main__':
-    print(_generate_textstats(
-        "Eine Fragestellung um die Textstat funktion, meines Plugin Ansatzes zu testen. Mal sehen ob das klappt!"))
+if __name__ == "__main__":
+    print(
+        _generate_textstats(
+            "Eine Fragestellung um die Textstat funktion, meines Plugin Ansatzes zu testen. Mal sehen ob das klappt!"
+        )
+    )

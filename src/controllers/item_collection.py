@@ -5,8 +5,8 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 from database.dao_connection import get_session
-from models.items.item_collection import ItemCollection
-from models.items.tasks import Item
+from models import ItemCollection
+from models import Item
 from schemas.items.item_collection import ItemCollectionCreate, ItemCollectionRead
 
 router = APIRouter(tags=["ItemCollections"])
