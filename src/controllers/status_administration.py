@@ -9,7 +9,7 @@ from database import get_session
 from models import Status
 from models import ResourceInUseException
 from models import Item
-from schemas.basic_metadata.status import StatusResponse, StatusCreate, StatusUpdate
+from schemas import StatusResponse, StatusCreate, StatusUpdate
 from util.database_functions import addmodell2database
 
 router = APIRouter()

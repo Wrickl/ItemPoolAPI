@@ -9,7 +9,7 @@ from database import get_session
 from models import Organisation
 from models import Creator
 from models import ResourceInUseException
-from schemas.basic_metadata.organisation import OrganisationResponse, OrganisationCreate, OrganisationUpdate
+from schemas import OrganisationResponse, OrganisationCreate, OrganisationUpdate
 
 router = APIRouter()
 

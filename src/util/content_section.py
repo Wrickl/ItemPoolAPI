@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlmodel import Session, select
 
 from models import ContentPiece, ContentSection, ContentSectionContentPiece
-from schemas.content.content_section import ContentSectionResponse
+from schemas import ContentSectionResponse
 
 
 def deduplicate_uuids(values: list[UUID]) -> list[UUID]:
