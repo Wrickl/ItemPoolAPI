@@ -26,7 +26,7 @@ from models import (
     Status,
     Themenbereich,
 )
-from schemas.items.item import ItemContentSectionCreate, ItemCreate
+from schemas import ItemContentSectionCreate, ItemCreate
 from util.searching import has_all_tags, search_for_item
 
 FETCH_BATCH_SIZE = 200

@@ -10,7 +10,7 @@ from database import get_session
 from models import License
 from models import Item
 from models import ResourceInUseException
-from schemas.basic_metadata.license import LicenseResponse, LicenseCreate
+from schemas import LicenseResponse, LicenseCreate
 
 router = APIRouter()
 

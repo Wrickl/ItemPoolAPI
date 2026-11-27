@@ -7,7 +7,7 @@ from sqlmodel import Session
 
 from database.dao_connection import get_engine
 from models import Item
-from schemas.solution_attempts.SolutionAttempt import SolutionAttemptCreate
+from schemas import SolutionAttemptCreate
 
 
 def _normalize_solution_attempt_document(document: dict) -> dict:

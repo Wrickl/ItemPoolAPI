@@ -9,7 +9,7 @@ from database import get_session
 from models import Item
 from models import Themenbereich
 from models import ResourceInUseException
-from schemas.basic_metadata.themenbereich import ThemenbereichResponse, ThemenbereichCreate, ThemenbereichUpdate
+from schemas import ThemenbereichResponse, ThemenbereichCreate, ThemenbereichUpdate
 
 router = APIRouter()
 

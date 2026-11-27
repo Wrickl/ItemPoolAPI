@@ -9,7 +9,7 @@ from database import get_session
 from models import Item
 from models import Creator
 from models import ResourceInUseException
-from schemas.basic_metadata.author import CreatorCreate, CreatorResponse, CreatorUpdate
+from schemas import CreatorCreate, CreatorResponse, CreatorUpdate
 
 router = APIRouter()
 

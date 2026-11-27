@@ -12,8 +12,8 @@ from schemas import (
     ContentSectionRead,
     DataTypeRead,
     ItemTypeDetailRead,
+    ItemTypePluginAssignment,
 )
-from schemas.items.item_type import ItemTypePluginAssignment
 
 
 def get_configured_upload_data_types() -> list[str]:

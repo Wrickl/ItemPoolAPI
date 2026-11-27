@@ -18,7 +18,7 @@ from util.item import (
 )
 from database.dao_connection import get_session
 from models import ContentSectionItem, Item, ItemContentPieceValue, ItemTag
-from schemas.items.item import (
+from schemas import (
     MAX_ITEM_TAGS,
     ItemCreate,
     ItemUpdate,
@@ -27,9 +27,9 @@ from schemas.items.item import (
     ItemResponse,
     ItemTagsResponse,
     ItemTagsUpdate,
+    ItemTemplateResponse,
     TagName,
 )
-from schemas import ItemTemplateResponse
 from services.item_plugin_service import run_item_plugins
 
 router = APIRouter()

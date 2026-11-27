@@ -9,7 +9,7 @@ from database import get_session
 from models import ContentPiece
 from models import ComplexType
 from models import ResourceInUseException
-from schemas.complextype import ComplexTypeResponse, ComplexTypeCreate
+from schemas import ComplexTypeResponse, ComplexTypeCreate
 
 router = APIRouter()
 

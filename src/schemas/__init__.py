@@ -1,4 +1,10 @@
 # Task Schemas - License
+from .basic_metadata.author import (
+    CreatorCreate,
+    CreatorRead,
+    CreatorUpdate,
+    CreatorResponse,
+)
 from .basic_metadata.license import (
     LicenseCreate,
     LicenseUpdate,
@@ -22,12 +28,6 @@ from .basic_metadata.themenbereich import (
     ThemenbereichUpdate,
     ThemenbereichResponse,
 )
-from .basic_metadata.author import (
-    CreatorCreate,
-    CreatorRead,
-    CreatorUpdate,
-    CreatorResponse,
-)
 # ComplexType Schemas
 from .complextype import (
     ComplexTypeCreate,
@@ -39,7 +39,9 @@ from .content.content_piece import (
     ContentPieceCreate,
     ContentPieceRead,
     ContentPieceReadFull,
+    ContentPieceReadTemplate,
 )
+from .content.content_section import ContentSectionCreate, ContentSectionResponse
 # Task Schemas - Content Types
 from .content.content_types import (
     ContentSectionRead,
@@ -53,13 +55,25 @@ from .content.data_types import (
 )
 # Task Schemas - Item
 from .items.item import (
+    MAX_ITEM_TAGS,
+    ChangeNote,
     FlexibleContentBlock,
     ExportContentPiece,
     EnrichedContentBlock,
+    ItemContentPieceCreate,
+    ItemContentPieceResponse,
+    ItemContentSectionCreate,
+    ItemContentSectionResponse,
     ItemCreate,
     ItemResponse,
+    ItemTagList,
+    ItemTagsResponse,
+    ItemTagsUpdate,
+    ItemUpdate,
+    ItemVersionInfo,
     ItemWithAuthorResponse,
     ItemExportResponse,
+    TagName,
 )
 # Task Schemas - ItemCollection
 from .items.item_collection import (
@@ -70,6 +84,7 @@ from .items.item_template import ItemTemplateContentSectionResponse, ItemTemplat
 # Task Schemas - ItemType
 from .items.item_type import (
     ItemTypeCreate,
+    ItemTypePluginAssignment,
     ItemTypeRead,
 )
 # Solution Schemas
@@ -97,6 +112,9 @@ __all__ = [
     "ContentPieceCreate",
     "ContentPieceRead",
     "ContentPieceReadFull",
+    "ContentPieceReadTemplate",
+    "ContentSectionCreate",
+    "ContentSectionResponse",
     # items - DataTypes
     "DataTypeRead",
     "DataTypeResponse",
@@ -105,6 +123,18 @@ __all__ = [
     "ExportContentPiece",
     "EnrichedContentBlock",
     "ItemCreate",
+    "ItemUpdate",
+    "ItemVersionInfo",
+    "ItemTagsUpdate",
+    "ItemTagsResponse",
+    "ItemContentPieceCreate",
+    "ItemContentPieceResponse",
+    "ItemContentSectionCreate",
+    "ItemContentSectionResponse",
+    "MAX_ITEM_TAGS",
+    "TagName",
+    "ItemTagList",
+    "ChangeNote",
     "ItemResponse",
     "ItemWithAuthorResponse",
     "ItemExportResponse",
@@ -112,6 +142,7 @@ __all__ = [
     "ItemTemplateResponse",
     # items - ItemType
     "ItemTypeCreate",
+    "ItemTypePluginAssignment",
     "ItemTypeRead",
     # items - ItemCollection
     "ItemCollectionCreate",

@@ -17,7 +17,7 @@ from database.mongo_connection import (
     get_solution_attempt_collection,
     get_solution_attempt_events_collection,
 )
-from schemas.solution_attempts.SolutionAttempt import (
+from schemas import (
     SolutionAttemptCreate,
     SolutionAttemptEventRead,
     SolutionAttemptRead,
